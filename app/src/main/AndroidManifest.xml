@@ -23,13 +23,8 @@
         <!-- PROFILE ACTIVITY -->
         <activity android:name=".auth.ProfileActivity"
             android:label="@string/toolbar_title_login_activity"
-            android:parentActivityName=".controller.ConnexionActivity"/>
+            android:parentActivityName=".controller.MainActivity"/>
 
-        <!-- CONNEXION ACTIVITY -->
-        <activity android:name=".controller.ConnexionActivity"
-
-            android:label="Connexion"
-            />
 
         <!-- NOTIFICATION SERVICE -->
         <service
