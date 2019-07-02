@@ -53,6 +53,7 @@ public class MainActivity extends BaseActivity {
         // Start appropriate activity
         if (this.isCurrentUserLogged()){
             this.startProfileActivity();
+            Log.d("DEBAGO", "MainActivity : utilisateur connecté on va dans satrtProfileActivity ");
             }
 
     }
@@ -66,7 +67,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        this.updateUIWhenGoogleResuming();
+       // this.updateUIWhenGoogleResuming();
     }
 
 
@@ -141,6 +142,7 @@ public class MainActivity extends BaseActivity {
     // Launch Profile Activity
     private void startProfileActivity(){
         Intent intent = new Intent(this, ProfileActivity.class);
+        Log.d("DEBAGO", "MainActivity : satrtProfileActivity ");
         startActivity(intent);
     }
 
@@ -157,9 +159,9 @@ public class MainActivity extends BaseActivity {
     }
 
     // Update UI when activity is resuming
-    private void updateUIWhenGoogleResuming(){
+   /* private void updateUIWhenGoogleResuming(){
         //this.buttonLogin.setText(this.isCurrentUserLogged() ? getString(R.string.button_login_text_logged) : getString(R.string.button_login_text_not_logged));
-    }
+    }*/
 
     private void updateUIWhenFacebookResuming(){
         this.facebookLogin.setText(this.isCurrentUserLogged() ? getString(R.string.button_login_text_logged) : getString(R.string.button_login_text_not_logged));
@@ -176,8 +178,8 @@ public class MainActivity extends BaseActivity {
 
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) { // SUCCESS
-                this.createUserInFirestore();
                 showSnackBar(this.coordinatorLayout, getString(R.string.connection_succeed));
+                this.startProfileActivity();
             } else { // ERRORS
                 if (response == null) {
                     showSnackBar(this.coordinatorLayout, getString(R.string.error_authentication_canceled));

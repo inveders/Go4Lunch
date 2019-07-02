@@ -35,6 +35,11 @@
 
 
 
+    <!-- BOTTOM NAVIGATION VIEW -->
+    <string name="bottom_navigation_menu_map">Map View</string>
+    <string name="bottom_navigation_menu_list">List View</string>
+    <string name="bottom_navigation_menu_people">Workmates</string>
+
     <!-- FACEBOOK PURPOSE -->
     <string name="facebook_application_id" translatable="false">420763051691337</string>
     <string name="facebook_login_protocol_scheme" translatable="false" tools:ignore="UnusedResources">fb420763051691337</string>

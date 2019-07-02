@@ -3,6 +3,7 @@ package com.inved.go4lunch.auth;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -41,8 +42,9 @@ public class ProfileActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("DEBAGO", "ProfileActivity : oncreate ");
         this.configureToolbar();
-        this.updateUIWhenCreating(); //
+        this.updateUIWhenCreating();
     }
 
     @Override
@@ -117,6 +119,7 @@ public class ProfileActivity extends BaseActivity {
             //Update views with data
             this.textInputEditTextUsername.setText(username);
             this.textViewEmail.setText(email);
+            Log.d("DEBAGO", "ProfileActivity : updateUIwHENcreationg le text input est: " +this.textInputEditTextUsername);
         }
     }
 
