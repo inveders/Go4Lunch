@@ -25,6 +25,10 @@
             android:label="@string/toolbar_title_login_activity"
             android:parentActivityName=".controller.MainActivity"/>
 
+        <!-- RESTAURANT ACTIVITY -->
+        <activity android:name=".controller.RestaurantActivity"
+            android:label="@string/toolbar_title_restaurant_activity"
+            android:parentActivityName=".controller.MainActivity"/>
 
         <!-- NOTIFICATION SERVICE -->
         <service

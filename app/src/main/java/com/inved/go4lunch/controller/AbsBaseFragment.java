@@ -11,6 +11,5 @@ import com.inved.go4lunch.R;
 
 public abstract class AbsBaseFragment extends Fragment {
 
-    
 
 }

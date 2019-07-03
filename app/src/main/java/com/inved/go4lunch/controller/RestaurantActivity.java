@@ -1,8 +1,12 @@
 package com.inved.go4lunch.controller;
 
 import android.os.Bundle;
+import android.view.MenuItem;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.inved.go4lunch.R;
@@ -12,14 +16,22 @@ import butterknife.BindView;
 public class RestaurantActivity extends AppCompatActivity {
 
     //1 - FOR DESIGN
-    @BindView(R.id.activity_restaurant_bottom_navigation) BottomNavigationView bottomNavigationView;
-
+ //   @BindView(R.id.activity_restaurant_bottom_navigation) BottomNavigationView bottomNavigationView;
+    MapFragment mapFragment = new MapFragment();
+    ListViewFragment listViewFragment = new ListViewFragment();
+    PeopleFragment peopleFragment = new PeopleFragment();
+    BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_restaurant);
 
-        this.configureBottomView();
+        bottomNavigationView = findViewById(R.id.activity_restaurant_bottom_navigation);
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> updateMainFragment(item.getItemId()));
+        bottomNavigationView.setSelectedItemId(R.id.action_map); //The first page is map Fragment
+
+
     }
 
     // -------------------
@@ -27,28 +39,31 @@ public class RestaurantActivity extends AppCompatActivity {
     // -------------------
 
 
-    // 2 - Configure BottomNavigationView Listener
-    private void configureBottomView(){
-      //  bottomNavigationView.setOnNavigationItemSelectedListener(item -> updateAbsBseFragment(item.getItemId()));
+    private Boolean updateMainFragment(Integer integer){
+        switch (integer) {
+            case R.id.action_map:
+                setFragment(mapFragment);
+                break;
+            case R.id.action_list:
+                setFragment(listViewFragment);
+                break;
+            case R.id.action_people:
+                setFragment(peopleFragment);
+                break;
+        }
+        return true;
     }
+
+    private void setFragment (Fragment fragment){
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.activity_restaurant_frame_layout, fragment);
+        fragmentTransaction.commit();
+    }
+
 
     // -------------------
     // UI
     // -------------------
 
-    // Update Base Fragment design
-  /*  private Boolean updateAbsBseFragment(Integer integer){
-        switch (integer) {
-            case R.id.action_map:
-                this.MapFragment.updateDesignWhenUserClickedBottomView(MapFragment.REQUEST_MAP);
-                break;
-            case R.id.action_list:
-                this.ListViewFragment.updateDesignWhenUserClickedBottomView(ListViewFragment.REQUEST_LIST);
-                break;
-            case R.id.action_people:
-                this.PeopleFragment.updateDesignWhenUserClickedBottomView(PeopleFragment.REQUEST_PEOPLE);
-                break;
-        }
-        return true;
-    }*/ /**Pas besoin pour l'instant*/
+
 }

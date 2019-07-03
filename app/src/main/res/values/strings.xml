@@ -33,7 +33,8 @@
     <string name="check_box_is_mentor">Etes-vous un mentor ?</string>
     <string name="loginPageTitle">Connexion</string>
 
-
+    <!-- RESTAURANT ACTIVITY -->
+    <string name="toolbar_title_restaurant_activity">Restaurant</string>
 
     <!-- BOTTOM NAVIGATION VIEW -->
     <string name="bottom_navigation_menu_map">Map View</string>

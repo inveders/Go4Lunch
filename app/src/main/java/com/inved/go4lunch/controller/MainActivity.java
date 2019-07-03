@@ -52,7 +52,7 @@ public class MainActivity extends BaseActivity {
 
         // Start appropriate activity
         if (this.isCurrentUserLogged()){
-            this.startProfileActivity();
+            this.startRestaurantActivity();
             Log.d("DEBAGO", "MainActivity : utilisateur connecté on va dans satrtProfileActivity ");
             }
 
@@ -146,6 +146,12 @@ public class MainActivity extends BaseActivity {
         startActivity(intent);
     }
 
+
+    private void startRestaurantActivity(){
+        Intent intent = new Intent(this, RestaurantActivity.class);
+        Log.d("DEBAGO", "MainActivity : startRestaurantActivity ");
+        startActivity(intent);
+    }
 
 
 
