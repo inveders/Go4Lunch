@@ -17,6 +17,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.base.BaseActivity;
+import com.inved.go4lunch.controller.RestaurantActivity;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -36,14 +37,14 @@ public class ProfileActivity extends BaseActivity {
 
     //FOR DATA
     // 2 - Identify each Http Request
-    private static final int SIGN_OUT_TASK = 10;
+
     private static final int DELETE_USER_TASK = 20;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("DEBAGO", "ProfileActivity : oncreate ");
-        this.configureToolbar();
+      //  this.configureToolbar();
         this.updateUIWhenCreating();
     }
 
@@ -57,10 +58,7 @@ public class ProfileActivity extends BaseActivity {
     @OnClick(R.id.profile_activity_button_update)
     public void onClickUpdateButton() { }
 
-    @OnClick(R.id.profile_activity_button_sign_out)
-    public void onClickSignOutButton() {
-        this.signOutUserFromFirebase();
-        }
+
 
     @OnClick(R.id.profile_activity_button_delete)
     public void onClickDeleteButton() {
@@ -79,13 +77,9 @@ public class ProfileActivity extends BaseActivity {
         // --------------------
         // REST REQUESTS
         // --------------------
-        // Create http requests (SignOut & Delete)
+        // Create http requests (Delete)
 
-        private void signOutUserFromFirebase(){
-            AuthUI.getInstance()
-                    .signOut(this)
-                    .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted(SIGN_OUT_TASK));
-        }
+
 
         private void deleteUserFromFirebase(){
             if (this.getCurrentUser() != null) {
@@ -128,15 +122,8 @@ public class ProfileActivity extends BaseActivity {
             return new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
-                    switch (origin){
-                        case SIGN_OUT_TASK:
-                            finish();
-                            break;
-                        case DELETE_USER_TASK:
-                            finish();
-                            break;
-                        default:
-                            break;
+                    if (origin == DELETE_USER_TASK) {
+                        finish();
                     }
                 }
             };

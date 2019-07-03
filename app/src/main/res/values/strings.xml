@@ -4,6 +4,12 @@
     <string name="loginFacebook">Sign in with Facebook</string>
     <string name="loginGoogle">Sign in with Google</string>
 
+    <!-- NAVIGATION DRAWER -->
+    <string name="nav_drawer_menu_lunch">YOUR LUNCH</string>
+    <string name="nav_drawer_menu_settings">SETTINGS</string>
+    <string name="nav_drawer_menu_logout">LOGOUT</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <!-- NOTIFICATION SERVICE -->
     <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>

@@ -18,7 +18,7 @@
         >
 
         <!-- Toolbar -->
-        <android.support.v7.widget.Toolbar
+        <androidx.appcompat.widget.Toolbar
             android:id="@+id/activity_restaurant_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
@@ -50,7 +50,7 @@
 
 
     <!-- 2 | NavigationView -->
-    <android.support.design.widget.NavigationView
+    <com.google.android.material.navigation.NavigationView
         android:id="@+id/activity_restaurant_nav_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"

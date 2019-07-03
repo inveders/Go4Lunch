@@ -78,7 +78,7 @@ public class MainActivity extends BaseActivity {
     @OnClick(R.id.login_facebook_button)
     public void onClickFacebookLoginButton() {
         if (this.isCurrentUserLogged()){
-            this.startProfileActivity();
+            this.startRestaurantActivity();
         } else {
             this.startFacebookSignInActivity();
         }
@@ -87,7 +87,7 @@ public class MainActivity extends BaseActivity {
     @OnClick(R.id.login_google_button)
     public void onClickGoogleLoginButton() {
         if (this.isCurrentUserLogged()){
-            this.startProfileActivity();
+            this.startRestaurantActivity();
         } else {
             this.startGoogleSignInActivity();
         }
@@ -139,12 +139,7 @@ public class MainActivity extends BaseActivity {
                 RC_SIGN_IN);
     }
 
-    // Launch Profile Activity
-    private void startProfileActivity(){
-        Intent intent = new Intent(this, ProfileActivity.class);
-        Log.d("DEBAGO", "MainActivity : satrtProfileActivity ");
-        startActivity(intent);
-    }
+
 
 
     private void startRestaurantActivity(){
@@ -185,7 +180,7 @@ public class MainActivity extends BaseActivity {
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) { // SUCCESS
                 showSnackBar(this.coordinatorLayout, getString(R.string.connection_succeed));
-                this.startProfileActivity();
+                this.startRestaurantActivity();
             } else { // ERRORS
                 if (response == null) {
                     showSnackBar(this.coordinatorLayout, getString(R.string.error_authentication_canceled));
