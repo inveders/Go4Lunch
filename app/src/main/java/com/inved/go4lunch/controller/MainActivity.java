@@ -3,6 +3,7 @@ package com.inved.go4lunch.controller;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.viewpager.widget.ViewPager;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -38,6 +39,7 @@ public class MainActivity extends BaseActivity {
     private static final int RC_SIGN_IN = 123;
 
 
+
     @Override
     public int getFragmentLayout() {
         Log.d("DEBAGO", "MainActivity : getfragmentlayout ");
@@ -55,6 +57,8 @@ public class MainActivity extends BaseActivity {
             this.startRestaurantActivity();
             Log.d("DEBAGO", "MainActivity : utilisateur connecté on va dans satrtProfileActivity ");
             }
+
+
 
     }
 

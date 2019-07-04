@@ -15,7 +15,9 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.viewpager.widget.ViewPager;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -39,6 +41,7 @@ public class RestaurantActivity extends AppCompatActivity implements NavigationV
     ListViewFragment listViewFragment = new ListViewFragment();
     PeopleFragment peopleFragment = new PeopleFragment();
     BottomNavigationView bottomNavigationView;
+    ViewPager viewPager;
 
     //Declaration for Navigation Drawer
     private Toolbar toolbar;
@@ -53,9 +56,15 @@ public class RestaurantActivity extends AppCompatActivity implements NavigationV
 
         //Bottom Navigation View
         bottomNavigationView = findViewById(R.id.activity_restaurant_bottom_navigation);
-        bottomNavigationView.setOnNavigationItemSelectedListener(item -> updateMainFragment(item.getItemId()));
-        bottomNavigationView.setSelectedItemId(R.id.action_map); //The first page is map Fragment
+        bottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
+
+
+        //Viewpager
+        viewPager = findViewById(R.id.viewpager_fragment); //Init Viewpager
+        setupFm(getSupportFragmentManager(), viewPager); //Setup Fragment
+        viewPager.setCurrentItem(0); //Set Currrent Item When Activity Start
+        viewPager.setOnPageChangeListener(new PageChange()); //Listeners For Viewpager When Page Changed
 
         //All view configuration
         this.configureToolBar();
@@ -65,6 +74,8 @@ public class RestaurantActivity extends AppCompatActivity implements NavigationV
         this.configureNavigationView();
     }
 
+
+    //Navigation drawer
     @Override
     public void onBackPressed() {
         // 5 - Handle back click to close menu
@@ -77,7 +88,7 @@ public class RestaurantActivity extends AppCompatActivity implements NavigationV
 
 
 
-
+    //Navigation drawer
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
 
@@ -100,25 +111,30 @@ public class RestaurantActivity extends AppCompatActivity implements NavigationV
         return true;
     }
 
+
     // -------------------
     // CONFIGURATION
     // -------------------
 
     //Configuration of the Bottom Navigation View on click
-    private Boolean updateMainFragment(Integer integer) {
-        switch (integer) {
-            case R.id.action_map:
-                setFragment(mapFragment);
-                break;
-            case R.id.action_list:
-                setFragment(listViewFragment);
-                break;
-            case R.id.action_people:
-                setFragment(peopleFragment);
-                break;
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.action_map:
+                    viewPager.setCurrentItem(0);
+                    return true;
+                case R.id.action_list:
+                    viewPager.setCurrentItem(1);
+                    return true;
+                case R.id.action_people:
+                    viewPager.setCurrentItem(2);
+                    return true;
+            }
+            return false;
         }
-        return true;
-    }
+    };
 
     //Configuration to go on the good fragment after click on the Bottom Navigation View button
     private void setFragment(Fragment fragment) {
@@ -158,6 +174,20 @@ public class RestaurantActivity extends AppCompatActivity implements NavigationV
     // NAVIGATION
     // -------------------
 
+    //Viewpager
+
+    public static void setupFm(FragmentManager fragmentManager, ViewPager viewPager){
+        FragmentAdapter Adapter = new FragmentAdapter(fragmentManager);
+        //Add All Fragment To List
+        Adapter.add(new MapFragment(), "Page Map");
+        Adapter.add(new ListViewFragment(), "Page List View");
+        Adapter.add(new PeopleFragment(), "Page People");
+        viewPager.setAdapter(Adapter);
+    }
+
+
+
+
     // Launch Profile Activity
     private void startProfileActivity(){
         Intent intent = new Intent(this, ProfileActivity.class);
@@ -188,5 +218,28 @@ public class RestaurantActivity extends AppCompatActivity implements NavigationV
                 }
             }
         };
+    }
+
+    public class PageChange implements ViewPager.OnPageChangeListener {
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+        }
+        @Override
+        public void onPageSelected(int position) {
+            switch (position) {
+                case 0:
+                    bottomNavigationView.setSelectedItemId(R.id.action_map);
+                    break;
+                case 1:
+                    bottomNavigationView.setSelectedItemId(R.id.action_list);
+                    break;
+                case 2:
+                    bottomNavigationView.setSelectedItemId(R.id.action_people);
+                    break;
+            }
+        }
+        @Override
+        public void onPageScrollStateChanged(int state) {
+        }
     }
 }

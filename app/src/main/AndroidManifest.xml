@@ -3,6 +3,9 @@
     package="com.inved.go4lunch">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
 
     <application
         android:allowBackup="true"
@@ -11,6 +14,9 @@
         android:roundIcon="@mipmap/ic_launcher_appli_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <uses-library android:name="com.google.android.maps" />
+
 
         <activity android:name=".controller.MainActivity">
             <intent-filter>
