@@ -1,6 +1,5 @@
 package com.inved.go4lunch.controller;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,7 +7,6 @@ import android.view.MenuItem;
 
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -33,13 +31,12 @@ public class RestaurantActivity extends AppCompatActivity implements NavigationV
 
     //FOR DATA
     private static final int SIGN_OUT_TASK = 10;
+    @BindView(R.id.activity_main_drawer_logout)
+    MenuItem logout;
 
     //FOR DESIGN
 
     //Declaration for fragments
-    MapFragment mapFragment = new MapFragment();
-    ListViewFragment listViewFragment = new ListViewFragment();
-    PeopleFragment peopleFragment = new PeopleFragment();
     BottomNavigationView bottomNavigationView;
     ViewPager viewPager;
 
@@ -96,11 +93,11 @@ public class RestaurantActivity extends AppCompatActivity implements NavigationV
         int id = item.getItemId();
 
         switch (id){
-            case R.id.activity_main_drawer_lunch :
+            case R.id.activity_main_drawer_lunch :this.startLocalisationActivity();
                 break;
             case R.id.activity_main_drawer_settings: this.startProfileActivity();
                 break;
-            case R.id.activity_main_drawer_logout:
+            case R.id.activity_main_drawer_logout:signOutUserFromFirebase();
                 break;
             default:
                 break;
@@ -191,18 +188,22 @@ public class RestaurantActivity extends AppCompatActivity implements NavigationV
     // Launch Profile Activity
     private void startProfileActivity(){
         Intent intent = new Intent(this, ProfileActivity.class);
-        Log.d("DEBAGO", "MainActivity : satrtProfileActivity ");
+        Log.d("DEBAGO", "RestaurantActivity : startProfileActivity ");
+        startActivity(intent);
+    }
+
+    // Launch Localisation Activity
+    private void startLocalisationActivity(){
+        Intent intent = new Intent(this, Localisation.class);
+        Log.d("DEBAGO", "RestaurantActivity : startLocalisationActivity ");
         startActivity(intent);
     }
 
     //Signout
 
-    @OnClick(R.id.activity_main_drawer_logout)
-    public void onClickSignOutButton() {
-        this.signOutUserFromFirebase();
-    }
-
-    private void signOutUserFromFirebase(){
+ //   @OnClick(R.id.activity_main_drawer_logout)
+    public void signOutUserFromFirebase(){
+        Log.d("DEBAGO", "RestaurantActivity : onclicksignout ");
         AuthUI.getInstance()
                 .signOut(this)
                 .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted(SIGN_OUT_TASK));

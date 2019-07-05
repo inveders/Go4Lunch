@@ -4,6 +4,8 @@
     <string name="loginFacebook">Sign in with Facebook</string>
     <string name="loginGoogle">Sign in with Google</string>
 
+
+
     <!-- NAVIGATION DRAWER -->
     <string name="nav_drawer_menu_lunch">YOUR LUNCH</string>
     <string name="nav_drawer_menu_settings">SETTINGS</string>
@@ -40,7 +42,10 @@
     <string name="loginPageTitle">Connexion</string>
 
     <!-- RESTAURANT ACTIVITY -->
-    <string name="toolbar_title_restaurant_activity">Restaurant</string>
+    <string name="toolbar_title_restaurant_activity">I\'m Hungry!</string>
+
+
+
 
     <!-- BOTTOM NAVIGATION VIEW -->
     <string name="bottom_navigation_menu_map">Map View</string>
@@ -50,5 +55,6 @@
     <!-- FACEBOOK PURPOSE -->
     <string name="facebook_application_id" translatable="false">420763051691337</string>
     <string name="facebook_login_protocol_scheme" translatable="false" tools:ignore="UnusedResources">fb420763051691337</string>
+    <string name="title_activity_maps">Map</string>
 
 </resources>

@@ -14,90 +14,87 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.inved.go4lunch.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MapFragment extends Fragment {
-
- //   private LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-    private ArrayList<LocationProvider> providers;
-    private Criteria critere;
+public class MapFragment extends Fragment implements OnMapReadyCallback {
 
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    private GoogleMap mGoogleMap;
+    private MapView mMapView;
+    private View mView;
 
-        this.localisationMethod();
+    float mLatitude;
+    float mLongitude;
 
-        return inflater.inflate(R.layout.fragment_map, container, false);
-
-
+    public MapFragment(){
+        //Required empty public constructor
     }
 
-    private void localisationMethod() {
-        providers = new ArrayList<LocationProvider>();
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-    //    List<String> names = locationManager.getProviders(true);
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+      /*  SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.mapfrag);
+        mapFragment.getMapAsync(this);*/
+    }
 
-     //   for (String name : names)
-      //      providers.add(locationManager.getProvider(name));
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
 
+        mView = inflater.inflate(R.layout.fragment_map, container, false);
+        return mView;
+    }
 
-        //----------Critère du fournisseur
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        Criteria critere = new Criteria();
+        mMapView = mView.findViewById(R.id.mapfrag);
 
-        // Pour indiquer la précision voulue
-        // On peut mettre ACCURACY_FINE pour une haute précision ou ACCURACY_COARSE pour une moins bonne précision
-        critere.setAccuracy(Criteria.ACCURACY_FINE);
-
-        // Est-ce que le fournisseur doit être capable de donner une altitude ?
-        critere.setAltitudeRequired(true);
-
-        // Est-ce que le fournisseur doit être capable de donner une direction ?
-        critere.setBearingRequired(true);
-
-        // Est-ce que le fournisseur peut être payant ?
-        critere.setCostAllowed(false);
-
-        // Pour indiquer la consommation d'énergie demandée
-        // Criteria.POWER_HIGH pour une haute consommation, Criteria.POWER_MEDIUM pour une consommation moyenne et Criteria.POWER_LOW pour une basse consommation
-        critere.setPowerRequirement(Criteria.POWER_HIGH);
-
-        // Est-ce que le fournisseur doit être capable de donner une vitesse ?
-        critere.setSpeedRequired(true);
+        if(mMapView!=null){
+            mMapView.onCreate(null);
+            mMapView.onResume();
+            mMapView.getMapAsync(this);
+        }
+    }
 
 
-        //---------recup données
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
 
-        /*locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, 150, new LocationListener() {
+        MapsInitializer.initialize(getContext());
 
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
+        int mZoom=16;
+        int mBearing=0;
+        int mTilt=45;
+        mGoogleMap=googleMap;
+        mLatitude=-31;
+        mLongitude=151;
 
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-
-            }
-
-            @Override
-            public void onLocationChanged(Location location) {
-                Log.d("GPS", "Latitude " + location.getLatitude() + " et longitude " + location.getLongitude());
-            }
-        });*/
-
+        googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        // Add a marker in Sydney and move the camera
+        LatLng sydney = new LatLng(mLatitude, mLongitude);
+        googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney").snippet("I WANT THIS"));
+        CameraPosition Liberty = CameraPosition.builder().target(sydney).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
+        googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
     }
 
 
