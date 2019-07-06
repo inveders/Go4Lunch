@@ -1,6 +1,8 @@
 package com.inved.go4lunch.controller;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -11,10 +13,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
@@ -32,15 +36,19 @@ import com.inved.go4lunch.R;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MapFragment extends Fragment implements OnMapReadyCallback {
+public class MapFragment extends Fragment implements OnMapReadyCallback,LocationListener {
 
-
-    private GoogleMap mGoogleMap;
+    GoogleMap mGoogleMap;
     private MapView mMapView;
     private View mView;
 
     float mLatitude;
     float mLongitude;
+
+    private static final int PERMS_CALL_ID = 1234;
+
+    private LocationManager lm;
+    public SupportMapFragment mapFragment;
 
     public MapFragment(){
         //Required empty public constructor
@@ -76,26 +84,107 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
         MapsInitializer.initialize(getContext());
 
-        int mZoom=16;
-        int mBearing=0;
-        int mTilt=45;
-        mGoogleMap=googleMap;
-        mLatitude=-31;
-        mLongitude=151;
-
-        googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        mGoogleMap = googleMap;
+     //   googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(mLatitude, mLongitude);
+      /*  LatLng sydney = new LatLng(mLatitude, mLongitude);
         googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney").snippet("I WANT THIS"));
         CameraPosition Liberty = CameraPosition.builder().target(sydney).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
-        googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
+        googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));*/
+        checkPermissions();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("DEBAGO", "MapFragment : in resume");
+        checkPermissions();
+
+    }
+
+    private void checkPermissions(){
+        //We check permission to know if they are granted
+        if (ActivityCompat.checkSelfPermission(getContext(),Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(getContext(),Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions((RestaurantActivity)getContext(), new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+            },PERMS_CALL_ID);
+
+            return;
+        }
+
+
+        //Subscribe to providers
+        lm = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+        if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, this);
+        }
+
+        if (lm.isProviderEnabled(LocationManager.PASSIVE_PROVIDER)) {
+            lm.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 1000, 0, this);
+        }
+
+        if (lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 0, this);
+        }
+
+        //Charging carto
+        // loadMap();
+        Log.d("DEBAGO", "MapFragment : in checkpermissions googlemap value "+mGoogleMap);
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if(requestCode == PERMS_CALL_ID){
+
+        }
     }
 
 
+
+    @Override
+    public void onLocationChanged(Location location) {
+        double latitude = location.getLatitude();
+        double longitude = location.getLongitude();
+        int mZoom=16;
+        int mBearing=0;
+        int mTilt=45;
+
+       // Toast.makeText(getContext(),"Location: "+latitude+"/"+longitude,Toast.LENGTH_LONG).show();
+        Log.d("DEBAGO", "MapFragment : valeur mMap "+mGoogleMap);
+        if (mGoogleMap != null){
+            Log.d("DEBAGO", "MapFragment : in onLocationChanged ");
+            LatLng googleLocation = new LatLng(latitude,longitude);
+            mGoogleMap.clear(); //clear old markers
+            mGoogleMap.addMarker(new MarkerOptions().position(googleLocation).title("Domicile Gnimadi").snippet("ON EST AL"));
+            CameraPosition Liberty = CameraPosition.builder().target(googleLocation).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
+            mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
+            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(googleLocation));
+        }
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
 }

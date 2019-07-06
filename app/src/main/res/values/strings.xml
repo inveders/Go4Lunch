@@ -44,6 +44,23 @@
     <!-- RESTAURANT ACTIVITY -->
     <string name="toolbar_title_restaurant_activity">I\'m Hungry!</string>
 
+    <!-- FRAGMENT RESTAURANT LISTVIEW -->
+    <string name="fragment_listview_item_image">Image restaurant</string>
+    <string name="fragment_listview_item_restaurant_name">Nom du restaurant</string>
+    <string name="fragment_listview_item_restaurant_type">Type de cuisine</string>
+    <string name="fragment_listview_item_distance">Distance</string>
+    <string name="fragment_listview_item_restaurant_open_information">Ouvert jusqu\'à</string>
+    <string name="fragment_listview_item_restaurant_adress">Adresse du restaurant</string>
+    <string name="fragment_listview_item_restaurant_number_rates">(2)</string>
+    <string name="fragment_listview_item_dot">·</string>
+
+    <!-- FRAGMENT RESTAURANT PEOPLE -->
+    <string name="fragment_people_item_image">Image workmates</string>
+    <string name="fragment_people_item_text">Alex is eating Turkish (Snack Ender)</string>
+
+
+    <!-- FDETAIL RESTAURANT -->
+
 
 
 
