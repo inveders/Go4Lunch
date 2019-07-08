@@ -1,5 +1,5 @@
 
-package com.inved.go4lunch.pojo;
+package com.inved.go4lunch.model.pojo;
 
 import java.util.List;
 import com.google.gson.annotations.Expose;
@@ -15,7 +15,7 @@ public class Pojo {
     private String nextPageToken;
     @SerializedName("results")
     @Expose
-    private List<Result> results = null;
+    public List<Result> results=null;
     @SerializedName("status")
     @Expose
     private String status;

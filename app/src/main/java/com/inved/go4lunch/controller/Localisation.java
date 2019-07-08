@@ -9,6 +9,7 @@ import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,7 +45,8 @@ public class Localisation extends AppCompatActivity implements LocationListener 
     private ArrayList<LocationProvider> providers;
     private Criteria critere;
 
-
+    public double latitude;
+    private double longitude;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -154,16 +156,26 @@ public class Localisation extends AppCompatActivity implements LocationListener 
     @Override //La plus importante
     public void onLocationChanged(Location location) {
 
-        double latitude = location.getLatitude();
-        double longitude = location.getLongitude();
+        latitude = location.getLatitude();
+        longitude = location.getLongitude();
 
-        Toast.makeText(this,"Location: "+latitude+"/"+longitude,Toast.LENGTH_LONG).show();
+       // Toast.makeText(this,"Location: "+latitude+"/"+longitude,Toast.LENGTH_LONG).show();
 
         if (googleMap != null){
             LatLng googleLocation = new LatLng(latitude,longitude);
             googleMap.moveCamera(CameraUpdateFactory.newLatLng(googleLocation));
         }
+
+
+
     }
+
+/*    public String getCurrentLocalisation(double lat, double longi){
+
+        return ""+lat+","+longi+"";
+    }*/
+
+
 
 
 

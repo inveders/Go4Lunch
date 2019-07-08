@@ -1,5 +1,5 @@
 
-package com.inved.go4lunch.pojo;
+package com.inved.go4lunch.model.pojo;
 
 import java.util.List;
 import com.google.gson.annotations.Expose;

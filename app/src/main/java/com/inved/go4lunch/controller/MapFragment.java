@@ -41,9 +41,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,Location
     GoogleMap mGoogleMap;
     private MapView mMapView;
     private View mView;
-
-    float mLatitude;
-    float mLongitude;
+    public double latitude;
+    public double longitude;
+    private int i=0;
 
     private static final int PERMS_CALL_ID = 1234;
 
@@ -90,13 +90,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,Location
         MapsInitializer.initialize(getContext());
 
         mGoogleMap = googleMap;
-     //   googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        // Add a marker in Sydney and move the camera
-      /*  LatLng sydney = new LatLng(mLatitude, mLongitude);
-        googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney").snippet("I WANT THIS"));
-        CameraPosition Liberty = CameraPosition.builder().target(sydney).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
-        googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));*/
-        checkPermissions();
+
+
+      //  MapFragment.this.googleMap = googleMap;
+   /*     Log.d("Debago","MapFragment onMapReady : latitude "+latitude);
+        googleMap.moveCamera(CameraUpdateFactory.zoomBy(15));
+
+        googleMap.addMarker(new MarkerOptions()
+                .position(new LatLng(latitude,longitude))
+        );*/
     }
 
     @Override
@@ -154,23 +156,47 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,Location
 
     @Override
     public void onLocationChanged(Location location) {
-        double latitude = location.getLatitude();
-        double longitude = location.getLongitude();
+        RestaurantActivity launchRetrofitRequest=new RestaurantActivity();
+                latitude = location.getLatitude();
+        longitude = location.getLongitude();
         int mZoom=16;
         int mBearing=0;
         int mTilt=45;
 
+       // Log.d("Debago","MapFragment onlocationchanged : latitude "+latitude);
        // Toast.makeText(getContext(),"Location: "+latitude+"/"+longitude,Toast.LENGTH_LONG).show();
-        Log.d("DEBAGO", "MapFragment : valeur mMap "+mGoogleMap);
-        if (mGoogleMap != null){
-            Log.d("DEBAGO", "MapFragment : in onLocationChanged ");
+      //  Log.d("DEBAGO", "MapFragment : valeur mMap "+mGoogleMap);
+
+        if (mGoogleMap != null && latitude!=0){
+        //    Log.d("DEBAGO", "MapFragment : in onLocationChanged ");
+
             LatLng googleLocation = new LatLng(latitude,longitude);
             mGoogleMap.clear(); //clear old markers
             mGoogleMap.addMarker(new MarkerOptions().position(googleLocation).title("Domicile Gnimadi").snippet("ON EST AL"));
             CameraPosition Liberty = CameraPosition.builder().target(googleLocation).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
             mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
             mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(googleLocation));
+            getCurrentLocalisation();
+
+            if(latitude!=0 &&  i==2){
+                launchRetrofitRequest.executeHttpRequestWithRetrofit();
+                Log.d("Debago","MapFragment onlocationchanged  on exàcute retrofit ");
+
+            }
+
+            i++;/**TROUVER UNE SOLUTION POUR NE PASINCREMENTER LES i indéfiniment*/
+            Log.d("Debago","MapFragment onlocationchanged  i value "+i);
         }
+
+
+
+
+
+    }
+
+    public String getCurrentLocalisation(){
+      //  Log.d("Debago","MapFragment getcurrentlocalisation: latitude "+latitude);
+        return ""+latitude+","+longitude+"";
     }
 
     @Override

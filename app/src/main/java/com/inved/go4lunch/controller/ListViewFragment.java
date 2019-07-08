@@ -11,6 +11,11 @@ import androidx.fragment.app.Fragment;
 
 import com.inved.go4lunch.R;
 
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 public class ListViewFragment extends Fragment {
 
     @Nullable
@@ -18,4 +23,8 @@ public class ListViewFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_listview,container,false);
     }
+
+
+
+
 }

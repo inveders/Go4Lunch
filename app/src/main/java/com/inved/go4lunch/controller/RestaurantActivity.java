@@ -1,12 +1,15 @@
 package com.inved.go4lunch.controller;
 
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -22,12 +25,19 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.inved.go4lunch.R;
+import com.inved.go4lunch.api.GooglePlaceCalls;
 import com.inved.go4lunch.auth.ProfileActivity;
+import com.inved.go4lunch.model.pojo.Pojo;
+import com.inved.go4lunch.model.pojo.Result;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
 
-public class RestaurantActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+import static android.media.CamcorderProfile.get;
+
+public class RestaurantActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,GooglePlaceCalls.Callbacks {
 
     //FOR DATA
     private static final int SIGN_OUT_TASK = 10;
@@ -55,8 +65,6 @@ public class RestaurantActivity extends AppCompatActivity implements NavigationV
         bottomNavigationView = findViewById(R.id.activity_restaurant_bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-
-
         //Viewpager
         viewPager = findViewById(R.id.viewpager_fragment); //Init Viewpager
         setupFm(getSupportFragmentManager(), viewPager); //Setup Fragment
@@ -69,6 +77,9 @@ public class RestaurantActivity extends AppCompatActivity implements NavigationV
         this.configureDrawerLayout();
 
         this.configureNavigationView();
+
+        //Launch retrofit request
+        this.executeHttpRequestWithRetrofit();
     }
 
 
@@ -243,4 +254,43 @@ public class RestaurantActivity extends AppCompatActivity implements NavigationV
         public void onPageScrollStateChanged(int state) {
         }
     }
+
+
+    // -------------------
+    // HTTP REQUEST BY RETROFIT (Retrofit Way)
+    // -------------------
+
+
+    // 4 - Execute HTTP request and update UI
+    public void executeHttpRequestWithRetrofit(){
+
+        String type = "Food";
+        int radius = 1000;
+        MapFragment geolocalisation = new MapFragment();
+
+            Log.d("Debago","Restaurant activity latitude"+geolocalisation.getCurrentLocalisation());
+            GooglePlaceCalls.fetchUserFollowing(this, type,"49.442627699999996 ,6.0247494",radius);
+
+
+
+    }
+
+    // 2 - Override callback methods
+
+    @Override
+    public void onResponse(@Nullable Pojo response) {
+        // 2.1 - When getting response, we update UI
+        if (response != null);
+
+        assert response != null;
+//        Toast.makeText(this,"Location: "+response.results.get(1).getName(),Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onFailure() {
+        // 2.2 - When getting error, we update UI
+
+    }
+
+
 }
