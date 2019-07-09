@@ -37,7 +37,7 @@ import butterknife.OnClick;
 
 import static android.media.CamcorderProfile.get;
 
-public class RestaurantActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,GooglePlaceCalls.Callbacks {
+public class RestaurantActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     //FOR DATA
     private static final int SIGN_OUT_TASK = 10;
@@ -78,8 +78,7 @@ public class RestaurantActivity extends AppCompatActivity implements NavigationV
 
         this.configureNavigationView();
 
-        //Launch retrofit request
-        this.executeHttpRequestWithRetrofit();
+
     }
 
 
@@ -256,41 +255,7 @@ public class RestaurantActivity extends AppCompatActivity implements NavigationV
     }
 
 
-    // -------------------
-    // HTTP REQUEST BY RETROFIT (Retrofit Way)
-    // -------------------
 
-
-    // 4 - Execute HTTP request and update UI
-    public void executeHttpRequestWithRetrofit(){
-
-        String type = "Food";
-        int radius = 1000;
-        MapFragment geolocalisation = new MapFragment();
-
-            Log.d("Debago","Restaurant activity latitude"+geolocalisation.getCurrentLocalisation());
-            GooglePlaceCalls.fetchUserFollowing(this, type,"49.442627699999996 ,6.0247494",radius);
-
-
-
-    }
-
-    // 2 - Override callback methods
-
-    @Override
-    public void onResponse(@Nullable Pojo response) {
-        // 2.1 - When getting response, we update UI
-        if (response != null);
-
-        assert response != null;
-//        Toast.makeText(this,"Location: "+response.results.get(1).getName(),Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onFailure() {
-        // 2.2 - When getting error, we update UI
-
-    }
 
 
 }

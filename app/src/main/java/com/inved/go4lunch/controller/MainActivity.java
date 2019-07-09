@@ -42,7 +42,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public int getFragmentLayout() {
-        Log.d("DEBAGO", "MainActivity : getfragmentlayout ");
+
         return R.layout.activity_main; }
 
     @Override
@@ -50,12 +50,12 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
 
-        Log.d("DEBAGO", "MainActivity : onCreate ");
+
 
         // Start appropriate activity
         if (this.isCurrentUserLogged()){
             this.startRestaurantActivity();
-            Log.d("DEBAGO", "MainActivity : utilisateur connecté on va dans satrtProfileActivity ");
+
             }
 
 
@@ -148,7 +148,7 @@ public class MainActivity extends BaseActivity {
 
     private void startRestaurantActivity(){
         Intent intent = new Intent(this, RestaurantActivity.class);
-        Log.d("DEBAGO", "MainActivity : startRestaurantActivity ");
+
         startActivity(intent);
     }
 

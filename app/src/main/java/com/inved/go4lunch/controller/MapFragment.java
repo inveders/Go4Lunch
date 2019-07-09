@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,6 +22,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -32,11 +35,13 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.inved.go4lunch.R;
+import com.inved.go4lunch.api.GooglePlaceCalls;
+import com.inved.go4lunch.model.pojo.Pojo;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MapFragment extends Fragment implements OnMapReadyCallback,LocationListener {
+public class MapFragment extends Fragment implements OnMapReadyCallback,LocationListener{
 
     GoogleMap mGoogleMap;
     private MapView mMapView;
@@ -44,6 +49,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,Location
     public double latitude;
     public double longitude;
     private int i=0;
+    ListViewFragment launchRetrofitRequest = new ListViewFragment();
 
     private static final int PERMS_CALL_ID = 1234;
 
@@ -62,12 +68,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,Location
       /*  SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapfrag);
         mapFragment.getMapAsync(this);*/
+        //Launch retrofit request
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
 
         mView = inflater.inflate(R.layout.fragment_map, container, false);
+
         return mView;
     }
 
@@ -104,7 +113,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,Location
     @Override
     public void onResume() {
         super.onResume();
-        Log.d("DEBAGO", "MapFragment : in resume");
+
         checkPermissions();
 
     }
@@ -156,8 +165,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,Location
 
     @Override
     public void onLocationChanged(Location location) {
-        RestaurantActivity launchRetrofitRequest=new RestaurantActivity();
-                latitude = location.getLatitude();
+
+        latitude = location.getLatitude();
         longitude = location.getLongitude();
         int mZoom=16;
         int mBearing=0;
@@ -176,16 +185,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,Location
             CameraPosition Liberty = CameraPosition.builder().target(googleLocation).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
             mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
             mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(googleLocation));
-            getCurrentLocalisation();
+
 
             if(latitude!=0 &&  i==2){
+                getCurrentLocalisation();
                 launchRetrofitRequest.executeHttpRequestWithRetrofit();
-                Log.d("Debago","MapFragment onlocationchanged  on exàcute retrofit ");
+                Log.d("Debago","MapFragment onlocationchanged  on exécute retrofit ");
 
             }
 
-            i++;/**TROUVER UNE SOLUTION POUR NE PASINCREMENTER LES i indéfiniment*/
-            Log.d("Debago","MapFragment onlocationchanged  i value "+i);
+            i++;/**TROUVER UNE SOLUTION POUR NE PASI NCREMENTER LES i indéfiniment*/
+        //    Log.d("Debago","MapFragment onlocationchanged  i value "+i);
         }
 
 
@@ -194,8 +204,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,Location
 
     }
 
-    public String getCurrentLocalisation(){
-      //  Log.d("Debago","MapFragment getcurrentlocalisation: latitude "+latitude);
+    String getCurrentLocalisation(){
+        Log.d("Debago","MapFragment getcurrentlocalisation: latitude "+latitude);
         return ""+latitude+","+longitude+"";
     }
 
@@ -213,4 +223,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,Location
     public void onProviderDisabled(String provider) {
 
     }
+
+
 }
