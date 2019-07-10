@@ -1,5 +1,5 @@
 
-package com.inved.go4lunch.model.pojo;
+package com.inved.go4lunch.model.placesearch;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

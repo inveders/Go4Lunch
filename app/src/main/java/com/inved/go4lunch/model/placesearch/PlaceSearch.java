@@ -1,11 +1,11 @@
 
-package com.inved.go4lunch.model.pojo;
+package com.inved.go4lunch.model.placesearch;
 
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Pojo {
+public class PlaceSearch {
 
     @SerializedName("html_attributions")
     @Expose

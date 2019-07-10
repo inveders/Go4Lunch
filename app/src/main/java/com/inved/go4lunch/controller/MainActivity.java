@@ -38,8 +38,6 @@ public class MainActivity extends BaseActivity {
     //FOR DATA
     private static final int RC_SIGN_IN = 123;
 
-
-
     @Override
     public int getFragmentLayout() {
 
@@ -50,16 +48,11 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
 
-
-
         // Start appropriate activity
         if (this.isCurrentUserLogged()){
             this.startRestaurantActivity();
-
+            Log.d("Debago","MainActivity : on lance le startRestaurantActivity");
             }
-
-
-
     }
 
     @Override

@@ -1,5 +1,5 @@
 
-package com.inved.go4lunch.model.pojo;
+package com.inved.go4lunch.model.placesearch;
 
 import java.util.List;
 import com.google.gson.annotations.Expose;
