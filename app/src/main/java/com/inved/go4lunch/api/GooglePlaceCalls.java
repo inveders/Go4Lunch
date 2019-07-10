@@ -3,11 +3,9 @@ package com.inved.go4lunch.api;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.inved.go4lunch.model.pojo.Pojo;
-import com.inved.go4lunch.model.pojo.Result;
+import com.inved.go4lunch.model.placesearch.PlaceSearch;
 
 import java.lang.ref.WeakReference;
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -17,7 +15,7 @@ public class GooglePlaceCalls {
 
     // 1 - Creating a callback
     public interface Callbacks {
-        void onResponse(@Nullable Pojo users);
+        void onResponse(@Nullable PlaceSearch users);
         void onFailure();
     }
 
@@ -31,18 +29,18 @@ public class GooglePlaceCalls {
         GooglePlacesApi service = GooglePlacesApi.retrofit.create(GooglePlacesApi.class);
 
         // 2.3 - Create the call on Github API
-        Call<Pojo> call = service.getNearbyRestaurant(type,location,radius);
+        Call<PlaceSearch> call = service.getNearbyRestaurant(type,location,radius);
         // 2.4 - Start the call
-        call.enqueue(new Callback<Pojo>() {
+        call.enqueue(new Callback<PlaceSearch>() {
 
             @Override
-            public void onResponse(Call<Pojo> call, @NonNull Response<Pojo> response) {
+            public void onResponse(Call<PlaceSearch> call, @NonNull Response<PlaceSearch> response) {
                 // 2.5 - Call the proper callback used in controller (MainFragment)
                 if (callbacksWeakReference.get() != null) callbacksWeakReference.get().onResponse(response.body());
             }
 
             @Override
-            public void onFailure(Call<Pojo> call, Throwable t) {
+            public void onFailure(Call<PlaceSearch> call, Throwable t) {
                 // 2.5 - Call the proper callback used in controller (MainFragment)
                 if (callbacksWeakReference.get() != null) callbacksWeakReference.get().onFailure();
             }

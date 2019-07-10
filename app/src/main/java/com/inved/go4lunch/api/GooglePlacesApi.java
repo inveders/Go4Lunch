@@ -1,9 +1,6 @@
 package com.inved.go4lunch.api;
 
-import com.inved.go4lunch.model.pojo.Pojo;
-import com.inved.go4lunch.model.pojo.Result;
-
-import java.util.List;
+import com.inved.go4lunch.model.placesearch.PlaceSearch;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -16,7 +13,7 @@ import retrofit2.http.Query;
 public interface GooglePlacesApi {
 
     @GET("api/place/nearbysearch/json?sensor=true&key=AIzaSyCYRQL4UOKKcszTAi6OeN8xCvZ7CuFtp8A")
-    Call<Pojo> getNearbyRestaurant(@Query("type") String type, @Query("location") String location, @Query("radius") int radius);
+    Call<PlaceSearch> getNearbyRestaurant(@Query("type") String type, @Query("location") String location, @Query("radius") int radius);
 
 
     OkHttpClient client = new OkHttpClient.Builder()
