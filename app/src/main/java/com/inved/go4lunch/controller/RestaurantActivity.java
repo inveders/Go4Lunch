@@ -97,7 +97,7 @@ public class RestaurantActivity extends AppCompatActivity implements NavigationV
         this.configureDrawerLayout();
 
         this.configureNavigationView();
-        Log.d("Debago","RestaurantActivity : oncreate /1");
+
         //Localisation
         checkPermissions();
 
@@ -107,7 +107,7 @@ public class RestaurantActivity extends AppCompatActivity implements NavigationV
     @Override
     public void onResume() {
         super.onResume();
-        Log.d("Debago","RestaurantActivity : onresume");
+
         checkPermissions();
 
     }
@@ -238,7 +238,6 @@ public class RestaurantActivity extends AppCompatActivity implements NavigationV
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        Log.d("Debago","RestaurantActivity : onrequestcheckpermission /3");
         if(requestCode == PERMS_CALL_ID){
 
         }
@@ -267,7 +266,6 @@ public class RestaurantActivity extends AppCompatActivity implements NavigationV
         intent.putExtra(KEY_GEOLOCALISATION, currentGeolocalisation);
         intent.putExtra(KEY_LATITUDE, getLatitude());
         intent.putExtra(KEY_LONGITUDE, getLongitude());
-        Log.d("Debago","RestaurantActivity : send Data to Fragments ");
         LocalBroadcastManager.getInstance(RestaurantActivity.this).sendBroadcast(intent);
 
     }
@@ -276,7 +274,6 @@ public class RestaurantActivity extends AppCompatActivity implements NavigationV
     public double getLatitude(){
         if(location != null){
             latitude = location.getLatitude();
-            Log.d("Debago","RestaurantActivity : latitude /6"+latitude);
         }
 
         return latitude;
@@ -327,14 +324,6 @@ public class RestaurantActivity extends AppCompatActivity implements NavigationV
     // Launch Profile Activity
     private void startProfileActivity(){
         Intent intent = new Intent(this, ProfileActivity.class);
-        Log.d("DEBAGO", "RestaurantActivity : startProfileActivity ");
-        startActivity(intent);
-    }
-
-    // Launch Localisation Activity
-    private void startLocalisationActivity(){
-        Intent intent = new Intent(this, Localisation.class);
-        Log.d("DEBAGO", "RestaurantActivity : startLocalisationActivity ");
         startActivity(intent);
     }
 
@@ -342,7 +331,6 @@ public class RestaurantActivity extends AppCompatActivity implements NavigationV
 
  //   @OnClick(R.id.activity_main_drawer_logout)
     public void signOutUserFromFirebase(){
-        Log.d("DEBAGO", "RestaurantActivity : onclicksignout ");
         AuthUI.getInstance()
                 .signOut(this)
                 .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted(SIGN_OUT_TASK));

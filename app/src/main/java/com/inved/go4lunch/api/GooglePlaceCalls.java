@@ -20,7 +20,7 @@ public class GooglePlaceCalls {
     }
 
     // 2 - Public method to start fetching users following by Jake Wharton
-    public static void fetchUserFollowing(Callbacks callbacks, String type, String location, int radius){
+    public static void fetchPlaces(Callbacks callbacks, String type, String location, int radius){
 
         // 2.1 - Create a weak reference to callback (avoid memory leaks)
         final WeakReference<Callbacks> callbacksWeakReference = new WeakReference<Callbacks>(callbacks);

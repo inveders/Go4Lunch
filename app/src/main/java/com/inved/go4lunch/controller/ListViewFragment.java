@@ -1,5 +1,9 @@
 package com.inved.go4lunch.controller;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,6 +13,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,11 +21,34 @@ import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.GooglePlaceCalls;
 import com.inved.go4lunch.model.placesearch.PlaceSearch;
 
+import static com.inved.go4lunch.controller.RestaurantActivity.KEY_GEOLOCALISATION;
+import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LATITUDE;
+import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LOCATION_CHANGED;
+import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LONGITUDE;
+
 public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callbacks {
 
     private View mView;
     private RecyclerViewListViewRestaurant mRecyclerListViewAdapter;
     RestaurantActivity gps = new RestaurantActivity();
+
+    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver()
+    {
+        @Override
+        public void onReceive(Context context, Intent intent)
+        {
+            if (KEY_LOCATION_CHANGED.equals(intent.getAction()))
+            {
+
+                intent.getSerializableExtra(KEY_GEOLOCALISATION);
+                String myCurrentGeolocalisation=intent.getStringExtra(KEY_GEOLOCALISATION);
+
+                executeHttpRequestWithRetrofit(myCurrentGeolocalisation);
+
+            }
+        }
+    };
+
 
     @Nullable
     @Override
@@ -35,6 +63,7 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
 
         //Choose how to display the list in the RecyclerView (vertical or horizontal)
         mRecyclerListView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(broadcastReceiver, new IntentFilter(KEY_LOCATION_CHANGED));
 
         return mView;
     }
@@ -45,18 +74,13 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
 
 
     // 4 - Execute HTTP request and update UI
-    void executeHttpRequestWithRetrofit(){
+    void executeHttpRequestWithRetrofit(String geolocalisation){
 
-      //  double lat = gps.getLatitude();
-      //  double longi = gps.getLongitude();
-        String type = "bank";
+        String type = "food";
         int radius = 4000;
-     //   String currentLocalisation = ""+lat+","+longi+"";
 
-     //   Log.d("Debago","ListViewFragment currentLocalisation"+currentLocalisation);
-        GooglePlaceCalls.fetchUserFollowing(this, type,"49.442627699999996 ,6.0247494",radius);
-
-
+        Log.d("Debago","ListViewFragment currentLocalisation"+geolocalisation);
+        GooglePlaceCalls.fetchPlaces(this, type,"-33.8670522,151.1957362",radius);
 
     }
 
@@ -73,6 +97,7 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
      //   mRecyclerListViewAdapter.setData(response.results);
 //        Toast.makeText(this,"Location: "+response.results.get(1).getName(),Toast.LENGTH_LONG).show();
     }
+
 
     @Override
     public void onFailure() {

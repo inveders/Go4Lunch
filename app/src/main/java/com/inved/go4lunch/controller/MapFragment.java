@@ -43,11 +43,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private static final int PERMS_CALL_ID = 1234;
 
-    private LocationManager lm;
-    public SupportMapFragment mapFragment;
-
-
-
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver()
     {
         @Override
@@ -60,7 +55,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
                 Double myLat=intent.getDoubleExtra(KEY_LATITUDE,0);
                 Double myLongi=intent.getDoubleExtra(KEY_LONGITUDE,0);
-                Log.d("Debago", "MapFragment : ONReceive "+myLat);
+
                 loadMapMapFragment(myLat,myLongi);
 
             }
@@ -116,7 +111,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
 
         MapsInitializer.initialize(getContext());
-        Log.d("Debago", "MapFragment : onMapReady ");
         mGoogleMap = googleMap;
      //   loadMapMapFragment();
 
@@ -149,7 +143,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     public void loadMapMapFragment(Double lat, Double longi) {
 
-        Log.d("Debago", "MapFragment : on loadMapMapFragment latitude /5bis " + lat);
         int mZoom = 16;
         int mBearing = 0;
         int mTilt = 45;
