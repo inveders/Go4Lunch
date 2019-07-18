@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/activity_view_place_photo"
+        android:layout_width="match_parent"
+        android:layout_height="280dp"
+        android:background="@color/colorPrimary"
+        android:contentDescription="@string/fragment_people_item_image"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+
+    <!-- NAME AND OTHERS -->
+    <TextView
+        android:id="@+id/activity_view_place_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="15dp"
+        android:text="@string/fragment_listview_item_restaurant_name"
+        app:layout_constraintTop_toBottomOf="@id/activity_view_place_photo"
+        app:layout_constraintLeft_toLeftOf="parent"
+        />
+
+    <TextView
+        android:id="@+id/activity_view_place_restaurant_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="5dp"
+        android:text="@string/fragment_listview_item_restaurant_type"
+        app:layout_constraintTop_toBottomOf="@id/activity_view_place_name"
+        app:layout_constraintLeft_toLeftOf="parent"
+        />
+
+    <TextView
+        android:id="@+id/activity_view_place_dot"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/fragment_listview_item_dot"
+        app:layout_constraintTop_toBottomOf="@id/activity_view_place_name"
+        app:layout_constraintLeft_toRightOf="@id/activity_view_place_restaurant_type"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        />
+
+    <TextView
+        android:id="@+id/activity_view_place_adress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/fragment_listview_item_restaurant_adress"
+        app:layout_constraintTop_toBottomOf="@id/activity_view_place_name"
+        app:layout_constraintLeft_toRightOf="@id/activity_view_place_dot"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        />
+
+    <!-- INFORMATIONS TO CALL -->
+    <ImageView
+        android:id="@+id/activity_view_place_call_image"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@color/colorPrimary"
+        android:contentDescription="@string/fragment_people_item_image"
+        app:layout_constraintTop_toBottomOf="@id/activity_view_place_adress"
+        android:layout_marginTop="25dp"
+        android:layout_marginEnd="50dp"
+        app:layout_constraintRight_toLeftOf="@+id/activity_view_place_like_image"
+        />
+
+
+    <ImageView
+        android:id="@+id/activity_view_place_like_image"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@color/colorPrimary"
+        android:contentDescription="@string/fragment_people_item_image"
+        app:layout_constraintTop_toBottomOf="@id/activity_view_place_adress"
+        android:layout_marginTop="25dp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        />
+
+    <ImageView
+        android:id="@+id/activity_view_place_website_image"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@color/colorPrimary"
+        android:contentDescription="@string/fragment_people_item_image"
+        app:layout_constraintTop_toBottomOf="@id/activity_view_place_adress"
+        android:layout_marginTop="25dp"
+        app:layout_constraintLeft_toRightOf="@+id/activity_view_place_like_image"
+        android:layout_marginStart="50dp"
+        />
+
+    <!-- RECYCLER VIEW -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/activity_view_place_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="293dp"
+        android:layout_marginTop="25dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/activity_view_place_like_image" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
