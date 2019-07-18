@@ -98,7 +98,7 @@ public class RestaurantActivity extends AppCompatActivity implements NavigationV
         this.configureDrawerLayout();
 
         this.configureNavigationView();
-        Log.d("Debago","RestaurantActivity : oncreate");
+
         //Localisation
         checkPermissions();
 

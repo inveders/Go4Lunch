@@ -72,7 +72,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
         holder.mRestaurantName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                viewPlaceActivity.executeHttpRequestPlaceDetailsWithRetrofit(mData.get(position).getPlaceId());
+         //       viewPlaceActivity.executeHttpRequestPlaceDetailsWithRetrofit(mData.get(position).getPlaceId());
 
             }
         });

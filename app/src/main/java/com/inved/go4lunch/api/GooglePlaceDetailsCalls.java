@@ -41,12 +41,13 @@ public class GooglePlaceDetailsCalls {
             public void onResponse(Call<PlaceDetails> call, @NonNull Response<PlaceDetails> response) {
                 // 2.5 - Call the proper callback used in controller (MainFragment)
                 if (callbacksWeakReference.get() != null) callbacksWeakReference.get().onResponse(response.body());
-                if (response.isSuccessful()){
+                if (response.isSuccessful()) {
 
-                    Log.d("Debago","detailcall on response : "+response.body().getResult().getFormattedPhoneNumber());
-                }
-                else{
-                    Log.d("Debago","detailcall on response est null ohhhh ");
+                    if (response.body() != null) {
+
+                    } else {
+                        Log.d("Debago", "detailcall on response est null ohhhh ");
+                    }
                 }
 
             }

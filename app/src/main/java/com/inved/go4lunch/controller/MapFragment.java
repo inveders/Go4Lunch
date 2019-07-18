@@ -34,8 +34,11 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.APIClientGoogleSearch;
 import com.inved.go4lunch.api.GooglePlaceCalls;
+import com.inved.go4lunch.api.GooglePlaceDetailsCalls;
+import com.inved.go4lunch.model.placedetails.PlaceDetails;
 import com.inved.go4lunch.model.placesearch.PlaceSearch;
 import com.inved.go4lunch.model.placesearch.Result;
+import com.inved.go4lunch.utils.PlaceDetailsData;
 
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_GEOLOCALISATION;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LATITUDE;
@@ -49,7 +52,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
     private View mView;
     private PlaceSearch myPlace = new PlaceSearch();
     private Marker mMarker;
-
+    Context context;
+    PlaceDetailsData placeDetailsData = new PlaceDetailsData();
 
     RestaurantActivity restaurantActivity = new RestaurantActivity();
 
@@ -127,24 +131,25 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        if (marker.getSnippet()!=null){
+        if (marker.getSnippet() != null) {
             APIClientGoogleSearch.currentResult = myPlace.getResults().get(Integer.parseInt(marker.getSnippet()));
-        ViewPlaceActivity viewPlaceActivity = new ViewPlaceActivity();
-        viewPlaceActivity.executeHttpRequestPlaceDetailsWithRetrofit(APIClientGoogleSearch.currentResult.getPlaceId());
-        Log.d("Debago","MapFragment onMarkerclick :"+APIClientGoogleSearch.currentResult.getPlaceId());
-        startViewPlaceActivity();
+            placeDetailsData.setPlaceId(APIClientGoogleSearch.currentResult.getPlaceId());
+            startViewPlaceActivity();
+          //  executeHttpRequestPlaceDetailsWithRetrofit(APIClientGoogleSearch.currentResult.getPlaceId());
+            /**je veux passer le placeid chez placedetaildata pour faire la requete*/
+
         }
+
         return true;
 
     }
 
+
     // Launch View Place Activity
-    public void startViewPlaceActivity(){
+    public void startViewPlaceActivity() {
         Intent intent = new Intent(getContext(), ViewPlaceActivity.class);
         startActivity(intent);
     }
-
-
 
 
     @Override
@@ -204,14 +209,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
                 markerOptions.title(placeName);
                 if (i < 5) {
 
-                    markerOptions.icon(bitmapDescriptorFromVectorNotSelected(getContext(),R.drawable.ic_location_not_selected_24dp));
+                    markerOptions.icon(bitmapDescriptorFromVectorNotSelected(getContext(), R.drawable.ic_location_not_selected_24dp));
                 } else {
-                    markerOptions.icon(bitmapDescriptorFromVectorSelected(getContext(),R.drawable.ic_location_selected_24dp));
+                    markerOptions.icon(bitmapDescriptorFromVectorSelected(getContext(), R.drawable.ic_location_selected_24dp));
                 }
                 markerOptions.snippet(String.valueOf(i));
                 mGoogleMap.addMarker(markerOptions);
                 mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(18 ));
+                mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(18));
             }
 
             mGoogleMap.setOnMarkerClickListener(this);
@@ -256,7 +261,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
         int mZoom = 16;
         int mBearing = 0;
         int mTilt = 45;
-        if (mMarker!=null){
+        if (mMarker != null) {
             mMarker.remove();
         }
 
@@ -265,7 +270,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
 
             LatLng googleLocation = new LatLng(lat, longi);
             mGoogleMap.clear(); //clear old markers
-            mMarker=mGoogleMap.addMarker(new MarkerOptions()
+            mMarker = mGoogleMap.addMarker(new MarkerOptions()
                     .position(googleLocation)
                     .title(getString(R.string.map_your_position))
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
@@ -278,6 +283,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
 
 
     }
+
+
+
+
 
 
 }
