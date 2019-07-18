@@ -1,4 +1,4 @@
-package com.inved.go4lunch.utils;
+package com.inved.go4lunch.api;
 
 import android.content.Context;
 import android.content.Intent;
@@ -27,8 +27,7 @@ public class PlaceDetailsData implements GooglePlaceDetailsCalls.CallbacksDetail
         executeHttpRequestPlaceDetailsWithRetrofit(placeId);
     }
 
-
-    public void executeHttpRequestPlaceDetailsWithRetrofit(String currentPlaceId) {
+    private void executeHttpRequestPlaceDetailsWithRetrofit(String currentPlaceId) {
 
         if (currentPlaceId != null) {
             String key = "AIzaSyCYRQL4UOKKcszTAi6OeN8xCvZ7CuFtp8A";// getText(R.string.google_maps_key).toString();
@@ -39,14 +38,14 @@ public class PlaceDetailsData implements GooglePlaceDetailsCalls.CallbacksDetail
     }
 
     @Override
-    public void onResponse(@Nullable PlaceDetails users) {
+    public void onResponse(@Nullable PlaceDetails response) {
 
-        assert users != null;
-        if (users.getResult() != null) {
+        assert response != null;
+        if (response.getResult() != null) {
 
 
-            String numberPhone = users.getResult().getFormattedPhoneNumber();
-            Log.d("Debago", "PlaceDetailData onResponse number phone est : " + numberPhone);
+            String numberPhone = response.getResult().getFormattedPhoneNumber();
+           // String photoReference = users.getResult()
             sendRestaurantDetailDataToOtherFragments(numberPhone);
 
             // viewPlaceName.setText(users.getResult().getFormattedPhoneNumber());

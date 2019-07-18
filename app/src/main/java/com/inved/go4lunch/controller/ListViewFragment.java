@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.GooglePlaceCalls;
+import com.inved.go4lunch.api.PlaceSearchData;
 import com.inved.go4lunch.model.placesearch.PlaceSearch;
 import com.inved.go4lunch.model.placesearch.Result;
 
@@ -27,12 +28,15 @@ import java.util.List;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_GEOLOCALISATION;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LOCATION_CHANGED;
 
-public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callbacks {
+public class ListViewFragment extends Fragment {
 
     private View mView;
     private RecyclerViewListViewRestaurant mRecyclerListViewAdapter;
     RestaurantActivity gps = new RestaurantActivity();
     String myLastGeolocalisation=null;
+    PlaceSearchData placeSearchData = new PlaceSearchData();
+
+    //Receive current localisation from Localisation.class
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver()
     {
         @Override
@@ -48,7 +52,8 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
 
                 }
                 else{
-                    executeHttpRequestWithRetrofit(myCurrentGeolocalisation);
+                    placeSearchData.setGeolocalisation(myCurrentGeolocalisation);
+
                     myLastGeolocalisation=myCurrentGeolocalisation;
 
                 }
@@ -81,41 +86,6 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
 // -------------------
     // HTTP REQUEST BY RETROFIT (Retrofit Way)
     // -------------------
-
-
-    // 4 - Execute HTTP request and update UI
-    void executeHttpRequestWithRetrofit(String geolocalisation){
-
-        String type = "restaurant";
-        int radius = 400;
-        String keyword = "restaurant";
-        String key = getText(R.string.google_maps_key).toString();
-
-        GooglePlaceCalls.fetchPlaces(this,geolocalisation,radius, type,keyword,key);
-
-    }
-
-
-    // Override callback methods
-
-    @Override
-    public void onResponse(@Nullable PlaceSearch response) {
-        // 2.1 - When getting response, we update UI
-        if (response != null);
-
-        assert response != null;
-        mRecyclerListViewAdapter.setData(response.results);
-
-
-
-    }
-
-
-    @Override
-    public void onFailure() {
-        // 2.2 - When getting error, we update UI
-
-    }
 
 
 }

@@ -8,7 +8,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,11 +33,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.APIClientGoogleSearch;
 import com.inved.go4lunch.api.GooglePlaceCalls;
-import com.inved.go4lunch.api.GooglePlaceDetailsCalls;
-import com.inved.go4lunch.model.placedetails.PlaceDetails;
 import com.inved.go4lunch.model.placesearch.PlaceSearch;
 import com.inved.go4lunch.model.placesearch.Result;
-import com.inved.go4lunch.utils.PlaceDetailsData;
+import com.inved.go4lunch.api.PlaceDetailsData;
 
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_GEOLOCALISATION;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LATITUDE;
@@ -70,7 +67,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
                 Double myLongi = intent.getDoubleExtra(KEY_LONGITUDE, 0);
 
                 loadMapMapFragment(myLat, myLongi);
-                getUrlRestaurant(myLat, myLongi);
+
 
             }
         }
@@ -135,8 +132,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
             APIClientGoogleSearch.currentResult = myPlace.getResults().get(Integer.parseInt(marker.getSnippet()));
             placeDetailsData.setPlaceId(APIClientGoogleSearch.currentResult.getPlaceId());
             startViewPlaceActivity();
-          //  executeHttpRequestPlaceDetailsWithRetrofit(APIClientGoogleSearch.currentResult.getPlaceId());
-            /**je veux passer le placeid chez placedetaildata pour faire la requete*/
 
         }
 
@@ -146,7 +141,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
 
 
     // Launch View Place Activity
-    public void startViewPlaceActivity() {
+    private void startViewPlaceActivity() {
         Intent intent = new Intent(getContext(), ViewPlaceActivity.class);
         startActivity(intent);
     }
@@ -173,20 +168,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
 
         mGoogleMap.clear();
 
-    }
-
-
-    private String getUrlRestaurant(double lat, double longi) {
-
-//      String url = getUrlRestaurant(lat, longi);
-        String type = "restaurant";
-        int radius = 400;
-        String keyword = "restaurant";
-        String geolocalisation = "" + lat + "," + longi + "";
-        String key = getText(R.string.google_maps_key).toString();
-
-        GooglePlaceCalls.fetchPlaces(this, geolocalisation, radius, type, keyword, key);
-        return "";
     }
 
     // Override callback methods
@@ -256,7 +237,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
 
     }
 
-    public void loadMapMapFragment(Double lat, Double longi) {
+    private void loadMapMapFragment(Double lat, Double longi) {
 
         int mZoom = 16;
         int mBearing = 0;

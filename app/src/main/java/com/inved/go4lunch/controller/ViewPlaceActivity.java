@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -17,17 +16,11 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.bumptech.glide.RequestManager;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.APIClientGoogleSearch;
-import com.inved.go4lunch.api.GooglePlaceDetailsCalls;
-import com.inved.go4lunch.model.placedetails.PlaceDetails;
 
 import butterknife.BindView;
 
-import static com.inved.go4lunch.controller.RestaurantActivity.KEY_GEOLOCALISATION;
-import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LATITUDE;
-import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LOCATION_CHANGED;
-import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LONGITUDE;
-import static com.inved.go4lunch.utils.PlaceDetailsData.PLACE_DETAIL_DATA;
-import static com.inved.go4lunch.utils.PlaceDetailsData.PLACE_DETAIL_DATA_PHONE_NUMBER;
+import static com.inved.go4lunch.api.PlaceDetailsData.PLACE_DETAIL_DATA;
+import static com.inved.go4lunch.api.PlaceDetailsData.PLACE_DETAIL_DATA_PHONE_NUMBER;
 
 public class ViewPlaceActivity extends AppCompatActivity {
 
@@ -73,19 +66,6 @@ public class ViewPlaceActivity extends AppCompatActivity {
 
         viewPlaceName = findViewById(R.id.activity_view_place_name);
 
-       /* BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (PLACE_DETAIL_DATA.equals(intent.getAction())) {
-
-                    String phoneNumber = intent.getStringExtra(PLACE_DETAIL_DATA_PHONE_NUMBER);
-                    Log.d("Debago", "ViewPlaceActivity onReceive phoneNumber: "+phoneNumber);
-                    updateViewPlaceActivity(phoneNumber);
-
-
-                }
-            }
-        };*/
 
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter(PLACE_DETAIL_DATA));
 
@@ -100,7 +80,7 @@ public class ViewPlaceActivity extends AppCompatActivity {
     }*/
 
     public void updateViewPlaceActivity(String numberPhone) {
-        Log.d("Debago", "ViewPlaceActivity updateViewPlaceActivity : " + numberPhone);
+
 
         if (numberPhone != null) {
                 viewPlaceName.setText(numberPhone);
@@ -113,7 +93,11 @@ public class ViewPlaceActivity extends AppCompatActivity {
 
     }
 
-
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
+    }
 
 
 }
