@@ -1,0 +1,81 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">Go4Lunch</string>
+    <string name="connexion_activity_description">Find a nice restaurant and invite your co-workers for lunch!</string>
+    <string name="loginFacebook">Sign in with Facebook</string>
+    <string name="loginGoogle">Sign in with Google</string>
+
+
+
+    <!-- NAVIGATION DRAWER -->
+    <string name="nav_drawer_menu_lunch">YOUR LUNCH</string>
+    <string name="nav_drawer_menu_settings">SETTINGS</string>
+    <string name="nav_drawer_menu_logout">LOGOUT</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <!-- NOTIFICATION SERVICE -->
+    <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
+    <string name="notification_title">"Vous avez reçu une notification"</string>
+
+    <!-- MAIN ACTIVITY -->
+    <string name="error_not_connected">Vous devez vous connecter !</string>
+    <string name="error_authentication_canceled">Authentification annulée&#8230;</string>
+    <string name="error_no_internet">Aucune connexion internet !</string>
+    <string name="error_unknown_error">Une erreur inconnue s\'est produite&#8230;</string>
+    <string name="connection_succeed">Authentification réussie !</string>
+    <string name="button_login_text_logged">Afficher le profil</string>
+    <string name="button_login_text_not_logged">Connexion</string>
+
+    <!-- LOGIN ACTIVITY -->
+    <string name="toolbar_title_login_activity">Votre Profil</string>
+    <string name="text_input_firstname">Prénom</string>
+    <string name="text_input_lastname">Nom</string>
+    <string name="text_view_email">Adresse email :</string>
+    <string name="button_update_account">Mettre à jour les informations</string>
+    <string name="update_confirmation">Informations mises à jour</string>
+    <string name="button_delete_account">Supprimer mon compte</string>
+    <string name="button_sign_out_account">Déconnexion</string>
+    <string name="info_no_email_found">Aucune adresse email</string>
+    <string name="info_no_firstname_found">Aucun prénom</string>
+    <string name="info_no_lastname_found">Aucun nom</string>
+    <string name="popup_message_confirmation_delete_account">Etes-vous sûr(e) de vouloir supprimer votre compte ?</string>
+    <string name="popup_message_choice_yes">Oui</string>
+    <string name="popup_message_choice_no">Non</string>
+    <string name="check_box_is_mentor">Etes-vous un mentor ?</string>
+    <string name="loginPageTitle">Connexion</string>
+
+    <!-- RESTAURANT ACTIVITY -->
+    <string name="toolbar_title_restaurant_activity">I\'m Hungry!</string>
+
+    <!-- FRAGMENT RESTAURANT LISTVIEW -->
+    <string name="fragment_listview_item_image">Image restaurant</string>
+    <string name="fragment_listview_item_restaurant_name">Nom du restaurant</string>
+    <string name="fragment_listview_item_restaurant_type">Type de cuisine</string>
+    <string name="fragment_listview_item_distance">Distance</string>
+    <string name="fragment_listview_item_restaurant_open_information">Ouvert jusqu\'à</string>
+    <string name="fragment_listview_item_restaurant_adress">Adresse du restaurant</string>
+    <string name="fragment_listview_item_restaurant_number_rates">(2)</string>
+    <string name="fragment_listview_item_dot">·</string>
+
+    <!-- FRAGMENT RESTAURANT PEOPLE -->
+    <string name="fragment_people_item_image">Image workmates</string>
+    <string name="fragment_people_item_text">Alex is eating Turkish (Snack Ender)</string>
+    <string name="workmates_text_choice"> %1$s va manger %2$s (%3$s)</string>
+    <string name="workmates_text_no_choice">%1$s n\'a pas encore choisi !</string>
+
+    <!-- DETAIL RESTAURANT -->
+
+    <!-- MAP-->
+    <string name="map_your_position">Your position</string>
+
+    <!-- BOTTOM NAVIGATION VIEW -->
+    <string name="bottom_navigation_menu_map">Map View</string>
+    <string name="bottom_navigation_menu_list">List View</string>
+    <string name="bottom_navigation_menu_people">Workmates</string>
+
+    <!-- FACEBOOK PURPOSE -->
+    <string name="facebook_application_id" translatable="false">420763051691337</string>
+    <string name="facebook_login_protocol_scheme" translatable="false" tools:ignore="UnusedResources">fb420763051691337</string>
+    <string name="title_activity_maps">Map</string>
+
+</resources>

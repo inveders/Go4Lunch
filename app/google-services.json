@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "635633270693",
+    "firebase_url": "https://go4lunch-inved.firebaseio.com",
+    "project_id": "go4lunch-inved",
+    "storage_bucket": "go4lunch-inved.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:635633270693:android:9183bedb57b7bcd6",
+        "android_client_info": {
+          "package_name": "com.inved.go4lunch"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "635633270693-p1bo28v0pqt54v14ods8k48slau5sc32.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.inved.go4lunch",
+            "certificate_hash": "13d2979dd53a94932f77e05c4fabea3b99f39f89"
+          }
+        },
+        {
+          "client_id": "635633270693-pl6pos1nrc1hs4jo92bf8oib4kiaa894.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCYRQL4UOKKcszTAi6OeN8xCvZ7CuFtp8A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "635633270693-pl6pos1nrc1hs4jo92bf8oib4kiaa894.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
