@@ -13,25 +13,30 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.Glide;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.APIClientGoogleSearch;
 
 import butterknife.BindView;
 
-import static com.inved.go4lunch.api.PlaceDetailsData.PLACE_DETAIL_DATA;
-import static com.inved.go4lunch.api.PlaceDetailsData.PLACE_DETAIL_DATA_PHONE_NUMBER;
+import static com.inved.go4lunch.controller.MapFragment.POSITION_ARRAY_LIST;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_NAME;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PHONE_NUMBER;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PHOTO_REFERENCE;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_VICINITY;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DETAIL_DATA;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_SEARCH_DATA;
 
 public class ViewPlaceActivity extends AppCompatActivity {
 
-    @BindView(R.id.activity_view_place_photo)
+
     ImageView viewPlacePhoto;
-  //  @BindView(R.id.activity_view_place_name)
     TextView viewPlaceName;
+    TextView viewPlaceAdress;
     @BindView(R.id.activity_view_place_restaurant_type)
     TextView viewPlaceRestaurantType;
-    @BindView(R.id.activity_view_place_adress)
-    TextView viewPlaceAdress;
+
+
     @BindView(R.id.activity_view_place_call_image)
     ImageView viewPlaceCallImage;
     @BindView(R.id.activity_view_place_like_image)
@@ -39,23 +44,33 @@ public class ViewPlaceActivity extends AppCompatActivity {
     @BindView(R.id.activity_view_place_website_image)
     ImageView viewPlaceWebsiteImage;
 
-    private RecyclerViewListViewRestaurant mRecyclerListViewAdapter;
+
+    private String photoreference;
+    private String restaurantName;
+    private String vicinity;
+    private String phoneNumber;
 
     //FOR DATA
-    private RequestManager glide;
+
     APIClientGoogleSearch mService;
 
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (PLACE_DETAIL_DATA.equals(intent.getAction())) {
+                phoneNumber = intent.getStringExtra(PLACE_DATA_PHONE_NUMBER);
+                photoreference = intent.getStringExtra(PLACE_DATA_PHOTO_REFERENCE);
+                restaurantName = intent.getStringExtra(PLACE_DATA_NAME);
+                vicinity = intent.getStringExtra(PLACE_DATA_VICINITY);
 
-                String phoneNumber = intent.getStringExtra(PLACE_DETAIL_DATA_PHONE_NUMBER);
-                Log.d("Debago", "ViewPlaceActivity onReceive phoneNumber: "+phoneNumber);
-                updateViewPlaceActivity(phoneNumber);
+            }
+
+            if (PLACE_SEARCH_DATA.equals(intent.getAction())) {
 
 
             }
+
+            updateViewPlaceActivity(restaurantName, vicinity, phoneNumber, photoreference);
         }
     };
 
@@ -65,26 +80,44 @@ public class ViewPlaceActivity extends AppCompatActivity {
         setContentView(R.layout.activity_view_place);
 
         viewPlaceName = findViewById(R.id.activity_view_place_name);
-
+        viewPlaceAdress = findViewById(R.id.activity_view_place_adress);
+        viewPlacePhoto = findViewById(R.id.activity_view_place_photo);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter(PLACE_DETAIL_DATA));
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter(PLACE_SEARCH_DATA));
+
 
     }
 
-  /*  private String getPhotoOfPlace(String photo_reference,int maxWidth) {
+
+    public void updateViewPlaceActivity(String restaurantName,
+                                        String vicinity,
+                                        String phoneNumber,
+                                        String photoreference) {
+
+        Log.d("Debago", "ViewPlaceActivity updtaeViewPlaceActivity positionInArrayList est: " + restaurantName);
+        Log.d("Debago", "ViewPlaceActivity updtaeViewPlaceActivity photoreference est: " + phoneNumber);
+
+        //Photo
         StringBuilder url = new StringBuilder("https://maps.googleapis.com/maps/api/place/photo");
-        url.append("?maxwidth="+maxWidth);
-        url.append("&photoreference"+photo_reference);
-        url.append("&key="+getResources().getString(R.string.google_api_key));
-        return url.toString();
-    }*/
+        url.append("?maxwidth=" + 1000);
+        url.append("&photoreference=");
+        url.append(photoreference);
+        url.append("&key=");
+        url.append(getResources().getString(R.string.google_api_key));
 
-    public void updateViewPlaceActivity(String numberPhone) {
+        Log.d("Debago", "ViewPlaceActivity updtaeViewPlaceActivity url: " + url.toString());
 
+        Glide.with(this)
+                .load(url.toString())
+                .placeholder(R.drawable.ic_android_blue_24dp)
+                .error(R.drawable.ic_error_red_24dp)
+                .into(viewPlacePhoto);
 
-        if (numberPhone != null) {
-                viewPlaceName.setText(numberPhone);
-        }
+        //Textes
+        viewPlaceName.setText(restaurantName);
+        viewPlaceAdress.setText(vicinity);
+
     }
 
     @Override

@@ -2,29 +2,46 @@ package com.inved.go4lunch.api;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Parcelable;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.controller.RecyclerViewListViewRestaurant;
-import com.inved.go4lunch.model.placedetails.PlaceDetails;
 import com.inved.go4lunch.model.placesearch.PlaceSearch;
+import com.inved.go4lunch.model.placesearch.Result;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_LIST_RESULT_PLACE_SEARCH;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_NAME;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PHOTO_MAW_WIDTH;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PHOTO_REFERENCE;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PLACE_ID;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_RESTAURANT_LATITUDE;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_RESTAURANT_LONGITUDE;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_SIZE;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_VICINITY;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_SEARCH_DATA;
 
 public class PlaceSearchData implements GooglePlaceCalls.Callbacks {
 
-    public static final String PLACE_SEARCH_DATA = "PLACE_SEARCH_DATA";
-    public static final String PLACE_SEARCH_DATA_NAME = "NAME";
-    public static final String PLACE_SEARCH_DATA_PHOTO_REFERENCE = "PHOTO_REFERENCE";
-    public static final String PLACE_SEARCH_DATA_PHOTO_MAW_WIDTH = "PHOTO_MAX_WIDTH";
 
-    RecyclerViewListViewRestaurant mRecyclerListViewAdapter;
+
+
     Context context;
+    List<Result> listResult;
+
     String geolocalisation;
 
     public void setGeolocalisation(String geolocalisation) {
         this.geolocalisation = geolocalisation;
+
         executeHttpRequestPlaceSearchWithRetrofit(geolocalisation);
     }
 
@@ -45,27 +62,40 @@ public class PlaceSearchData implements GooglePlaceCalls.Callbacks {
 
         if (response != null) {
 
-            assert response != null;
-            Log.d("Debago", "PlaceSearchData onResponse, response est : " + response.results.size());
-            //fragment listview
-         //   mRecyclerListViewAdapter.setData(response.results);
-            /**Pourquoi mon setData est nul?*/
+            int resultSize = response.results.size();
 
-            //VIEW PLACE ACTIVITY
-            String nameRestaurant = response.getResults().get(0).getName();
-            String photoReference = response.getResults().get(0).getPhotos().get(0).getPhotoReference();
-            int photoMaxWidth = response.getResults().get(0).getPhotos().get(0).getWidth();
-            sendRestaurantPlaceDataToOtherFragments(nameRestaurant, photoReference, photoMaxWidth);
+            ArrayList restaurantName=new ArrayList();
+            ArrayList photoReference=new ArrayList();
+            ArrayList photoMaxWidth=new ArrayList();
+            ArrayList restaurantLatitude=new ArrayList();
+            ArrayList restaurantLongitude=new ArrayList();
+            ArrayList photoResultSize=new ArrayList();
+            ArrayList vicinity=new ArrayList();
+            ArrayList placeId=new ArrayList();
 
-            // viewPlaceName.setText(users.getResult().getFormattedPhoneNumber());
-          /*  viewPlaceRestaurantType.setText(users.getResult().getTypes().toString());
-            viewPlaceAdress.setText(users.getResult().getFormattedAddress());
-         /*   if (APIClientGoogleSearch.currentResult.getPhotos() != null && APIClientGoogleSearch.currentResult.getPhotos().size() > 0) {
-                glide.load(getPhotoOfPlace(APIClientGoogleSearch.currentResult.getPhotos().get(0).getPhotoReference(), 1000))
-                        .placeholder(R.drawable.ic_android_blue_24dp)
-                        .error(R.drawable.ic_error_red_24dp)
-                        .into(viewPlacePhoto);
-            }*/
+            for (int i = 0; i < resultSize; i++) {
+
+                restaurantName.add(response.getResults().get(i).getName());
+                photoReference.add(response.getResults().get(i).getPhotos().get(0).getPhotoReference());
+                photoMaxWidth.add(response.getResults().get(i).getPhotos().get(0).getWidth());
+                photoResultSize.add(response.getResults().get(i).getPhotos().size());
+                restaurantLatitude.add(response.getResults().get(i).getGeometry().getLocation().getLat());
+                restaurantLongitude.add(response.getResults().get(i).getGeometry().getLocation().getLng());
+                vicinity.add(response.getResults().get(i).getVicinity());
+                placeId.add(response.getResults().get(i).getPlaceId());
+            }
+
+            sendRestaurantPlaceDataToOtherFragments(restaurantName,
+                    photoReference,
+                    photoMaxWidth,
+                    restaurantLatitude,
+                    restaurantLongitude,
+                    vicinity,
+                    resultSize,
+                    placeId);
+
+
+
         }
 
 
@@ -77,15 +107,31 @@ public class PlaceSearchData implements GooglePlaceCalls.Callbacks {
     }
 
 
-    public void sendRestaurantPlaceDataToOtherFragments(String name, String photoReference, int photoMaxWidth) {
+    public void sendRestaurantPlaceDataToOtherFragments(ArrayList restaurantName,
+                                                        ArrayList photoReference,
+                                                        ArrayList photoMaxWidth,
+                                                        ArrayList restaurantLatitude,
+                                                        ArrayList restaurantLongitude,
+                                                        ArrayList vicinity,
+                                                        int resultSize,
+                                                        ArrayList placeId) {
 
-        Log.d("Debago", "PlaceSearchData send Name : " + name);
+      //  Log.d("Debago", "PlaceSearchData send Name : " + restaurantName);
         final Intent intent = new Intent(PLACE_SEARCH_DATA);
-        intent.putExtra(PLACE_SEARCH_DATA_NAME, name);
-        intent.putExtra(PLACE_SEARCH_DATA_PHOTO_REFERENCE, photoReference);
-        intent.putExtra(PLACE_SEARCH_DATA_PHOTO_MAW_WIDTH, photoMaxWidth);
+        intent.putExtra(PLACE_DATA_NAME, restaurantName);
+        intent.putExtra(PLACE_DATA_PHOTO_REFERENCE, photoReference);
+        intent.putExtra(PLACE_DATA_PHOTO_MAW_WIDTH, photoMaxWidth);
+        intent.putExtra(PLACE_DATA_RESTAURANT_LATITUDE, restaurantLatitude);
+        intent.putExtra(PLACE_DATA_RESTAURANT_LONGITUDE, restaurantLongitude);
+        intent.putExtra(PLACE_DATA_VICINITY, vicinity);
+        intent.putExtra(PLACE_DATA_SIZE, resultSize);
+        intent.putExtra(PLACE_DATA_PLACE_ID, placeId);
 
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 
     }
+
+
+
+
 }

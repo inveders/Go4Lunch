@@ -4,6 +4,7 @@ package com.inved.go4lunch.model.placedetails;
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.inved.go4lunch.model.placesearch.Photo;
 
 public class Result {
 
@@ -61,7 +62,9 @@ public class Result {
     @SerializedName("website")
     @Expose
     private String website;
-
+    @SerializedName("photos")
+    @Expose
+    private List<Photo> photos = null;
     public List<AddressComponent> getAddressComponents() {
         return addressComponents;
     }
@@ -93,7 +96,9 @@ public class Result {
     public void setFormattedPhoneNumber(String formattedPhoneNumber) {
         this.formattedPhoneNumber = formattedPhoneNumber;
     }
-
+    public List<Photo> getPhotos() {
+        return photos;
+    }
     public Geometry getGeometry() {
         return geometry;
     }

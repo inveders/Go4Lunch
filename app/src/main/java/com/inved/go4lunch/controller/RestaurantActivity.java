@@ -41,6 +41,26 @@ import butterknife.BindView;
 
 public class RestaurantActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,LocationListener {
 
+    //FOR LOCAL BROADCAST MANAGER
+    public static final String PLACE_DETAIL_DATA = "PLACE_DETAIL_DATA";
+
+    public static final String PLACE_DATA_PHONE_NUMBER = "PLACE_DETAIL_DATA_PHONE_NUMBER";
+    public static final String PLACE_DATA_PHOTO_REFERENCE = "PLACE_DETAIL_DATA_PHOTO_REFERENCE";
+    public static final String PLACE_DATA_PHOTO_MAW_WIDTH = "PHOTO_MAX_WIDTH";
+
+    public static final String PLACE_SEARCH_DATA = "PLACE_SEARCH_DATA";
+
+    public static final String PLACE_DATA_RESTAURANT_LATITUDE = "RESTAURANT_LONGITUDE";
+    public static final String PLACE_DATA_RESTAURANT_LONGITUDE = "RESTAURANT_LATITUDE";
+
+
+    public static final String PLACE_DATA_NAME = "RESTAURANT_NAME";
+    public static final String PLACE_DATA_VICINITY = "VICINITY";
+    public static final String PLACE_DATA_SIZE = "RESULT_SIZE";
+    public static final String PLACE_DATA_PLACE_ID = "PLACE_ID";
+    public static final String PLACE_DATA_LIST_RESULT_PLACE_SEARCH = "LIST_RESULT_PLACE_SEARCH";
+
+
     //FOR DATA
     private static final int SIGN_OUT_TASK = 10;
     @BindView(R.id.activity_main_drawer_logout)

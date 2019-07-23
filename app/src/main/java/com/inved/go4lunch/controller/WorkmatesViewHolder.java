@@ -42,7 +42,7 @@ public class WorkmatesViewHolder extends RecyclerView.ViewHolder {
             this.mWorkmatesText.setText(App.getResourses().getString(R.string.workmates_text_choice, firstname, restaurantType, restaurantName));
 
         } else {
-            Log.d("Debago","WorkmatesViewHolder updtaeWithUsers restaurant name :"+restaurantName+" et firstname"+firstname);
+
             this.mWorkmatesText.setText(App.getResourses().getString(R.string.workmates_text_no_choice, firstname));
             mWorkmatesText.setTextColor(Color.parseColor("#D3D3D3"));
             mWorkmatesText.setTypeface(null, Typeface.ITALIC);

@@ -31,28 +31,45 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.inved.go4lunch.R;
-import com.inved.go4lunch.api.APIClientGoogleSearch;
-import com.inved.go4lunch.api.GooglePlaceCalls;
-import com.inved.go4lunch.model.placesearch.PlaceSearch;
-import com.inved.go4lunch.model.placesearch.Result;
 import com.inved.go4lunch.api.PlaceDetailsData;
+import com.inved.go4lunch.api.PlaceSearchData;
+import com.inved.go4lunch.model.placesearch.PlaceSearch;
+
+import java.util.ArrayList;
 
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_GEOLOCALISATION;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LATITUDE;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LOCATION_CHANGED;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LONGITUDE;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_NAME;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PLACE_ID;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_RESTAURANT_LATITUDE;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_RESTAURANT_LONGITUDE;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_SIZE;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_SEARCH_DATA;
 
-public class MapFragment extends Fragment implements OnMapReadyCallback, GooglePlaceCalls.Callbacks, GoogleMap.OnMarkerClickListener {
+public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+
+    public static final String POSITION_ARRAY_LIST = "POSITION_IN_ARRAY_LIST";
+
 
     GoogleMap mGoogleMap;
     private MapView mMapView;
     private View mView;
     private PlaceSearch myPlace = new PlaceSearch();
     private Marker mMarker;
+    private Double myDoubleLat;
+    private Double myDoubleLongi;
+    private ArrayList restaurantName;
+    private ArrayList restaurantLatitude;
+    private ArrayList restaurantLongitude;
+    private int resultSizeDataPlaceSearch;
+    private ArrayList placeId;
+    private String myCurrentGeolocalisation;
     Context context;
     PlaceDetailsData placeDetailsData = new PlaceDetailsData();
-
-    RestaurantActivity restaurantActivity = new RestaurantActivity();
+    PlaceSearchData placeSearchData = new PlaceSearchData();
+    ViewPlaceActivity viewPlaceActivity = new ViewPlaceActivity();
 
     private static final int PERMS_CALL_ID = 1234;
 
@@ -60,16 +77,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
         @Override
         public void onReceive(Context context, Intent intent) {
             if (KEY_LOCATION_CHANGED.equals(intent.getAction())) {
-
-                intent.getSerializableExtra(KEY_GEOLOCALISATION);
-
-                Double myLat = intent.getDoubleExtra(KEY_LATITUDE, 0);
-                Double myLongi = intent.getDoubleExtra(KEY_LONGITUDE, 0);
-
-                loadMapMapFragment(myLat, myLongi);
-
+                myCurrentGeolocalisation = intent.getStringExtra(KEY_GEOLOCALISATION);
+                myDoubleLat = intent.getDoubleExtra(KEY_LATITUDE, 0);
+                myDoubleLongi = intent.getDoubleExtra(KEY_LONGITUDE, 0);
 
             }
+
+            if (PLACE_SEARCH_DATA.equals(intent.getAction())) {
+
+                restaurantName = intent.getStringArrayListExtra(PLACE_DATA_NAME);
+                restaurantLatitude = intent.getStringArrayListExtra(PLACE_DATA_RESTAURANT_LATITUDE);
+                restaurantLongitude = intent.getStringArrayListExtra(PLACE_DATA_RESTAURANT_LONGITUDE);
+                resultSizeDataPlaceSearch = intent.getIntExtra(PLACE_DATA_SIZE, 0);
+                placeId = intent.getStringArrayListExtra(PLACE_DATA_PLACE_ID);
+            }
+
+            loadMapMapFragment(myDoubleLat, myDoubleLongi, restaurantName, restaurantLatitude, restaurantLongitude, resultSizeDataPlaceSearch);
         }
     };
 
@@ -82,11 +105,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
         super.onCreate(savedInstanceState);
 
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(broadcastReceiver, new IntentFilter(KEY_LOCATION_CHANGED));
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-      /*  SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.mapfrag);
-        mapFragment.getMapAsync(this);*/
-        //Launch retrofit request
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(broadcastReceiver, new IntentFilter(PLACE_SEARCH_DATA));
 
     }
 
@@ -129,8 +148,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
     @Override
     public boolean onMarkerClick(Marker marker) {
         if (marker.getSnippet() != null) {
-            APIClientGoogleSearch.currentResult = myPlace.getResults().get(Integer.parseInt(marker.getSnippet()));
-            placeDetailsData.setPlaceId(APIClientGoogleSearch.currentResult.getPlaceId());
+
+            int i = Integer.parseInt(marker.getSnippet());
+            placeDetailsData.setPlaceId((String) placeId.get(i));
+
             startViewPlaceActivity();
 
         }
@@ -170,24 +191,32 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
 
     }
 
-    // Override callback methods
+    private void loadMapMapFragment(Double lat,
+                                    Double longi,
+                                    ArrayList restaurantName,
+                                    ArrayList restaurantLatitude,
+                                    ArrayList restaurantLongitude,
+                                    int resultSize) {
 
-    @Override
-    public void onResponse(@Nullable PlaceSearch response) {
+
+        int mZoom = 18;
+        int mBearing = 0;
+        int mTilt = 45;
+        if (mMarker != null) {
+            mMarker.remove();
+        }
+
         // 2.1 - When getting response, we update UI
-        myPlace = response;
-        if (response != null) {
-            for (int i = 0; i < response.getResults().size(); i++) {
+
+        if (lat != null) {
+            //  mGoogleMap.clear();
+            for (int i = 0; i < resultSize; i++) {
                 MarkerOptions markerOptions = new MarkerOptions();
-                Result googlePlace = response.getResults().get(i);
-                double lat = Double.parseDouble(googlePlace.getGeometry().getLocation().getLat().toString());
-                double longi = Double.parseDouble(googlePlace.getGeometry().getLocation().getLng().toString());
-                String placeName = googlePlace.getName();
-                String vicinity = googlePlace.getVicinity();
-                LatLng latLng = new LatLng(lat, longi);
+                LatLng latLng = new LatLng((Double) restaurantLatitude.get(i), (Double) restaurantLongitude.get(i));
                 markerOptions.position(latLng);
 
-                markerOptions.title(placeName);
+                markerOptions.title((String) restaurantName.get(i));
+                // Log.d("Debago", "MapFragment restaurantName: " + restaurantName.get(i));
                 if (i < 5) {
 
                     markerOptions.icon(bitmapDescriptorFromVectorNotSelected(getContext(), R.drawable.ic_location_not_selected_24dp));
@@ -196,18 +225,33 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
                 }
                 markerOptions.snippet(String.valueOf(i));
                 mGoogleMap.addMarker(markerOptions);
+                CameraPosition Liberty = CameraPosition.builder().target(latLng).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
+                mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
                 mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(18));
+
+                //   mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                //  mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(mZoom));
             }
 
             mGoogleMap.setOnMarkerClickListener(this);
         }
 
-        assert response != null;
+     /*   if (mGoogleMap != null && lat != 0) {
+            LatLng googleLocation = new LatLng(lat, longi);
+            mMarker = mGoogleMap.addMarker(new MarkerOptions()
+                    .position(googleLocation)
+                    .title(getString(R.string.map_your_position))
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                 CameraPosition Liberty = CameraPosition.builder().target(googleLocation).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
+                 mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
+                 mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(googleLocation));
+        }*/
+
 
     }
 
-    private BitmapDescriptor bitmapDescriptorFromVectorSelected(Context context, @DrawableRes int vectorDrawableResourceId) {
+    private BitmapDescriptor bitmapDescriptorFromVectorSelected(Context context,
+                                                                @DrawableRes int vectorDrawableResourceId) {
         Drawable background = ContextCompat.getDrawable(context, R.drawable.ic_location_selected_24dp);
         background.setBounds(0, 0, background.getIntrinsicWidth(), background.getIntrinsicHeight());
         Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorDrawableResourceId);
@@ -219,7 +263,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
-    private BitmapDescriptor bitmapDescriptorFromVectorNotSelected(Context context, @DrawableRes int vectorDrawableResourceId) {
+    private BitmapDescriptor bitmapDescriptorFromVectorNotSelected(Context context,
+                                                                   @DrawableRes int vectorDrawableResourceId) {
         Drawable background = ContextCompat.getDrawable(context, R.drawable.ic_location_not_selected_24dp);
         background.setBounds(0, 0, background.getIntrinsicWidth(), background.getIntrinsicHeight());
         Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorDrawableResourceId);
@@ -230,44 +275,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
         vectorDrawable.draw(canvas);
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
-
-    @Override
-    public void onFailure() {
-        // 2.2 - When getting error, we update UI
-
-    }
-
-    private void loadMapMapFragment(Double lat, Double longi) {
-
-        int mZoom = 16;
-        int mBearing = 0;
-        int mTilt = 45;
-        if (mMarker != null) {
-            mMarker.remove();
-        }
-
-        if (mGoogleMap != null && lat != 0) {
-
-
-            LatLng googleLocation = new LatLng(lat, longi);
-            mGoogleMap.clear(); //clear old markers
-            mMarker = mGoogleMap.addMarker(new MarkerOptions()
-                    .position(googleLocation)
-                    .title(getString(R.string.map_your_position))
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-            CameraPosition Liberty = CameraPosition.builder().target(googleLocation).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
-            mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
-            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(googleLocation));
-
-
-        }
-
-
-    }
-
-
-
-
 
 
 }

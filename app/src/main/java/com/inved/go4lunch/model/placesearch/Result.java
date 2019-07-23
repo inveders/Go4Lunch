@@ -1,11 +1,14 @@
 
 package com.inved.go4lunch.model.placesearch;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Result {
+public class Result implements Parcelable {
 
     @SerializedName("geometry")
     @Expose
@@ -46,6 +49,54 @@ public class Result {
     @SerializedName("price_level")
     @Expose
     private Integer priceLevel;
+
+    protected Result(Parcel in) {
+        icon = in.readString();
+        id = in.readString();
+        name = in.readString();
+        placeId = in.readString();
+        if (in.readByte() == 0) {
+            rating = null;
+        } else {
+            rating = in.readDouble();
+        }
+        reference = in.readString();
+        scope = in.readString();
+        types = in.createStringArrayList();
+        vicinity = in.readString();
+        if (in.readByte() == 0) {
+            priceLevel = null;
+        } else {
+            priceLevel = in.readInt();
+        }
+    }
+
+    public static final Creator<Result> CREATOR = new Creator<Result>() {
+        @Override
+        public Result createFromParcel(Parcel in) {
+            return new Result(in);
+        }
+
+        @Override
+        public Result[] newArray(int size) {
+            return new Result[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(getName());
+        parcel.writeString(getPlaceId());
+        parcel.writeString(getVicinity());
+
+
+
+    }
 
     public Geometry getGeometry() {
         return geometry;
@@ -150,5 +201,6 @@ public class Result {
     public void setPriceLevel(Integer priceLevel) {
         this.priceLevel = priceLevel;
     }
+
 
 }

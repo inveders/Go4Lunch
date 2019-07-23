@@ -11,28 +11,36 @@ import com.inved.go4lunch.api.GooglePlaceDetailsCalls;
 import com.inved.go4lunch.controller.ViewPlaceActivity;
 import com.inved.go4lunch.model.placedetails.PlaceDetails;
 
+import static com.inved.go4lunch.controller.MapFragment.POSITION_ARRAY_LIST;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_GEOLOCALISATION;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LATITUDE;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LONGITUDE;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_NAME;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PHONE_NUMBER;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PHOTO_REFERENCE;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_VICINITY;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DETAIL_DATA;
 
 public class PlaceDetailsData implements GooglePlaceDetailsCalls.CallbacksDetail {
 
-    public static final String PLACE_DETAIL_DATA = "PLACE_DETAIL_DATA";
-    public static final String PLACE_DETAIL_DATA_PHONE_NUMBER = "PLACE_DETAIL_DATA_PHONE_NUMBER";
+
+
     Context context;
-    String placeId;
+    private String placeId;
 
     public void setPlaceId(String placeId) {
         this.placeId = placeId;
+
         executeHttpRequestPlaceDetailsWithRetrofit(placeId);
     }
+
 
     private void executeHttpRequestPlaceDetailsWithRetrofit(String currentPlaceId) {
 
         if (currentPlaceId != null) {
             String key = "AIzaSyCYRQL4UOKKcszTAi6OeN8xCvZ7CuFtp8A";// getText(R.string.google_maps_key).toString();
-            String fields = "photo,type,formatted_phone_number,opening_hours";
-            Log.d("Debago", "ViewPlaceActivity onexecuteretrofit : " + currentPlaceId);
+            String fields = "type,formatted_phone_number,opening_hours,photo,name,vicinity";
+
             GooglePlaceDetailsCalls.fetchPlaceDetail(this, currentPlaceId, key, fields);
         }
     }
@@ -45,29 +53,12 @@ public class PlaceDetailsData implements GooglePlaceDetailsCalls.CallbacksDetail
 
 
             String numberPhone = response.getResult().getFormattedPhoneNumber();
-           // String photoReference = users.getResult()
-            sendRestaurantDetailDataToOtherFragments(numberPhone);
-
-            // viewPlaceName.setText(users.getResult().getFormattedPhoneNumber());
-          /*  viewPlaceRestaurantType.setText(users.getResult().getTypes().toString());
-            viewPlaceAdress.setText(users.getResult().getFormattedAddress());
-         /*   if (APIClientGoogleSearch.currentResult.getPhotos() != null && APIClientGoogleSearch.currentResult.getPhotos().size() > 0) {
-                glide.load(getPhotoOfPlace(APIClientGoogleSearch.currentResult.getPhotos().get(0).getPhotoReference(), 1000))
-                        .placeholder(R.drawable.ic_android_blue_24dp)
-                        .error(R.drawable.ic_error_red_24dp)
-                        .into(viewPlacePhoto);
-            }*/
-
-       /*     viewPlaceCallImage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    /**ICI LANCER UN APPEL TELEPHONIQUE DEPUIS L'APPAREIL*/
+            String photoReference = response.getResult().getPhotos().get(0).getPhotoReference();
+            String name = response.getResult().getName();
+            String vicinity = response.getResult().getVicinity();
+            sendRestaurantDetailDataToOtherFragments(numberPhone,photoReference,name,vicinity);
 
 
-            //      }
-            //     });
-
-            //  startViewPlaceActivity();
         } else {
             Log.d("Debago", "ViewPlaceActivity onResponse : users est null");
         }
@@ -80,12 +71,15 @@ public class PlaceDetailsData implements GooglePlaceDetailsCalls.CallbacksDetail
     }
 
 
-    public void sendRestaurantDetailDataToOtherFragments(String numberPhone) {
+    public void sendRestaurantDetailDataToOtherFragments(String numberPhone,String photoreference,String name, String vicinity) {
 
         final Intent intent = new Intent(PLACE_DETAIL_DATA);
-        intent.putExtra(PLACE_DETAIL_DATA_PHONE_NUMBER, numberPhone);
-      /*  intent.putExtra(KEY_LATITUDE, getLatitude());
-        intent.putExtra(KEY_LONGITUDE, getLongitude());*/
+        intent.putExtra(PLACE_DATA_PHONE_NUMBER, numberPhone);
+        intent.putExtra(PLACE_DATA_PHOTO_REFERENCE, photoreference);
+        intent.putExtra(PLACE_DATA_NAME, name);
+        intent.putExtra(PLACE_DATA_VICINITY, vicinity);
+
+
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 
     }
