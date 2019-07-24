@@ -8,38 +8,37 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.util.Log;
+import android.text.TextUtils;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.ViewPager;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.auth.AuthUI;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.inved.go4lunch.R;
+import com.inved.go4lunch.api.UserHelper;
 import com.inved.go4lunch.auth.ProfileActivity;
+import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.model.User;
 
 import butterknife.BindView;
 
-public class RestaurantActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,LocationListener {
+public class RestaurantActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener,LocationListener {
 
     //FOR LOCAL BROADCAST MANAGER
     public static final String PLACE_DETAIL_DATA = "PLACE_DETAIL_DATA";
@@ -61,19 +60,25 @@ public class RestaurantActivity extends AppCompatActivity implements NavigationV
     public static final String PLACE_DATA_LIST_RESULT_PLACE_SEARCH = "LIST_RESULT_PLACE_SEARCH";
 
 
+
     //FOR DATA
     private static final int SIGN_OUT_TASK = 10;
     @BindView(R.id.activity_main_drawer_logout)
     MenuItem logout;
+    @BindView(R.id.nav_header_FirstName)
+    TextView navFirstname;
+    @BindView(R.id.nav_header_LastName)
+    TextView navLastname;
+    @BindView(R.id.nav_header_Email)
+    TextView navEmail;
+    @BindView(R.id.nav_header_profile_image)
+    ImageView navProfileImage;
 
     //FOR DESIGN
 
     //Declaration for fragments
     BottomNavigationView bottomNavigationView;
     ViewPager viewPager;
- //   MapFragment mapFragment = new MapFragment();
-/*    ListViewFragment listViewFragment = new ListViewFragment();
-    PeopleFragment peopleFragment = new PeopleFragment();*/
 
     //Localisation
 
@@ -98,9 +103,12 @@ public class RestaurantActivity extends AppCompatActivity implements NavigationV
     private NavigationView navigationView;
 
     @Override
+    public int getFragmentLayout() {return R.layout.activity_restaurant;}
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_restaurant);
+      //  setContentView(R.layout.activity_restaurant);
 
         //Bottom Navigation View
         bottomNavigationView = findViewById(R.id.activity_restaurant_bottom_navigation);
@@ -124,6 +132,8 @@ public class RestaurantActivity extends AppCompatActivity implements NavigationV
 
 
     }
+
+
 
     @Override
     public void onResume() {
@@ -212,6 +222,42 @@ public class RestaurantActivity extends AppCompatActivity implements NavigationV
         actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
+        userInformationFromFirebase();
+
+
+
+    }
+
+    private void userInformationFromFirebase() {
+
+        if (this.getCurrentUser() != null){
+
+            //Get picture URL from Firebase
+            if (this.getCurrentUser().getPhotoUrl() != null) {
+                Glide.with(this)
+                        .load(this.getCurrentUser().getPhotoUrl())
+                        .apply(RequestOptions.circleCropTransform())
+                        .into(navProfileImage);
+            }
+
+            String email = TextUtils.isEmpty(this.getCurrentUser().getEmail()) ? getString(R.string.info_no_email_found) : this.getCurrentUser().getEmail();
+
+            this.navEmail.setText(email);
+
+            // 7 - Get data from Firestore
+            UserHelper.getUser(this.getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    User currentUser = documentSnapshot.toObject(User.class);
+
+                    String firstname = TextUtils.isEmpty(currentUser.getFirstname()) ? getString(R.string.info_no_firstname_found) : currentUser.getFirstname();
+                    String lastname = TextUtils.isEmpty(currentUser.getLastname()) ? getString(R.string.info_no_lastname_found) : currentUser.getLastname();
+                    navFirstname.setText(firstname);
+                    navLastname.setText(lastname);
+                }
+            });
+
+        }
     }
 
     // Configure NavigationView
