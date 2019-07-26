@@ -7,27 +7,23 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.inved.go4lunch.R;
-import com.inved.go4lunch.api.UserHelper;
+import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.controller.MainActivity;
-import com.inved.go4lunch.controller.RestaurantActivity;
-import com.inved.go4lunch.model.User;
+import com.inved.go4lunch.firebase.User;
 
 import butterknife.BindView;
 import butterknife.OnClick;

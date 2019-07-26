@@ -1,22 +1,10 @@
-package com.inved.go4lunch.api;
+package com.inved.go4lunch.firebase;
 
-import android.annotation.SuppressLint;
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.inved.go4lunch.model.User;
-
-import static com.firebase.ui.auth.AuthUI.TAG;
 
 
 public class UserHelper {
@@ -32,12 +20,15 @@ public class UserHelper {
 
     }
 
+
+
+
     // --- CREATE ---
 
     public static Task<Void> createUser(String uid, String firstname, String lastname,String urlPicture, String restaurantName,String restaurantType) {
         // 1 - Create Obj
 
-        com.inved.go4lunch.model.User userToCreate = new User(uid, firstname,lastname, urlPicture,restaurantName,restaurantType);
+        User userToCreate = new User(uid, firstname,lastname, urlPicture,restaurantName,restaurantType);
 
         return UserHelper.getUsersCollection().document(uid).set(userToCreate);
     }
@@ -53,6 +44,7 @@ public class UserHelper {
         return UserHelper.getUsersCollection();
 
     }
+
     // --- UPDATE ---
 
     public static Task<Void> updateFirstname(String firstname, String uid) {
@@ -63,12 +55,12 @@ public class UserHelper {
         return UserHelper.getUsersCollection().document(uid).update("lastname", lastname);
     }
 
-    public static Task<Void> updateRestaurantName(String restaurantName, String uid) {
-        return UserHelper.getUsersCollection().document(uid).update("RestaurantName", restaurantName);
+    public static Task<Void> updateRestaurantPlaceId(String restauranttPlaceId, String uid) {
+        return UserHelper.getUsersCollection().document(uid).update("restaurantName", restauranttPlaceId);
     }
 
     public static Task<Void> updateRestaurantType(String restaurantType, String uid) {
-        return UserHelper.getUsersCollection().document(uid).update("RestaurantType", restaurantType);
+        return UserHelper.getUsersCollection().document(uid).update("restaurantType", restaurantType);
     }
 
     // --- DELETE ---

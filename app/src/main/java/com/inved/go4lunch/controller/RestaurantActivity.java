@@ -31,12 +31,10 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.inved.go4lunch.R;
-import com.inved.go4lunch.api.UserHelper;
+import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.auth.ProfileActivity;
 import com.inved.go4lunch.base.BaseActivity;
-import com.inved.go4lunch.model.User;
-
-import butterknife.BindView;
+import com.inved.go4lunch.firebase.User;
 
 public class RestaurantActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener,LocationListener {
 
@@ -63,17 +61,13 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     //FOR DATA
     private static final int SIGN_OUT_TASK = 10;
-    @BindView(R.id.activity_main_drawer_logout)
-    MenuItem logout;
-    @BindView(R.id.nav_header_FirstName)
-    TextView navFirstname;
-    @BindView(R.id.nav_header_LastName)
-    TextView navLastname;
-    @BindView(R.id.nav_header_Email)
-    TextView navEmail;
-    @BindView(R.id.nav_header_profile_image)
-    ImageView navProfileImage;
 
+    MenuItem logout;
+    TextView navFirstname;
+    TextView navLastname;
+    TextView navEmail;
+    ImageView navProfileImage;
+    private NavigationView mNavigationView;
     //FOR DESIGN
 
     //Declaration for fragments
@@ -114,11 +108,27 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         bottomNavigationView = findViewById(R.id.activity_restaurant_bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
+        //NavigationDrawer
+        logout=findViewById(R.id.activity_main_drawer_logout);
+
+
         //Viewpager
         viewPager = findViewById(R.id.viewpager_fragment); //Init Viewpager
         setupFm(getSupportFragmentManager(), viewPager); //Setup Fragment
         viewPager.setCurrentItem(0); //Set Currrent Item When Activity Start
         viewPager.setOnPageChangeListener(new PageChange()); //Listeners For Viewpager When Page Changed
+
+        //Configuration navigation view header
+        mNavigationView=findViewById(R.id.activity_restaurant_nav_view);
+        navFirstname = mNavigationView.getHeaderView(0).findViewById(R.id.nav_header_FirstName);
+        navLastname = mNavigationView.getHeaderView(0).findViewById(R.id.nav_header_LastName);
+        navEmail = mNavigationView.getHeaderView(0).findViewById(R.id.nav_header_Email);
+        navProfileImage = mNavigationView.getHeaderView(0).findViewById(R.id.nav_header_profile_image);
+
+     /*   navFirstname=findViewById(R.id.nav_header_FirstName);
+        navLastname=findViewById(R.id.nav_header_LastName);
+        navEmail=findViewById(R.id.nav_header_Email);
+        navProfileImage=findViewById(R.id.nav_header_profile_image);*/
 
         //All view configuration
         this.configureToolBar();
@@ -126,6 +136,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         this.configureDrawerLayout();
 
         this.configureNavigationView();
+        this.userInformationFromFirebase();
 
         //Localisation
         checkPermissions();
@@ -133,14 +144,11 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     }
 
-
-
     @Override
     public void onResume() {
         super.onResume();
-
         checkPermissions();
-
+        userInformationFromFirebase();
     }
 
     //Navigation drawer
@@ -222,7 +230,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
-        userInformationFromFirebase();
+       // userInformationFromFirebase();
 
 
 
@@ -230,11 +238,14 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     private void userInformationFromFirebase() {
 
+
         if (this.getCurrentUser() != null){
 
             //Get picture URL from Firebase
             if (this.getCurrentUser().getPhotoUrl() != null) {
+
                 Glide.with(this)
+
                         .load(this.getCurrentUser().getPhotoUrl())
                         .apply(RequestOptions.circleCropTransform())
                         .into(navProfileImage);
@@ -242,8 +253,9 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
             String email = TextUtils.isEmpty(this.getCurrentUser().getEmail()) ? getString(R.string.info_no_email_found) : this.getCurrentUser().getEmail();
 
-            this.navEmail.setText(email);
-
+            if(email!=null) {
+                navEmail.setText(email);
+            }
             // 7 - Get data from Firestore
             UserHelper.getUser(this.getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override

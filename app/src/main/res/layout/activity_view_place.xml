@@ -15,6 +15,23 @@
         android:contentDescription="@string/fragment_people_item_image"
         app:layout_constraintTop_toTopOf="parent"/>
 
+    <!-- BUTTON TO CHOOSE RESTAURANT -->
+    <ImageView
+        android:id="@+id/activity_view_place_button_choose_restaurant"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:contentDescription="@string/is_choosen_restaurant"
+        app:layout_constraintCircle="@id/activity_view_place_website_image"
+        app:layout_constraintCircleRadius="130dp"
+        app:layout_constraintCircleAngle="25"
+        app:layout_constraintLeft_toRightOf="@id/activity_view_place_website_image"
+        app:layout_constraintTop_toTopOf="@id/activity_view_place_name"
+
+        android:background="@color/whiteColor"
+        android:src="@drawable/ic_check_choosen_restaurant"
+
+        />
+
 
     <!-- NAME AND OTHERS -->
     <TextView

@@ -2,7 +2,6 @@ package com.inved.go4lunch.controller;
 
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -13,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
 import com.inved.go4lunch.R;
-import com.inved.go4lunch.model.User;
+import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.utils.App;
 
 public class WorkmatesViewHolder extends RecyclerView.ViewHolder {
@@ -33,7 +32,7 @@ public class WorkmatesViewHolder extends RecyclerView.ViewHolder {
     public void updateWithUsers(User user, RequestManager glide){
 
         String firstname = user.getFirstname();
-        String restaurantName =user.getRestaurantName();
+        String restaurantName =user.getRestaurantPlaceId();
         String restaurantType=user.getRestaurantType();
 
         // Update user TextView

@@ -1,9 +1,7 @@
 package com.inved.go4lunch.controller;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.viewpager.widget.ViewPager;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,8 +14,8 @@ import com.firebase.ui.auth.IdpResponse;
 import com.google.android.material.snackbar.Snackbar;
 import com.inved.go4lunch.R;
 
-import com.inved.go4lunch.api.UserHelper;
-import com.inved.go4lunch.auth.ProfileActivity;
+import com.inved.go4lunch.firebase.RestaurantHelper;
+import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.base.BaseActivity;
 
 import java.util.Arrays;
@@ -26,6 +24,8 @@ import butterknife.BindView;
 import butterknife.OnClick;
 
 public class MainActivity extends BaseActivity {
+
+
 
     //FOR DESIGN
     @BindView(R.id.coordinatorLayout)
@@ -41,7 +41,8 @@ public class MainActivity extends BaseActivity {
     @Override
     public int getFragmentLayout() {
 
-        return R.layout.activity_main; }
+        return R.layout.activity_main;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,10 +50,10 @@ public class MainActivity extends BaseActivity {
 
 
         // Start appropriate activity
-        if (this.isCurrentUserLogged()){
+        if (this.isCurrentUserLogged()) {
             this.startRestaurantActivity();
 
-            }
+        }
     }
 
     @Override
@@ -64,8 +65,10 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-       // this.updateUIWhenGoogleResuming();
+        // this.updateUIWhenGoogleResuming();
     }
+
+
 
 
     // --------------------
@@ -74,7 +77,7 @@ public class MainActivity extends BaseActivity {
 
     @OnClick(R.id.login_facebook_button)
     public void onClickFacebookLoginButton() {
-        if (this.isCurrentUserLogged()){
+        if (this.isCurrentUserLogged()) {
             this.startRestaurantActivity();
         } else {
             this.startFacebookSignInActivity();
@@ -84,7 +87,7 @@ public class MainActivity extends BaseActivity {
     @OnClick(R.id.login_google_button)
     public void onClickGoogleLoginButton() {
 
-        if (this.isCurrentUserLogged()){
+        if (this.isCurrentUserLogged()) {
 
             this.startRestaurantActivity();
         } else {
@@ -96,26 +99,39 @@ public class MainActivity extends BaseActivity {
     // REST REQUEST
     // --------------------
 
-    private void createUserInFirestore(){
+    private void createUserInFirestore() {
 
-        if (this.getCurrentUser() != null){
+        if (this.getCurrentUser() != null) {
 
             String urlPicture = (this.getCurrentUser().getPhotoUrl() != null) ? this.getCurrentUser().getPhotoUrl().toString() : null;
             String firstname = this.getCurrentUser().getDisplayName();
             String lastname = null;
             String uid = this.getCurrentUser().getUid();
-            String restaurantName=null;
-            String restaurantType=null;
-            Log.d("Debago","MainActivity : createUserInFirestore");
-            UserHelper.createUser(uid, firstname, lastname, urlPicture,restaurantName,restaurantType).addOnFailureListener(this.onFailureListener());
+            String restaurantName = null;
+            String restaurantType = null;
+            Log.d("Debago", "MainActivity : createUserInFirestore");
+            UserHelper.createUser(uid, firstname, lastname, urlPicture, restaurantName, restaurantType).addOnFailureListener(this.onFailureListener());
+
+
         }
     }
+
+ /*   private void createRestaurantInFirestore() {
+
+        if (this.getCurrentUser() != null) {
+
+            String restaurantPlaceId = null;
+            String uid = this.getCurrentUser().getUid();
+            int restaurantCustomers = 0;
+            RestaurantHelper.createRestaurant(uid,restaurantPlaceId,restaurantCustomers).addOnFailureListener(this.onFailureListener());
+        }
+    }*/
 
     // --------------------
     // NAVIGATION
     // --------------------
 
-    private void startFacebookSignInActivity(){
+    private void startFacebookSignInActivity() {
         startActivityForResult(
                 AuthUI.getInstance()
                         .createSignInIntentBuilder()
@@ -128,7 +144,7 @@ public class MainActivity extends BaseActivity {
                 RC_SIGN_IN);
     }
 
-    private void startGoogleSignInActivity(){
+    private void startGoogleSignInActivity() {
         startActivityForResult(
                 AuthUI.getInstance()
                         .createSignInIntentBuilder()
@@ -141,7 +157,7 @@ public class MainActivity extends BaseActivity {
                 RC_SIGN_IN);
     }
 
-    private void startRestaurantActivity(){
+    private void startRestaurantActivity() {
         Intent intent = new Intent(this, RestaurantActivity.class);
 
         startActivity(intent);
@@ -151,7 +167,7 @@ public class MainActivity extends BaseActivity {
     // UI
     // --------------------
 
-    private void showSnackBar(CoordinatorLayout coordinatorLayout, String message){
+    private void showSnackBar(CoordinatorLayout coordinatorLayout, String message) {
         Snackbar.make(coordinatorLayout, message, Snackbar.LENGTH_SHORT).show();
     }
 
@@ -160,7 +176,7 @@ public class MainActivity extends BaseActivity {
         //this.buttonLogin.setText(this.isCurrentUserLogged() ? getString(R.string.button_login_text_logged) : getString(R.string.button_login_text_not_logged));
     }*/
 
-    private void updateUIWhenFacebookResuming(){
+    private void updateUIWhenFacebookResuming() {
         this.facebookLogin.setText(this.isCurrentUserLogged() ? getString(R.string.button_login_text_logged) : getString(R.string.button_login_text_not_logged));
     }
 
@@ -169,14 +185,15 @@ public class MainActivity extends BaseActivity {
     // --------------------
 
 
-    private void handleResponseAfterSignIn(int requestCode, int resultCode, Intent data){
+    private void handleResponseAfterSignIn(int requestCode, int resultCode, Intent data) {
 
         IdpResponse response = IdpResponse.fromResultIntent(data);
 
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) { // SUCCESS
                 showSnackBar(this.coordinatorLayout, getString(R.string.connection_succeed));
-                this.createUserInFirestore();
+                this.createUserInFirestore(); /**C'est ici le probléme il faudrait qu'on crée l'utilisateur s'il n'existe pas déjà dans la base de données*/
+                //this.createRestaurantInFirestore();
                 this.startRestaurantActivity();
             } else { // ERRORS
                 if (response == null) {
@@ -189,7 +206,6 @@ public class MainActivity extends BaseActivity {
             }
         }
     }
-
 
 
 }

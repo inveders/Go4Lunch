@@ -1,4 +1,4 @@
-package com.inved.go4lunch.model;
+package com.inved.go4lunch.firebase;
 
 import androidx.annotation.Nullable;
 
@@ -10,7 +10,7 @@ public class User {
     @Nullable
     private String urlPicture;
     private String emailAdress;
-    private String restaurantName;
+    private String restaurantPlaceId;
     private String restaurantType;
 
     public User() { }
@@ -20,7 +20,7 @@ public class User {
         this.firstname = firstname;
         this.lastname = lastname;
         this.urlPicture = urlPicture;
-        this.restaurantName = restaurantName;
+        this.restaurantPlaceId = restaurantName;
         this.restaurantType=restaurantType;
     }
 
@@ -29,7 +29,7 @@ public class User {
     public String getFirstname() { return firstname; }
     public String getLastname() { return lastname; }
     public String getUrlPicture() { return urlPicture; }
-    public String getRestaurantName() { return restaurantName; }
+    public String getRestaurantPlaceId() { return restaurantPlaceId; }
     public String getRestaurantType(){return restaurantType;}
 
     // --- SETTERS ---
@@ -37,6 +37,6 @@ public class User {
     public void setLastname(String lastname) { this.lastname = lastname; }
     public void setUid(String uid) { this.uid = uid; }
     public void setUrlPicture(String urlPicture) { this.urlPicture = urlPicture; }
-    public void setRestaurantName(String restaurantName) { this.restaurantName = restaurantName; }
+    public void setRestaurantPlaceId(String restaurantPlaceId) { this.restaurantPlaceId = restaurantPlaceId; }
     public void setRestaurantType(String restaurantType){this.restaurantType=restaurantType;}
 }

@@ -4,7 +4,7 @@
     <string name="loginFacebook">Sign in with Facebook</string>
     <string name="loginGoogle">Sign in with Google</string>
 
-
+    <string name="arrondi">%1$.2d </string>
 
     <!-- NAVIGATION DRAWER -->
     <string name="nav_drawer_menu_lunch">YOUR LUNCH</string>
@@ -66,6 +66,10 @@
     <string name="workmates_text_no_choice">%1$s n\'a pas encore choisi !</string>
 
     <!-- DETAIL RESTAURANT -->
+    <string name="restaurant_choosen">Le restaurant a bien été choisi</string>
+    <string name="is_choosen_restaurant">Choix du restaurant</string>
+    <string name="alert_dialog_view_activity">Etes-vous sûr(e) de vouloir changer pour manger au restaurant %1$s ?</string>
+    <string name="alert_dialog_view_activity_delete_choice">Etes-vous sûr(e) de ne plus vouloir manger ici ?</string>
 
     <!-- MAP-->
     <string name="map_your_position">Your position</string>

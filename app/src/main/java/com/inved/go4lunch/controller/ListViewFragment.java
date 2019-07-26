@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,23 +17,18 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.RequestManager;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.GooglePlaceCalls;
-import com.inved.go4lunch.api.PlaceSearchData;
 import com.inved.go4lunch.model.placesearch.PlaceSearch;
 import com.inved.go4lunch.model.placesearch.Result;
 
 import java.util.List;
 
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_GEOLOCALISATION;
+import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LATITUDE;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LOCATION_CHANGED;
-import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_LIST_RESULT_PLACE_SEARCH;
-import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_NAME;
-import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PLACE_ID;
-import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_RESTAURANT_LATITUDE;
-import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_RESTAURANT_LONGITUDE;
-import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_SIZE;
+import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LONGITUDE;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DETAIL_DATA;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_SEARCH_DATA;
 
 public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callbacks {
@@ -44,8 +38,8 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
     private RecyclerViewListViewRestaurant mRecyclerListViewAdapter;
     RestaurantActivity gps = new RestaurantActivity();
     String myLastGeolocalisation=null;
-    
-    PlaceSearchData placeSearchData = new PlaceSearchData();
+    private Double myCurrentLat;
+    private Double myCurrentLongi;
 
     //Receive current localisation from Localisation.class
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver()
@@ -57,7 +51,8 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
             {
                 intent.getSerializableExtra(KEY_GEOLOCALISATION);
                 String myCurrentGeolocalisation=intent.getStringExtra(KEY_GEOLOCALISATION);
-
+                myCurrentLat = intent.getDoubleExtra(KEY_LATITUDE, 0.0);
+                myCurrentLongi = intent.getDoubleExtra(KEY_LONGITUDE, 0.0);
                 if(myCurrentGeolocalisation.equals(myLastGeolocalisation)){
 
                 }
@@ -68,6 +63,14 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
                     myLastGeolocalisation=myCurrentGeolocalisation;
 
                 }
+
+            }
+
+            if (PLACE_DETAIL_DATA.equals(intent.getAction())) {
+           /*     phoneNumber = intent.getStringExtra(PLACE_DATA_PHONE_NUMBER);
+                photoreference = intent.getStringExtra(PLACE_DATA_PHOTO_REFERENCE);
+                restaurantName = intent.getStringExtra(PLACE_DATA_NAME);
+                vicinity = intent.getStringExtra(PLACE_DATA_VICINITY);*/
 
             }
 
@@ -109,6 +112,7 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
     @Override
     public void onResponse(@Nullable PlaceSearch response) {
         mRecyclerListViewAdapter.setData(response.results);
+        mRecyclerListViewAdapter.setCurrentLocalisation(myCurrentLat,myCurrentLongi);
     }
 
     @Override

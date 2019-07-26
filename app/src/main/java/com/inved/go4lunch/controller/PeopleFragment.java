@@ -1,6 +1,5 @@
 package com.inved.go4lunch.controller;
 
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,19 +8,15 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.GlideBuilder;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.Query;
 import com.inved.go4lunch.R;
-import com.inved.go4lunch.api.UserHelper;
-import com.inved.go4lunch.model.User;
-
-import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LOCATION_CHANGED;
+import com.inved.go4lunch.firebase.UserHelper;
+import com.inved.go4lunch.firebase.User;
 
 public class PeopleFragment extends Fragment implements WorkmatesAdapter.Listener{
 
@@ -45,8 +40,6 @@ public class PeopleFragment extends Fragment implements WorkmatesAdapter.Listene
     }
 
     private void displayAllWorkmates() {
-
-      //  FirebaseRecyclerAdapter<User,WorkmatesViewHolder> firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<User,WorkmatesViewHolder>
 
         this.mRecyclerWorkmatesAdapter = new WorkmatesAdapter(generateOptionsForAdapter(UserHelper.getAllUsers()), Glide.with(this),this);
         //Choose how to display the list in the RecyclerView (vertical or horizontal)
