@@ -63,6 +63,7 @@
     <string name="fragment_people_item_image">Image workmates</string>
     <string name="fragment_people_item_text">Alex is eating Turkish (Snack Ender)</string>
     <string name="workmates_text_choice"> %1$s va manger %2$s (%3$s)</string>
+    <string name="workmates_text_joining"> %1$s va manger ici</string>
     <string name="workmates_text_no_choice">%1$s n\'a pas encore choisi !</string>
 
     <!-- DETAIL RESTAURANT -->
@@ -70,6 +71,7 @@
     <string name="is_choosen_restaurant">Choix du restaurant</string>
     <string name="alert_dialog_view_activity">Etes-vous sûr(e) de vouloir changer pour manger au restaurant %1$s ?</string>
     <string name="alert_dialog_view_activity_delete_choice">Etes-vous sûr(e) de ne plus vouloir manger ici ?</string>
+    <string name="restaurant_no_choosen">Vous n\'avez pas encore choisi de restaurant</string>
 
     <!-- MAP-->
     <string name="map_your_position">Your position</string>

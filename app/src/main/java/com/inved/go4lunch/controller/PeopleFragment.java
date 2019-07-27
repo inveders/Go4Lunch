@@ -41,7 +41,7 @@ public class PeopleFragment extends Fragment implements WorkmatesAdapter.Listene
 
     private void displayAllWorkmates() {
 
-        this.mRecyclerWorkmatesAdapter = new WorkmatesAdapter(generateOptionsForAdapter(UserHelper.getAllUsers()), Glide.with(this),this);
+        this.mRecyclerWorkmatesAdapter = new WorkmatesAdapter(generateOptionsForAdapter(UserHelper.getAllUsers()), Glide.with(this),this,getContext());
         //Choose how to display the list in the RecyclerView (vertical or horizontal)
         mRecyclerWorkmates.setHasFixedSize(true); //REVOIR CELA
         mRecyclerWorkmates.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));

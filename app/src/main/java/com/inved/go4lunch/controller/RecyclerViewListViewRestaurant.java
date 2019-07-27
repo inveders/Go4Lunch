@@ -165,7 +165,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
     }
 
     public void setCurrentLocalisation(Double lat, Double longi) {
-        Log.d("Debago", "RecyclerViewRestaurant setCurrentLocalisation myCurrentlat " + myCurrentLat);
+
         myCurrentLat = lat;
         myCurrentLongi = longi;
         //Fill the Recycler View

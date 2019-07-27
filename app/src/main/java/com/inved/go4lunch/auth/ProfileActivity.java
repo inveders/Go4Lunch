@@ -95,6 +95,8 @@ public class ProfileActivity extends BaseActivity {
                 AuthUI.getInstance()
                         .delete(this)
                         .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted(DELETE_USER_TASK));
+
+                UserHelper.deleteUser(this.getCurrentUser().getUid()).addOnFailureListener(this.onFailureListener());
             }
         }
 
@@ -171,8 +173,9 @@ public class ProfileActivity extends BaseActivity {
                             Toast.makeText(getApplicationContext(), getString(R.string.update_confirmation), Toast.LENGTH_LONG).show();
                             break;
                         case DELETE_USER_TASK:
-                            startMainActivity();
+
                             finish();
+                          //  startMainActivity();
 
                             break;
                     }

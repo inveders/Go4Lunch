@@ -195,10 +195,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
         int resultSize = response.results.size();
 
         ArrayList placeId = new ArrayList();
+        ArrayList restaurantName = new ArrayList();
         ArrayList latitude = new ArrayList();
         ArrayList longitude = new ArrayList();
         for (int i = 0; i < resultSize; i++) {
             placeId.add(response.results.get(i).getPlaceId());
+            restaurantName.add(response.results.get(i).getName());
             latitude.add(response.results.get(i).getGeometry().getLocation().getLat());
             longitude.add(response.results.get(i).getGeometry().getLocation().getLng());
         }
@@ -257,6 +259,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
         for (int i = 0; i < listPlaceId.size(); i++) {
 
             String id = listPlaceId.get(i).toString();
+
             restaurants.document(id)
                     .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override

@@ -4,14 +4,17 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -26,11 +29,14 @@ import androidx.viewpager.widget.ViewPager;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.inved.go4lunch.R;
+import com.inved.go4lunch.api.PlaceDetailsData;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.auth.ProfileActivity;
 import com.inved.go4lunch.base.BaseActivity;
@@ -55,13 +61,14 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     public static final String PLACE_DATA_VICINITY = "VICINITY";
     public static final String PLACE_DATA_SIZE = "RESULT_SIZE";
     public static final String PLACE_DATA_PLACE_ID = "PLACE_ID";
+    public static final String PLACE_DATA_WEBSITE = "WEBSITE";
     public static final String PLACE_DATA_LIST_RESULT_PLACE_SEARCH = "LIST_RESULT_PLACE_SEARCH";
 
 
 
     //FOR DATA
     private static final int SIGN_OUT_TASK = 10;
-
+    PlaceDetailsData placeDetailsData = new PlaceDetailsData();
     MenuItem logout;
     TextView navFirstname;
     TextView navLastname;
@@ -125,11 +132,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         navEmail = mNavigationView.getHeaderView(0).findViewById(R.id.nav_header_Email);
         navProfileImage = mNavigationView.getHeaderView(0).findViewById(R.id.nav_header_profile_image);
 
-     /*   navFirstname=findViewById(R.id.nav_header_FirstName);
-        navLastname=findViewById(R.id.nav_header_LastName);
-        navEmail=findViewById(R.id.nav_header_Email);
-        navProfileImage=findViewById(R.id.nav_header_profile_image);*/
-
         //All view configuration
         this.configureToolBar();
 
@@ -170,7 +172,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         int id = item.getItemId();
 
         switch (id){
-            case R.id.activity_main_drawer_lunch :
+            case R.id.activity_main_drawer_lunch :this.detectPlaceIdForLunch();
                 break;
             case R.id.activity_main_drawer_settings: this.startProfileActivity();
                 break;
@@ -262,6 +264,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     User currentUser = documentSnapshot.toObject(User.class);
 
+                    assert currentUser != null;
                     String firstname = TextUtils.isEmpty(currentUser.getFirstname()) ? getString(R.string.info_no_firstname_found) : currentUser.getFirstname();
                     String lastname = TextUtils.isEmpty(currentUser.getLastname()) ? getString(R.string.info_no_lastname_found) : currentUser.getLastname();
                     navFirstname.setText(firstname);
@@ -404,6 +407,38 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     private void startProfileActivity(){
         Intent intent = new Intent(this, ProfileActivity.class);
         startActivity(intent);
+    }
+
+    // Launch View Place Activity
+    private void startViewPlaceActivity(){
+        Intent intent = new Intent(this, ViewPlaceActivity.class);
+        startActivity(intent);
+    }
+
+    //
+    private void detectPlaceIdForLunch(){
+
+        UserHelper.getUser(getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                DocumentSnapshot document = task.getResult();
+                assert document != null;
+
+                String restaurantPlaceIdInFirebase = document.getString("restaurantPlaceId");
+                if(!TextUtils.isEmpty(restaurantPlaceIdInFirebase)){
+                    placeDetailsData.setPlaceId(restaurantPlaceIdInFirebase);
+                    startViewPlaceActivity();
+                }
+                else{
+                    Toast.makeText(getApplicationContext(), getString(R.string.restaurant_no_choosen), Toast.LENGTH_LONG).show();
+                }
+
+
+
+
+            }
+        });
+
     }
 
 

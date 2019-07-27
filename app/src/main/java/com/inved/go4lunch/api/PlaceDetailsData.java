@@ -20,6 +20,7 @@ import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PHONE_
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PHOTO_REFERENCE;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PLACE_ID;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_VICINITY;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_WEBSITE;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DETAIL_DATA;
 
 public class PlaceDetailsData implements GooglePlaceDetailsCalls.CallbacksDetail {
@@ -40,7 +41,7 @@ public class PlaceDetailsData implements GooglePlaceDetailsCalls.CallbacksDetail
 
         if (currentPlaceId != null) {
             String key = "AIzaSyCYRQL4UOKKcszTAi6OeN8xCvZ7CuFtp8A";// getText(R.string.google_maps_key).toString();
-            String fields = "type,formatted_phone_number,opening_hours,photo,name,vicinity,place_id";
+            String fields = "type,formatted_phone_number,opening_hours,photo,name,vicinity,place_id,website";
 
             GooglePlaceDetailsCalls.fetchPlaceDetail(this, currentPlaceId, key, fields);
         }
@@ -58,7 +59,9 @@ public class PlaceDetailsData implements GooglePlaceDetailsCalls.CallbacksDetail
             String name = response.getResult().getName();
             String vicinity = response.getResult().getVicinity();
             String placeId = response.getResult().getPlaceId();
-            sendRestaurantDetailDataToOtherFragments(numberPhone,photoReference,name,vicinity,placeId);
+            String website = response.getResult().getWebsite();
+            sendRestaurantDetailDataToOtherFragments(numberPhone,photoReference,name,vicinity,placeId,website);
+
 
 
         } else {
@@ -73,7 +76,7 @@ public class PlaceDetailsData implements GooglePlaceDetailsCalls.CallbacksDetail
     }
 
 
-    public void sendRestaurantDetailDataToOtherFragments(String numberPhone,String photoreference,String name, String vicinity,String placeId) {
+    public void sendRestaurantDetailDataToOtherFragments(String numberPhone,String photoreference,String name, String vicinity,String placeId,String website) {
 
         final Intent intent = new Intent(PLACE_DETAIL_DATA);
         intent.putExtra(PLACE_DATA_PHONE_NUMBER, numberPhone);
@@ -81,7 +84,7 @@ public class PlaceDetailsData implements GooglePlaceDetailsCalls.CallbacksDetail
         intent.putExtra(PLACE_DATA_NAME, name);
         intent.putExtra(PLACE_DATA_VICINITY, vicinity);
         intent.putExtra(PLACE_DATA_PLACE_ID, placeId);
-
+        intent.putExtra(PLACE_DATA_WEBSITE, website);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 
     }

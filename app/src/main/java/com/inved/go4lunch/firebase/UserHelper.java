@@ -25,10 +25,10 @@ public class UserHelper {
 
     // --- CREATE ---
 
-    public static Task<Void> createUser(String uid, String firstname, String lastname,String urlPicture, String restaurantName,String restaurantType) {
+    public static Task<Void> createUser(String uid, String firstname, String lastname,String urlPicture, String restaurantPlaceId,String restaurantType,String restaurantName) {
         // 1 - Create Obj
 
-        User userToCreate = new User(uid, firstname,lastname, urlPicture,restaurantName,restaurantType);
+        User userToCreate = new User(uid, firstname,lastname, urlPicture,restaurantPlaceId,restaurantType,restaurantName);
 
         return UserHelper.getUsersCollection().document(uid).set(userToCreate);
     }
@@ -43,6 +43,15 @@ public class UserHelper {
     public static Query getAllUsers(){
         return UserHelper.getUsersCollection();
 
+
+    }
+
+    public static Query getAllWorkamtesJoining(String currentPlacedId){
+        return UserHelper.getUsersCollection()
+                .whereEqualTo("restaurantPlaceId",currentPlacedId)
+                .limit(15);
+
+
     }
 
     // --- UPDATE ---
@@ -55,9 +64,14 @@ public class UserHelper {
         return UserHelper.getUsersCollection().document(uid).update("lastname", lastname);
     }
 
-    public static Task<Void> updateRestaurantPlaceId(String restauranttPlaceId, String uid) {
-        return UserHelper.getUsersCollection().document(uid).update("restaurantName", restauranttPlaceId);
+    public static Task<Void> updateRestaurantPlaceId(String restaurantPlaceId, String uid) {
+        return UserHelper.getUsersCollection().document(uid).update("restaurantPlaceId", restaurantPlaceId);
     }
+
+    public static Task<Void> updateRestaurantName(String restaurantName, String uid) {
+        return UserHelper.getUsersCollection().document(uid).update("restaurantName", restaurantName);
+    }
+
 
     public static Task<Void> updateRestaurantType(String restaurantType, String uid) {
         return UserHelper.getUsersCollection().document(uid).update("restaurantType", restaurantType);

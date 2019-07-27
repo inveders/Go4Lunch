@@ -12,16 +12,17 @@ public class User {
     private String emailAdress;
     private String restaurantPlaceId;
     private String restaurantType;
-
+    private String restaurantName;
     public User() { }
 
-    public User(String uid, String firstname, String lastname, String urlPicture, String restaurantName, String restaurantType) {
+    public User(String uid, String firstname, String lastname, String urlPicture, String restaurantPlaceId, String restaurantType,String restaurantName) {
         this.uid = uid;
         this.firstname = firstname;
         this.lastname = lastname;
         this.urlPicture = urlPicture;
-        this.restaurantPlaceId = restaurantName;
+        this.restaurantPlaceId = restaurantPlaceId;
         this.restaurantType=restaurantType;
+        this.restaurantName = restaurantName;
     }
 
     // --- GETTERS ---
@@ -31,6 +32,7 @@ public class User {
     public String getUrlPicture() { return urlPicture; }
     public String getRestaurantPlaceId() { return restaurantPlaceId; }
     public String getRestaurantType(){return restaurantType;}
+    public String getRestaurantName() { return restaurantName; }
 
     // --- SETTERS ---
     public void setFirstname(String firstname) { this.firstname = firstname; }
@@ -39,4 +41,5 @@ public class User {
     public void setUrlPicture(String urlPicture) { this.urlPicture = urlPicture; }
     public void setRestaurantPlaceId(String restaurantPlaceId) { this.restaurantPlaceId = restaurantPlaceId; }
     public void setRestaurantType(String restaurantType){this.restaurantType=restaurantType;}
+    public void setRestaurantName(String restaurantName) { this.restaurantName = restaurantName; }
 }
