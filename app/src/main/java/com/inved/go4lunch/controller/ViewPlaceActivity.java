@@ -18,10 +18,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -35,7 +37,6 @@ import com.inved.go4lunch.firebase.RestaurantHelper;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.firebase.User;
-import com.inved.go4lunch.utils.App;
 
 import java.util.Objects;
 
@@ -105,7 +106,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
 
             }
-            initializationChoosenRestaurants(currentPlaceId,restaurantName);
+            initializationChoosenRestaurants(currentPlaceId,restaurantName,vicinity);
             updateViewPlaceActivity(restaurantName, vicinity, phoneNumber, photoreference);
             displayAllWorkmatesJoining(currentPlaceId);
 
@@ -131,7 +132,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     }
 
-    private void initializationChoosenRestaurants(String mCurrentPlaceId,String myRestaurantName) {
+    private void initializationChoosenRestaurants(String mCurrentPlaceId,String myRestaurantName,String myRestaurantVicinity) {
 
 
         //We retrieve the old restaurant to decrease customers's number
@@ -168,7 +169,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                         assert document != null;
 
                         String restaurantPlaceIdInFirebase = document.getString("restaurantPlaceId");
-                        clickOnButton(currentPlaceId,restaurantPlaceIdInFirebase,myRestaurantName);
+                        clickOnButton(currentPlaceId,restaurantPlaceIdInFirebase,myRestaurantName,myRestaurantVicinity);
 
 
 
@@ -183,7 +184,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     }
 
-    private void clickOnButton(String mCurrentPlaceId,String restaurantPlaceIdInFirebase,String myRestaurantName) {
+    private void clickOnButton(String mCurrentPlaceId,String restaurantPlaceIdInFirebase,String myRestaurantName,String myRestaurantVicinity) {
 
         if (TextUtils.isEmpty(restaurantPlaceIdInFirebase)) { //if there is no restaurant in my firebase
             Log.d("Debago", "ViewPlaceActivity clickbutton cas1: restaurantqInFirebase " + restaurantPlaceIdInFirebase);
@@ -201,11 +202,12 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                     RestaurantHelper.updateRestaurantCustomers(updateCustomersNewRestaurant, mCurrentPlaceId);
                     UserHelper.updateRestaurantPlaceId(mCurrentPlaceId, Objects.requireNonNull(getCurrentUser()).getUid());
                     UserHelper.updateRestaurantName(myRestaurantName, Objects.requireNonNull(getCurrentUser()).getUid());
+                    UserHelper.updateRestaurantVicinity(myRestaurantVicinity, Objects.requireNonNull(getCurrentUser()).getUid());
 
                 }
             });
 
-            changeButtonColor("#B70400",mCurrentPlaceId,myRestaurantName);//red color
+            changeButtonColor("#B70400",mCurrentPlaceId,myRestaurantName,myRestaurantVicinity);//red color
             Log.d("Debago", "ViewPlaceActivity choose restaurant: je fais un nouveau choix");
 
         } else if (!restaurantPlaceIdInFirebase.equals(mCurrentPlaceId)) { //if there is one restaurant in my firebase but different of actual view place
@@ -252,11 +254,11 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                                     RestaurantHelper.updateRestaurantCustomers(updateCustomersNewRestaurant, mCurrentPlaceId);
                                     UserHelper.updateRestaurantPlaceId(mCurrentPlaceId, Objects.requireNonNull(getCurrentUser()).getUid());
                                     UserHelper.updateRestaurantName(myRestaurantName, Objects.requireNonNull(getCurrentUser()).getUid());/**Faut aller chercher le nom du nouveau restaurant*/
-
+                                    UserHelper.updateRestaurantVicinity(myRestaurantVicinity, Objects.requireNonNull(getCurrentUser()).getUid());
                                 }
                             });
 
-                            changeButtonColor("#4CAF50",mCurrentPlaceId,myRestaurantName);//green color
+                            changeButtonColor("#4CAF50",mCurrentPlaceId,myRestaurantName,myRestaurantVicinity);//green color
 
 
 
@@ -289,13 +291,14 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                                         RestaurantHelper.updateRestaurantCustomers(updateCustomersOldRestaurant, restaurantPlaceIdInFirebase);
                                         UserHelper.updateRestaurantPlaceId(null, Objects.requireNonNull(getCurrentUser()).getUid());
                                         UserHelper.updateRestaurantName(null, Objects.requireNonNull(getCurrentUser()).getUid());
+                                        UserHelper.updateRestaurantVicinity(myRestaurantVicinity, Objects.requireNonNull(getCurrentUser()).getUid());
                                     }
 
 
                                 }
                             });
 
-                            changeButtonColor("#4CAF50",mCurrentPlaceId,myRestaurantName);//green color
+                            changeButtonColor("#4CAF50",mCurrentPlaceId,myRestaurantName,myRestaurantVicinity);//green color
 
                             Log.d("Debago", "ViewPlaceActivity choose restaurant: je désélectionne mon choix");
                         }
@@ -308,10 +311,10 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     }
 
-    private void changeButtonColor(String newColor, String myCurrentPlaceId,String myRestaurantName){
+    private void changeButtonColor(String newColor, String myCurrentPlaceId,String myRestaurantName,String myRestaurantVicinity){
 
         isChoosenRestaurantImage.setColorFilter(Color.parseColor(newColor));
-        initializationChoosenRestaurants(myCurrentPlaceId,myRestaurantName);
+        initializationChoosenRestaurants(myCurrentPlaceId,myRestaurantName,myRestaurantVicinity);
 
     }
 
@@ -338,6 +341,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
         Glide.with(this)
                 .load(url.toString())
                 .placeholder(R.drawable.ic_android_blue_24dp)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .error(R.drawable.ic_error_red_24dp)
                 .into(viewPlacePhoto);
 
@@ -379,10 +383,11 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     private void displayAllWorkmatesJoining(String currentPlaceId) {
 
-        this.mRecyclerWorkmatesAdapter = new WorkmatesAdapter(generateOptionsForAdapter(UserHelper.getAllWorkamtesJoining(currentPlaceId)), Glide.with(this),this,this);
+        this.mRecyclerWorkmatesAdapter = new WorkmatesAdapter(generateOptionsForAdapter(UserHelper.getAllWorkmatesJoining(currentPlaceId)), Glide.with(this),this,this);
         //Choose how to display the list in the RecyclerView (vertical or horizontal)
         mRecyclerWorkmates.setHasFixedSize(true); //REVOIR CELA
         mRecyclerWorkmates.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
+        mRecyclerWorkmates.addItemDecoration(new DividerItemDecoration(mRecyclerWorkmates.getContext(), DividerItemDecoration.VERTICAL));
         mRecyclerWorkmates.setAdapter(mRecyclerWorkmatesAdapter);
     }
 

@@ -6,6 +6,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="searchViewStyle">@style/MySearchViewStyle</item>
     </style>
 
     <!-- Toolbar theme. -->
@@ -32,5 +33,10 @@
         <item name="android:textColorHint">@android:color/white</item>
     </style>
 
+    <!-- SearchView -->
+    <style name="MySearchViewStyle" parent="Widget.AppCompat.Light.SearchView">
+
+
+    </style>
 
 </resources>

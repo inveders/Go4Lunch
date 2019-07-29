@@ -110,8 +110,9 @@ public class MainActivity extends BaseActivity {
             String restaurantPlaceId = null;
             String restaurantName = null;
             String restaurantType = null;
+            String restaurantVicinity = null;
             Log.d("Debago", "MainActivity : createUserInFirestore");
-            UserHelper.createUser(uid, firstname, lastname, urlPicture, restaurantPlaceId, restaurantType,restaurantName).addOnFailureListener(this.onFailureListener());
+            UserHelper.createUser(uid, firstname, lastname, urlPicture, restaurantPlaceId, restaurantType,restaurantName,restaurantVicinity).addOnFailureListener(this.onFailureListener());
 
 
         }

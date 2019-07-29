@@ -4,77 +4,77 @@
     <string name="loginFacebook">Sign in with Facebook</string>
     <string name="loginGoogle">Sign in with Google</string>
 
-    <string name="arrondi">%1$.2d </string>
-
     <!-- NAVIGATION DRAWER -->
     <string name="nav_drawer_menu_lunch">YOUR LUNCH</string>
     <string name="nav_drawer_menu_settings">SETTINGS</string>
     <string name="nav_drawer_menu_logout">LOGOUT</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="space_between_first_and_last_name"></string>
-    <string name="email_adress">nom.prenom@gmail.com</string>
+    <string name="email_adress">lastname.firstname@gmail.com</string>
 
     <!-- NOTIFICATION SERVICE -->
     <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
-    <string name="notification_title">"Vous avez reçu une notification"</string>
+    <string name="notification_title">You have received a notification</string>
+    <string name="notification_message_text">For lunch, you eat at the restaurant %1$s located %2$s.</string>
+    <string name="notification_message_workmates">Here is the list of workmates who will be eating with you: %1$s %2$s</string>
+    <string name="notification_message_short">Find the details of the information concerning your lunch</string>
+    <string name="toolbar_title_notification_activity">Notification</string>
+    <string name="info_no_restaurant_name_found">No restaurant</string>
+    <string name="info_no_restaurant_adresse_found">No restaurant address</string>
 
     <!-- MAIN ACTIVITY -->
-    <string name="error_not_connected">Vous devez vous connecter !</string>
-    <string name="error_authentication_canceled">Authentification annulée&#8230;</string>
-    <string name="error_no_internet">Aucune connexion internet !</string>
-    <string name="error_unknown_error">Une erreur inconnue s\'est produite&#8230;</string>
-    <string name="connection_succeed">Authentification réussie !</string>
-    <string name="button_login_text_logged">Afficher le profil</string>
-    <string name="button_login_text_not_logged">Connexion</string>
+    <string name="error_authentication_canceled">Authentication cancelled&#8230;</string>
+    <string name="error_no_internet">No internet connection!</string>
+    <string name="error_unknown_error">An unknown error occurred&#8230;</string>
+    <string name="connection_succeed">Authentication successful!</string>
+    <string name="button_login_text_logged">View profile</string>
+    <string name="button_login_text_not_logged">Login</string>
 
     <!-- LOGIN ACTIVITY -->
-    <string name="toolbar_title_login_activity">Votre Profil</string>
-    <string name="text_input_firstname">Prénom</string>
-    <string name="text_input_lastname">Nom</string>
-    <string name="text_view_email">Adresse email :</string>
-    <string name="button_update_account">Mettre à jour les informations</string>
-    <string name="update_confirmation">Informations mises à jour</string>
-    <string name="button_delete_account">Supprimer mon compte</string>
-    <string name="button_sign_out_account">Déconnexion</string>
-    <string name="info_no_email_found">Aucune adresse email</string>
-    <string name="info_no_firstname_found">Aucun prénom</string>
-    <string name="info_no_lastname_found">Aucun nom</string>
-    <string name="popup_message_confirmation_delete_account">Etes-vous sûr(e) de vouloir supprimer votre compte ?</string>
-    <string name="popup_message_choice_yes">Oui</string>
-    <string name="popup_message_choice_no">Non</string>
-    <string name="check_box_is_mentor">Etes-vous un mentor ?</string>
-    <string name="loginPageTitle">Connexion</string>
+    <string name="toolbar_title_login_activity">Your profile</string>
+    <string name="text_input_firstname">Firstname</string>
+    <string name="text_input_lastname">Lastname</string>
+    <string name="text_view_email">Email address :</string>
+    <string name="button_update_account">Update the information</string>
+    <string name="update_confirmation">Updated information</string>
+    <string name="button_delete_account">Delete my account</string>
+    <string name="info_no_email_found">No email address</string>
+    <string name="info_no_firstname_found">No first name</string>
+    <string name="info_no_lastname_found">No last name</string>
+    <string name="popup_message_confirmation_delete_account">Are you sure you want to delete your account?</string>
+    <string name="popup_message_choice_yes">Yes</string>
+    <string name="popup_message_choice_no">No</string>
 
     <!-- RESTAURANT ACTIVITY -->
     <string name="toolbar_title_restaurant_activity">I\'m Hungry!</string>
 
     <!-- FRAGMENT RESTAURANT LISTVIEW -->
-    <string name="fragment_listview_item_image">Image restaurant</string>
-    <string name="fragment_listview_item_restaurant_name">Nom du restaurant</string>
-    <string name="fragment_listview_item_restaurant_type">Type de cuisine</string>
+    <string name="fragment_listview_item_image">restaurant image</string>
+    <string name="fragment_listview_item_restaurant_name">Restaurant name</string>
+    <string name="fragment_listview_item_restaurant_type">Food</string>
     <string name="fragment_listview_item_distance">Distance</string>
-    <string name="fragment_listview_item_restaurant_open_information">Ouvert jusqu\'à</string>
-    <string name="fragment_listview_item_restaurant_adress">Adresse du restaurant</string>
+    <string name="fragment_listview_item_restaurant_open_information">Open until</string>
+    <string name="fragment_listview_item_restaurant_adress">restaurant address</string>
     <string name="fragment_listview_item_restaurant_number_rates">(2)</string>
     <string name="fragment_listview_item_dot">·</string>
 
     <!-- FRAGMENT RESTAURANT PEOPLE -->
-    <string name="fragment_people_item_image">Image workmates</string>
+    <string name="fragment_people_item_image">Workmates image</string>
     <string name="fragment_people_item_text">Alex is eating Turkish (Snack Ender)</string>
-    <string name="workmates_text_choice"> %1$s va manger %2$s (%3$s)</string>
-    <string name="workmates_text_joining"> %1$s va manger ici</string>
-    <string name="workmates_text_no_choice">%1$s n\'a pas encore choisi !</string>
+    <string name="workmates_text_choice">" %1$s is eating %2$s (%3$s)"</string>
+    <string name="workmates_text_joining">" %1$s is joining"</string>
+    <string name="workmates_text_no_choice">%1$s hasn\'t decided yet!</string>
 
     <!-- DETAIL RESTAURANT -->
-    <string name="restaurant_choosen">Le restaurant a bien été choisi</string>
-    <string name="is_choosen_restaurant">Choix du restaurant</string>
-    <string name="alert_dialog_view_activity">Etes-vous sûr(e) de vouloir changer pour manger au restaurant %1$s ?</string>
-    <string name="alert_dialog_view_activity_delete_choice">Etes-vous sûr(e) de ne plus vouloir manger ici ?</string>
-    <string name="restaurant_no_choosen">Vous n\'avez pas encore choisi de restaurant</string>
+    <string name="restaurant_choosen">The restaurant has been well chosen</string>
+    <string name="is_choosen_restaurant">Choice of restaurant</string>
+    <string name="alert_dialog_view_activity">Are you sure you want to change to eat at the restaurant %1$s?</string>
+    <string name="restaurant_no_choosen">You have not yet chosen a restaurant</string>
 
     <!-- MAP-->
-    <string name="map_your_position">Your position</string>
+
+    <!-- SEARCHVIEW-->
+    <string name="search_hint">Search...</string>
 
     <!-- BOTTOM NAVIGATION VIEW -->
     <string name="bottom_navigation_menu_map">Map View</string>
@@ -84,6 +84,7 @@
     <!-- FACEBOOK PURPOSE -->
     <string name="facebook_application_id" translatable="false">420763051691337</string>
     <string name="facebook_login_protocol_scheme" translatable="false" tools:ignore="UnusedResources">fb420763051691337</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="votre_repas_ce_midi">YOUR LUNCH</string>
+    <string name="par_defaut">Default</string>
 
 </resources>

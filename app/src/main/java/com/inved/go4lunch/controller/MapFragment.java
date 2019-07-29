@@ -86,6 +86,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
                 myCurrentGeolocalisation = intent.getStringExtra(KEY_GEOLOCALISATION);
                 myDoubleLat = intent.getDoubleExtra(KEY_LATITUDE, 0);
                 myDoubleLongi = intent.getDoubleExtra(KEY_LONGITUDE, 0);
+
                 executeHttpRequestPlaceSearchWithRetrofit(myCurrentGeolocalisation);
 
             }
@@ -170,11 +171,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
         }
     }
 
-    private void isNearbyRestaurantSelected(Boolean isRestaurantSelected) {
-
-        mGoogleMap.clear();
-
-    }
 
     private void executeHttpRequestPlaceSearchWithRetrofit(String geolocalisation) {
 
@@ -248,7 +244,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
             @Override
             public void onFailure(@NonNull Exception e) {
                 //  Toast.makeText(getApplicationContext(), getString(R.string.error_unknown_error), Toast.LENGTH_LONG).show();
-                Log.d("Debago", "Une erreur s'est produite lors de la création de la base de odnnée restaurant ");
+
             }
         };
     }
@@ -315,7 +311,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
                         if (document.exists()) {
-                            // Log.d("debago", "DocumentSnapshot data: " + document.getData());
+
 
                             LatLng latLng = new LatLng(latitude, longitude);
                             markerOptions.position(latLng);

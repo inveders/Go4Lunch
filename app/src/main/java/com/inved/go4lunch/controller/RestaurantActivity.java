@@ -11,6 +11,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -18,9 +19,11 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
+import androidx.core.view.MenuItemCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -41,6 +44,7 @@ import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.auth.ProfileActivity;
 import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.firebase.User;
+import com.inved.go4lunch.notification.NotificationsActivity;
 
 public class RestaurantActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener,LocationListener {
 
@@ -109,7 +113,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-      //  setContentView(R.layout.activity_restaurant);
 
         //Bottom Navigation View
         bottomNavigationView = findViewById(R.id.activity_restaurant_bottom_navigation);
@@ -172,7 +175,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         int id = item.getItemId();
 
         switch (id){
-            case R.id.activity_main_drawer_lunch :this.detectPlaceIdForLunch();
+            case R.id.activity_main_drawer_lunch :startNotificationActivity();//this.detectPlaceIdForLunch();
                 break;
             case R.id.activity_main_drawer_settings: this.startProfileActivity();
                 break;
@@ -225,6 +228,31 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         this.toolbar = findViewById(R.id.activity_restaurant_toolbar);
         setSupportActionBar(toolbar);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.search_icon, menu);
+
+        final MenuItem searchItem = menu.findItem(R.id.action_search);
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                //votre code ici
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                return false;
+            }
+        });
+
+        return true;
+    }
+
 
     // Configure Drawer Layout
     private void configureDrawerLayout(){
@@ -412,6 +440,12 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     // Launch View Place Activity
     private void startViewPlaceActivity(){
         Intent intent = new Intent(this, ViewPlaceActivity.class);
+        startActivity(intent);
+    }
+
+    // Launch Notification Activity
+    private void startNotificationActivity(){
+        Intent intent = new Intent(this, NotificationsActivity.class);
         startActivity(intent);
     }
 

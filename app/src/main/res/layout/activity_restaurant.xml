@@ -64,7 +64,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
-        android:background="@color/colorPrimary"
+        android:background="@color/colorPrimaryLight"
         app:headerLayout="@layout/activity_restaurant_nav_header"
         app:menu="@menu/activity_restaurant_menu_drawer"
         >

@@ -25,10 +25,10 @@ public class UserHelper {
 
     // --- CREATE ---
 
-    public static Task<Void> createUser(String uid, String firstname, String lastname,String urlPicture, String restaurantPlaceId,String restaurantType,String restaurantName) {
+    public static Task<Void> createUser(String uid, String firstname, String lastname,String urlPicture, String restaurantPlaceId,String restaurantType,String restaurantName,String restaurantVicinity) {
         // 1 - Create Obj
 
-        User userToCreate = new User(uid, firstname,lastname, urlPicture,restaurantPlaceId,restaurantType,restaurantName);
+        User userToCreate = new User(uid, firstname,lastname, urlPicture,restaurantPlaceId,restaurantType,restaurantName,restaurantVicinity);
 
         return UserHelper.getUsersCollection().document(uid).set(userToCreate);
     }
@@ -46,7 +46,7 @@ public class UserHelper {
 
     }
 
-    public static Query getAllWorkamtesJoining(String currentPlacedId){
+    public static Query getAllWorkmatesJoining(String currentPlacedId){
         return UserHelper.getUsersCollection()
                 .whereEqualTo("restaurantPlaceId",currentPlacedId)
                 .limit(15);
@@ -72,6 +72,9 @@ public class UserHelper {
         return UserHelper.getUsersCollection().document(uid).update("restaurantName", restaurantName);
     }
 
+    public static Task<Void> updateRestaurantVicinity(String restaurantVicinity, String uid) {
+        return UserHelper.getUsersCollection().document(uid).update("restaurantVicinity", restaurantVicinity);
+    }
 
     public static Task<Void> updateRestaurantType(String restaurantType, String uid) {
         return UserHelper.getUsersCollection().document(uid).update("restaurantType", restaurantType);

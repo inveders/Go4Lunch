@@ -40,24 +40,19 @@ public class WorkmatesAdapter extends FirestoreRecyclerAdapter<User, WorkmatesVi
         this.callback = callback;
         this.context=context;
 
-
-
     }
 
     @Override
     protected void onBindViewHolder(@NonNull WorkmatesViewHolder workmatesViewHolder, int position, @NonNull User user) {
         if(context.getClass().equals(ViewPlaceActivity.class) ){
-            Log.d("Debago", "WorkmatesAdapter on est dans la classe view "+context.getClass());
+
             workmatesViewHolder.updateWithWorkmatesJoining(user, this.glide);
         }
         else if(context.getClass().equals(RestaurantActivity.class)) {
-            Log.d("Debago", "WorkmatesAdapter on est dans la classe rest "+context.getClass());
+
             workmatesViewHolder.updateWithUsers(user, this.glide);
 
-
-
         }
-
 
     }
 

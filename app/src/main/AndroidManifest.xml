@@ -67,6 +67,11 @@
             android:label="@string/toolbar_title_login_activity"
             android:parentActivityName=".controller.RestaurantActivity" />
 
+        <!-- NOTIFICATION ACTIVITY -->
+        <activity
+            android:name=".notification.NotificationsActivity"
+            android:label="@string/toolbar_title_notification_activity" />
+
         <!-- NOTIFICATION SERVICE -->
         <service android:name=".notification.NotificationService">
             <intent-filter>

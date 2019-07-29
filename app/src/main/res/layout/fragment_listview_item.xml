@@ -14,6 +14,8 @@
         android:layout_height="60dp"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:scaleType="fitXY"
+        android:adjustViewBounds="true"
         android:contentDescription="@string/fragment_listview_item_image"
         app:srcCompat="?attr/actionModeSplitBackground"
         />
