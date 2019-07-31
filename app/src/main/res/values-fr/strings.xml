@@ -60,4 +60,8 @@
     <string name="workmates_text_joining">" %1$s va manger ici"</string>
     <string name="workmates_text_no_choice">%1$s n\'a pas encore choisi !</string>
     <string name="search_hint">Recherche...</string>
+    <string name="toolbar_name_permission_activity">Autorisations requises</string>
+    <string name="granted_text">Go4Lunch a besoin d\'une autorisation pour localiser votre périphérique afin de vous fournir les services requis. Merci d\'autoriser la localisation.</string>
+    <string name="grant_permission">Autoriser la localisation</string>
+    <string name="granted_title">Demande de permission</string>
 </resources>

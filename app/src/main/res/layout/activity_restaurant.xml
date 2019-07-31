@@ -17,6 +17,8 @@
         android:orientation="vertical"
         >
 
+
+
         <!-- Toolbar -->
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/activity_restaurant_toolbar"

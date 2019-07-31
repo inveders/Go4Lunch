@@ -5,12 +5,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
+import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -18,12 +24,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.libraries.places.api.model.PlaceLikelihood;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.GooglePlaceCalls;
 import com.inved.go4lunch.model.placesearch.PlaceSearch;
-import com.inved.go4lunch.model.placesearch.Result;
-
-import java.util.List;
 
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_GEOLOCALISATION;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LATITUDE;
@@ -32,16 +36,20 @@ import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LONGITUDE;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DETAIL_DATA;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_SEARCH_DATA;
 
-public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callbacks {
+public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callbacks{
 
     private View mView;
-    private List<Result> listResultPlaceSearch;
+
     private RecyclerViewListViewRestaurant mRecyclerListViewAdapter;
     RestaurantActivity gps = new RestaurantActivity();
     String myLastGeolocalisation=null;
     private Double myCurrentLat;
     private Double myCurrentLongi;
-
+    RestaurantActivity restaurantActivity = new RestaurantActivity();
+    private int numberResult;
+    private int z;
+    private PlaceLikelihood placeLikelihood;
+    SearchView searchView;
     //Receive current localisation from Localisation.class
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver()
     {
@@ -60,7 +68,7 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
                 else{
 
                 //    placeSearchData.setGeolocalisation(myCurrentGeolocalisation);
-        executeHttpRequestPlaceSearchWithRetrofit(myCurrentGeolocalisation);
+                 executeHttpRequestPlaceSearchWithRetrofit(myCurrentGeolocalisation);
                     myLastGeolocalisation=myCurrentGeolocalisation;
 
                 }
@@ -69,7 +77,7 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
 
             if (PLACE_DETAIL_DATA.equals(intent.getAction())) {
            /*     phoneNumber = intent.getStringExtra(PLACE_DATA_PHONE_NUMBER);
-                photoreference = intent.getStringExtra(PLACE_DATA_PHOTO_REFERENCE);
+                photoreference = intent.getStringExtra(PLACE_DATA_PHOTO_METADATA);
                 restaurantName = intent.getStringExtra(PLACE_DATA_NAME);
                 vicinity = intent.getStringExtra(PLACE_DATA_VICINITY);*/
 
@@ -85,6 +93,7 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
 
         mView =inflater.inflate(R.layout.fragment_listview,container,false);
 
+
         //RecyclerView initialization
         RecyclerView mRecyclerListView = mView.findViewById(R.id.fragment_listview_recycler_view);
         mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(Glide.with(this));
@@ -97,6 +106,8 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(broadcastReceiver, new IntentFilter(PLACE_SEARCH_DATA));
 
 
+
+       // findCurrentPlaceRequest();
         return mView;
     }
     private void executeHttpRequestPlaceSearchWithRetrofit(String geolocalisation) {
@@ -111,11 +122,73 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
         }
     }
 
+  /*  @SuppressLint("MissingPermission")
+    private void findCurrentPlaceRequest(){
+
+        // Initialize Places.
+        Places.initialize(getContext(), getString(R.string.google_api_key));
+        // Create a new Places client instance.
+        PlacesClient placesClient = Places.createClient(getContext());
+
+        // Use fields to define the data types to return.
+        List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME,Place.Field.ID,Place.Field.LAT_LNG,Place.Field.TYPES);
+
+        // Use the builder to create a FindCurrentPlaceRequest.
+        FindCurrentPlaceRequest request = FindCurrentPlaceRequest.builder(placeFields).build();
+
+        placesClient.findCurrentPlace(request).addOnSuccessListener(((response) -> {
+         //   for (PlaceLikelihood placeLikelihood : response.getPlaceLikelihoods()) {
+
+                for (int y = 0; y < response.getPlaceLikelihoods().size(); y++) {
+                    List typesList = response.getPlaceLikelihoods().get(y).getPlace().getTypes();
+
+
+                    assert typesList != null;
+                    for (int i = 0; i<typesList.size(); i++){
+                        if("RESTAURANT".equals(typesList.get(i).toString())){
+                            numberResult++;
+                          //  Log.d("Debago", "RecyclerViewRestaurant taille list1 "+response.getPlaceLikelihoods().get(y).getPlace().getName()+" et y "+y);
+                            HashMap<String,Object> data = new HashMap<>();
+                            data.put("name",placeLikelihood.getPlace().getName());
+
+                            mRecyclerListViewAdapter.setData(data,numberResult);
+
+                        }
+
+                    }
+
+                }
+          //  launchRecyclerView(response.getPlaceLikelihoods(),numberResult);
+
+
+          //  }
+
+
+
+
+
+        })).addOnFailureListener((exception) -> {
+            if (exception instanceof ApiException) {
+                ApiException apiException = (ApiException) exception;
+                Log.e(TAG, "Place not found: " + apiException.getStatusCode());
+            }
+        });
+
+    }*/
+
+  /*  private void launchRecyclerView(List<PlaceLikelihood> placeLikelihood,int numberResult,int position) {
+   //     mRecyclerListViewAdapter.setData(placeLikelihood,numberResult,position);
+        mRecyclerListViewAdapter.setCurrentLocalisation(myCurrentLat,myCurrentLongi);
+    }*/
+
+
+
+
     @Override
     public void onResponse(@Nullable PlaceSearch response) {
         mRecyclerListViewAdapter.setData(response.results);
         mRecyclerListViewAdapter.setCurrentLocalisation(myCurrentLat,myCurrentLongi);
-    }
+}
 
     @Override
     public void onFailure() {

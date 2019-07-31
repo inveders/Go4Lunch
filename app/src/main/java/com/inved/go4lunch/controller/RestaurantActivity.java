@@ -1,10 +1,8 @@
 package com.inved.go4lunch.controller;
 
-import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -13,17 +11,17 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
-import androidx.core.view.MenuItemCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -32,28 +30,42 @@ import androidx.viewpager.widget.ViewPager;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.AutocompletePrediction;
+import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.PlaceDetailsData;
-import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.auth.ProfileActivity;
 import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.firebase.User;
+import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.notification.NotificationsActivity;
 
-public class RestaurantActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener,LocationListener {
+import java.util.Arrays;
+import java.util.List;
+
+public class RestaurantActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, LocationListener {
 
     //FOR LOCAL BROADCAST MANAGER
     public static final String PLACE_DETAIL_DATA = "PLACE_DETAIL_DATA";
 
     public static final String PLACE_DATA_PHONE_NUMBER = "PLACE_DETAIL_DATA_PHONE_NUMBER";
-    public static final String PLACE_DATA_PHOTO_REFERENCE = "PLACE_DETAIL_DATA_PHOTO_REFERENCE";
-    public static final String PLACE_DATA_PHOTO_MAW_WIDTH = "PHOTO_MAX_WIDTH";
+    public static final String PLACE_DATA_PHOTO_BITMAP = "PLACE_DETAIL_DATA_PHOTO_BITMAP";
+    public static final String PLACE_DATA_PHOTO_ATTRIBUTIONS = "PHOTO_ATTRIBUTIONS";
 
     public static final String PLACE_SEARCH_DATA = "PLACE_SEARCH_DATA";
 
@@ -62,13 +74,61 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
 
     public static final String PLACE_DATA_NAME = "RESTAURANT_NAME";
-    public static final String PLACE_DATA_VICINITY = "VICINITY";
+    public static final String PLACE_DATA_ADDRESS = "ADDRESS";
     public static final String PLACE_DATA_SIZE = "RESULT_SIZE";
     public static final String PLACE_DATA_PLACE_ID = "PLACE_ID";
     public static final String PLACE_DATA_WEBSITE = "WEBSITE";
     public static final String PLACE_DATA_LIST_RESULT_PLACE_SEARCH = "LIST_RESULT_PLACE_SEARCH";
 
 
+    public static final String TAG = "Debago";
+    private static final int AUTOCOMPLETE_REQUEST_CODE = 645;
+
+    //FOR LOCATION
+    private FusedLocationProviderClient mFusedLocationProviderClient;
+    private PlacesClient placesClient;
+    Location location; // location
+    private LocationCallback locationCallback;
+    private Location mLastKnownLocation;
+    private LocationManager lm;
+    // The minimum distance to change Updates in meters
+    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 1000; // 1000 meters for tests, after come back to 10 meters
+    // The minimum time between updates in milliseconds
+    private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1; // 1 minute*/
+
+    //AUTOCOMPLETE
+    private List<AutocompletePrediction> predictionList;
+    AutocompleteSessionToken token;
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Place place = Autocomplete.getPlaceFromIntent(data);
+                Log.i(TAG, "Place: " + place.getName());
+            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+                // TODO: Handle the error.
+                Status status = Autocomplete.getStatusFromIntent(data);
+                Log.i(TAG, status.getStatusMessage());
+            } else if (resultCode == RESULT_CANCELED) {
+                // The user canceled the operation.
+            }
+        }
+    }
+
+    List<Place.Field> fields;
+
+    double latitude; // latitude
+    double longitude; // longitude
+
+    //Pour SEARCH ACTIVITY
+
+
+    private View mapView;
+
+
+ //   @BindView(R.id.action_search)
+    Button btnFindSearch;
 
     //FOR DATA
     private static final int SIGN_OUT_TASK = 10;
@@ -87,19 +147,11 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     //Localisation
 
-    private LocationManager lm;
+
     public static final String KEY_LOCATION_CHANGED = "DATA_ACTION";
     public static final String KEY_GEOLOCALISATION = "LAT_LONG";
     public static final String KEY_LATITUDE = "LAT";
     public static final String KEY_LONGITUDE = "LONGI";
-    private static final int PERMS_CALL_ID = 1234;
-    Location location; // location
-    double latitude; // latitude
-    double longitude; // longitude
-    // The minimum distance to change Updates in meters
-    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 1000; // 1000 meters for tests, after come back to 10 meters
-    // The minimum time between updates in milliseconds
-    private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1; // 1 minute*/
 
     //Declaration for Navigation Drawer
     private Toolbar toolbar;
@@ -110,6 +162,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     @Override
     public int getFragmentLayout() {return R.layout.activity_restaurant;}
 
+    @SuppressLint("MissingPermission")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,7 +173,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
         //NavigationDrawer
         logout=findViewById(R.id.activity_main_drawer_logout);
-
 
         //Viewpager
         viewPager = findViewById(R.id.viewpager_fragment); //Init Viewpager
@@ -135,24 +187,98 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         navEmail = mNavigationView.getHeaderView(0).findViewById(R.id.nav_header_Email);
         navProfileImage = mNavigationView.getHeaderView(0).findViewById(R.id.nav_header_profile_image);
 
+        //Location
+        //Subscribe to providers
+        lm = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+        }
+
+        if (lm.isProviderEnabled(LocationManager.PASSIVE_PROVIDER)) {
+            lm.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+        }
+
+        if (lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+        }
+
+
+
         //All view configuration
         this.configureToolBar();
 
         this.configureDrawerLayout();
 
+      //  this.checkLocation();
+        // Initialize Places.
+        if (!Places.isInitialized()) {
+            Places.initialize(getApplicationContext(), getString(R.string.google_api_key));
+        }
+        fields = Arrays.asList(Place.Field.NAME);
+
+        // Create a new Places client instance.
+        placesClient = Places.createClient(this);
+       token = AutocompleteSessionToken.newInstance();
+
+        /*final AutocompleteSupportFragment autocompleteSupportFragment=
+                (AutocompleteSupportFragment) getSupportFragmentManager().findFragmentById(R.id.searautocomplete_fragment);
+        autocompleteSupportFragment.setPlaceFields(Arrays.asList(Place.Field.NAME));
+
+        autocompleteSupportFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(@NonNull Place place) {
+
+            }
+
+            @Override
+            public void onError(@NonNull Status status) {
+
+            }
+        });*/
+
         this.configureNavigationView();
         this.userInformationFromFirebase();
 
         //Localisation
-        checkPermissions();
+
 
 
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu, menu);
+
+        final MenuItem searchItem = menu.findItem(R.id.action_search);
+        searchItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                startAutocompleteWidgetShow();
+                return true;
+            }
+        });
+
+
+
+        return true;
+    }
+
+    private void startAutocompleteWidgetShow() {
+        Intent intent = new Autocomplete.IntentBuilder(
+                AutocompleteActivityMode.OVERLAY, fields)
+                .build(this);
+        startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+    }
+
+
+
+
+    @Override
     public void onResume() {
         super.onResume();
-        checkPermissions();
+
         userInformationFromFirebase();
     }
 
@@ -215,12 +341,41 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         }
     };
 
-    //Configuration to go on the good fragment after click on the Bottom Navigation View button
-  /*  private void setFragment(Fragment fragment) {
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.activity_restaurant_frame_layout, fragment);
-        fragmentTransaction.commit();
-    }*/
+
+ /* private void checkLocation(){
+      //check if gps is enabled or not and then request user to enable it
+      LocationRequest locationRequest = LocationRequest.create();
+      locationRequest.setInterval(10000);
+      locationRequest.setFastestInterval(5000);
+      locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+      LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
+
+      SettingsClient settingsClient = LocationServices.getSettingsClient(RestaurantActivity.this);
+      Task<LocationSettingsResponse> task = settingsClient.checkLocationSettings(builder.build());
+
+      task.addOnSuccessListener(RestaurantActivity.this, new OnSuccessListener<LocationSettingsResponse>() {
+          @Override
+          public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+             // mapFragment.getDeviceLocation();
+          }
+      });
+
+      task.addOnFailureListener(RestaurantActivity.this, new OnFailureListener() {
+          @Override
+          public void onFailure(@NonNull Exception e) {
+              if (e instanceof ResolvableApiException) {
+                  ResolvableApiException resolvable = (ResolvableApiException) e;
+                  try {
+                      resolvable.startResolutionForResult(RestaurantActivity.this, 51);
+                  } catch (IntentSender.SendIntentException e1) {
+                      e1.printStackTrace();
+                  }
+              }
+          }
+      });
+  }*/
+
 
 
     // Configure Toolbar
@@ -229,29 +384,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         setSupportActionBar(toolbar);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.search_icon, menu);
 
-        final MenuItem searchItem = menu.findItem(R.id.action_search);
-        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                //votre code ici
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String s) {
-                return false;
-            }
-        });
-
-        return true;
-    }
 
 
     // Configure Drawer Layout
@@ -313,72 +446,30 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     // LOCALISATION
     // -------------------
 
-    private void checkPermissions(){
-        //We check permission to know if they are granted
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this, new String[]{
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-            },PERMS_CALL_ID);
-
-            return;
-        }
-
-
-        //Subscribe to providers
-        lm = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-        }
-
-        if (lm.isProviderEnabled(LocationManager.PASSIVE_PROVIDER)) {
-            lm.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-        }
-
-        if (lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-        }
-
-
-
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(requestCode == PERMS_CALL_ID){
-
-        }
-    }
-
     @Override
     public void onLocationChanged(Location location) {
 
-
+        Log.d("debago", "RestaurantActivity onLocationchanged latitude "+latitude);
         latitude = location.getLatitude();
         longitude = location.getLongitude();
         sendLocationDataToFragments();
 
 
-        }
-
-    public void stopUsingGPS(){
-        if(lm != null){
-            lm.removeUpdates(RestaurantActivity.this);
-        }
     }
+
+
 
     public void sendLocationDataToFragments (){
         String currentGeolocalisation = ""+getLatitude()+","+getLongitude()+"";
-                final Intent intent = new Intent(KEY_LOCATION_CHANGED);
+        final Intent intent = new Intent(KEY_LOCATION_CHANGED);
         intent.putExtra(KEY_GEOLOCALISATION, currentGeolocalisation);
         intent.putExtra(KEY_LATITUDE, getLatitude());
         intent.putExtra(KEY_LONGITUDE, getLongitude());
         LocalBroadcastManager.getInstance(RestaurantActivity.this).sendBroadcast(intent);
 
     }
+
+
 
 
     public double getLatitude(){

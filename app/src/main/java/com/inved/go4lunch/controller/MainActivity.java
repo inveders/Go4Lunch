@@ -165,6 +165,11 @@ public class MainActivity extends BaseActivity {
         startActivity(intent);
     }
 
+    private void startPermissionActivity() {
+        Intent intent = new Intent(this, PermissionActivity.class);
+
+        startActivity(intent);
+    }
     // --------------------
     // UI
     // --------------------
@@ -196,7 +201,8 @@ public class MainActivity extends BaseActivity {
                 showSnackBar(this.coordinatorLayout, getString(R.string.connection_succeed));
                 this.createUserInFirestore(); /**C'est ici le probléme il faudrait qu'on crée l'utilisateur s'il n'existe pas déjà dans la base de données*/
                 //this.createRestaurantInFirestore();
-                this.startRestaurantActivity();
+                this.startPermissionActivity();
+                //this.startRestaurantActivity();
             } else { // ERRORS
                 if (response == null) {
                     showSnackBar(this.coordinatorLayout, getString(R.string.error_authentication_canceled));

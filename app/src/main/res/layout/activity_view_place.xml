@@ -69,7 +69,7 @@
         />
 
     <TextView
-        android:id="@+id/activity_view_place_adress"
+        android:id="@+id/activity_view_place_address"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/fragment_listview_item_restaurant_adress"
@@ -85,7 +85,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:contentDescription="@string/fragment_people_item_image"
-        app:layout_constraintTop_toBottomOf="@id/activity_view_place_adress"
+        app:layout_constraintTop_toBottomOf="@id/activity_view_place_address"
         android:layout_marginTop="25dp"
         android:layout_marginEnd="50dp"
         android:src="@drawable/ic_phone_24dp"
@@ -98,7 +98,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:contentDescription="@string/fragment_people_item_image"
-        app:layout_constraintTop_toBottomOf="@id/activity_view_place_adress"
+        app:layout_constraintTop_toBottomOf="@id/activity_view_place_address"
         android:layout_marginTop="25dp"
         android:src="@drawable/ic_star_24dp"
         app:layout_constraintRight_toRightOf="parent"
@@ -110,7 +110,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:contentDescription="@string/fragment_people_item_image"
-        app:layout_constraintTop_toBottomOf="@id/activity_view_place_adress"
+        app:layout_constraintTop_toBottomOf="@id/activity_view_place_address"
         android:layout_marginTop="25dp"
         android:src="@drawable/ic_public_24dp"
         app:layout_constraintLeft_toRightOf="@+id/activity_view_place_like_image"

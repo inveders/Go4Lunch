@@ -1,5 +1,6 @@
 package com.inved.go4lunch.controller;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -7,12 +8,15 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.annotation.DrawableRes;
@@ -22,6 +26,17 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.libraries.places.api.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -36,6 +51,11 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.model.AutocompletePrediction;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.PlaceLikelihood;
+import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest;
+import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -48,7 +68,9 @@ import com.inved.go4lunch.firebase.RestaurantHelper;
 import com.inved.go4lunch.model.placesearch.PlaceSearch;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -57,37 +79,29 @@ import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LATITUDE;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LOCATION_CHANGED;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LONGITUDE;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_SEARCH_DATA;
+import static com.inved.go4lunch.controller.RestaurantActivity.TAG;
 
-public class MapFragment extends Fragment implements OnMapReadyCallback, GooglePlaceCalls.Callbacks {
-
-    public static final String POSITION_ARRAY_LIST = "POSITION_IN_ARRAY_LIST";
+public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     CollectionReference restaurants = RestaurantHelper.getRestaurantsCollection();
 
     GoogleMap mGoogleMap;
     private MapView mMapView;
     private View mView;
-
     private Marker mMarker;
-    private Double myDoubleLat = 0.0;
-    private Double myDoubleLongi;
-
-    private String myCurrentGeolocalisation;
+    private final float DEFAULT_ZOOM =18;
 
     PlaceDetailsData placeDetailsData = new PlaceDetailsData();
 
 
     private static final int PERMS_CALL_ID = 1234;
 
+    /**OLD*/
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (KEY_LOCATION_CHANGED.equals(intent.getAction())) {
-                myCurrentGeolocalisation = intent.getStringExtra(KEY_GEOLOCALISATION);
-                myDoubleLat = intent.getDoubleExtra(KEY_LATITUDE, 0);
-                myDoubleLongi = intent.getDoubleExtra(KEY_LONGITUDE, 0);
-
-                executeHttpRequestPlaceSearchWithRetrofit(myCurrentGeolocalisation);
+             //   myCurrentGeolocalisation = intent.getStringExtra(KEY_GEOLOCALISATION);
 
             }
 
@@ -101,10 +115,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
+        /**OLD*/
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(broadcastReceiver, new IntentFilter(KEY_LOCATION_CHANGED));
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(broadcastReceiver, new IntentFilter(PLACE_SEARCH_DATA));
+
+        findCurrentPlaceRequest();
     }
 
     @Override
@@ -132,27 +147,76 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
     @Override
     public void onResume() {
         super.onResume();
-
-        if (myDoubleLat != 0.0) {
-            executeHttpRequestPlaceSearchWithRetrofit(myCurrentGeolocalisation);
-        }
+        findCurrentPlaceRequest();
 
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        /**OLD*/
         LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(broadcastReceiver);
     }
 
+    @SuppressLint("MissingPermission")
+    private void findCurrentPlaceRequest(){
+
+        // Initialize Places.
+        Places.initialize(getContext(), getString(R.string.google_api_key));
+        // Create a new Places client instance.
+        PlacesClient placesClient = Places.createClient(getContext());
+
+        // Use fields to define the data types to return.
+        List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME,Place.Field.ID,Place.Field.LAT_LNG,Place.Field.TYPES);
+
+        // Use the builder to create a FindCurrentPlaceRequest.
+        FindCurrentPlaceRequest request = FindCurrentPlaceRequest.builder(placeFields).build();
+
+        placesClient.findCurrentPlace(request).addOnSuccessListener(((response) -> {
+            for (PlaceLikelihood placeLikelihood : response.getPlaceLikelihoods()) {
+
+                List typesList = placeLikelihood.getPlace().getTypes();
+
+                assert typesList != null;
+                for (int i = 0; i<typesList.size(); i++){
+                    if("RESTAURANT".equals(typesList.get(i).toString())){
+                        String restaurantPlaceId = placeLikelihood.getPlace().getId();
+                        LatLng latLng = placeLikelihood.getPlace().getLatLng();
+
+                        customizeMarker(restaurantPlaceId, latLng);
+                        createRestaurantsInFirebase(restaurantPlaceId);
+                    }
+
+                }
+
+
+            }
+        })).addOnFailureListener((exception) -> {
+            if (exception instanceof ApiException) {
+                ApiException apiException = (ApiException) exception;
+                Log.e(TAG, "Place not found: " + apiException.getStatusCode());
+            }
+        });
+
+    }
+
+    @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
-        MapsInitializer.initialize(getContext());
+       // MapsInitializer.initialize(getContext());
         mGoogleMap = googleMap;
+    //    mGoogleMap.setMyLocationEnabled(true);
+     //   mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+    //    mGoogleMap.moveCamera(CameraUpdateFactory.zoomBy(11));
+
+
+
+
 
     }
+
 
 
     // Launch View Place Activity
@@ -162,80 +226,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
     }
 
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == PERMS_CALL_ID) {
-
-        }
-    }
-
-
-    private void executeHttpRequestPlaceSearchWithRetrofit(String geolocalisation) {
-
-        if (geolocalisation != null) {
-            String type = "restaurant";
-            int radius = 400;
-            String keyword = "restaurant";
-            String key = "AIzaSyCYRQL4UOKKcszTAi6OeN8xCvZ7CuFtp8A";//context.getText(R.string.google_maps_key).toString();
-
-            GooglePlaceCalls.fetchPlaces(this, geolocalisation, radius, type, keyword, key);
-        }
-    }
-
-    @Override
-    public void onResponse(@Nullable PlaceSearch response) {
-
-        assert response != null;
-        int resultSize = response.results.size();
-
-        ArrayList placeId = new ArrayList();
-        ArrayList restaurantName = new ArrayList();
-        ArrayList latitude = new ArrayList();
-        ArrayList longitude = new ArrayList();
-        for (int i = 0; i < resultSize; i++) {
-            placeId.add(response.results.get(i).getPlaceId());
-            restaurantName.add(response.results.get(i).getName());
-            latitude.add(response.results.get(i).getGeometry().getLocation().getLat());
-            longitude.add(response.results.get(i).getGeometry().getLocation().getLng());
-        }
-
-        createRestaurantsInFirebase(placeId);
-        customizeMarker(placeId, latitude, longitude);
-
-        //Configure action on marker click
-        mGoogleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-
-                if (marker.getSnippet() != null) {
-
-                    int i = Integer.parseInt(marker.getSnippet());
-                    placeDetailsData.setPlaceId(response.results.get(i).getPlaceId());
-
-                    startViewPlaceActivity();
-
-                }
-                return true;
-            }
-        });
-
-
-    }
-
-
-    //To show the current localisation
-     /*   if (mGoogleMap != null && lat != 0) {
-            LatLng googleLocation = new LatLng(lat, longi);
-            mMarker = mGoogleMap.addMarker(new MarkerOptions()
-                    .position(googleLocation)
-                    .title(getString(R.string.map_your_position))
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-                 CameraPosition Liberty = CameraPosition.builder().target(googleLocation).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
-                 mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
-                 mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(googleLocation));
-        }*/
 
 
 
@@ -249,12 +239,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
         };
     }
 
-    private void createRestaurantsInFirebase(ArrayList listPlaceId) {
-//Create restaure in firebase if it doesn't exist
+    private void createRestaurantsInFirebase(String restaurantPlaceId) {
+            //Create restaure in firebase if it doesn't exist
 
-        for (int i = 0; i < listPlaceId.size(); i++) {
-
-            String id = listPlaceId.get(i).toString();
+            String id = restaurantPlaceId;
 
             restaurants.document(id)
                     .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -280,13 +268,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
                 }
             });
 
-        }
+
 
 
     }
 
 
-    private void customizeMarker(ArrayList listPlaceId, ArrayList lat, ArrayList longi) {
+    private void customizeMarker(String restaurantPlaceId, LatLng latLng) {
 
         mGoogleMap.clear();
         int mZoom = 18;
@@ -296,13 +284,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
             mMarker.remove();
         }
 
-        for (int i = 0; i < listPlaceId.size(); i++) {
+            String id = restaurantPlaceId;
 
-            String id = listPlaceId.get(i).toString();
-            Double latitude = (Double) lat.get(i);
-            Double longitude = (Double) longi.get(i);
+
             MarkerOptions markerOptions = new MarkerOptions();
-            markerOptions.snippet(String.valueOf(i));
+            markerOptions.snippet(restaurantPlaceId);
 
             restaurants.document(id)
                     .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -312,15 +298,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
                         DocumentSnapshot document = task.getResult();
                         if (document.exists()) {
 
-
-                            LatLng latLng = new LatLng(latitude, longitude);
                             markerOptions.position(latLng);
 
                             //creating and getting restaurant information
-
-
-
-
                             int numberCustomers = Integer.parseInt(Objects.requireNonNull(document.get("restaurantCustomers")).toString());
                             if (numberCustomers > 0) {
                                 markerOptions.icon(bitmapDescriptorFromVectorSelected(getContext(), R.drawable.ic_location_selected_24dp));
@@ -345,16 +325,27 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleP
             });
 
 
-        }
+//Configure action on marker click
+        mGoogleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+
+                if (marker.getSnippet() != null) {
+
+                    placeDetailsData.setPlaceId(marker.getSnippet());
+
+                    startViewPlaceActivity();
+
+
+                }
+                return true;
+            }
+        });
 
 
     }
 
 
-    @Override
-    public void onFailure() {
-
-    }
 
     private BitmapDescriptor bitmapDescriptorFromVectorSelected(Context context,
                                                                 @DrawableRes int vectorDrawableResourceId) {

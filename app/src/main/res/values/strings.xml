@@ -71,7 +71,11 @@
     <string name="alert_dialog_view_activity">Are you sure you want to change to eat at the restaurant %1$s?</string>
     <string name="restaurant_no_choosen">You have not yet chosen a restaurant</string>
 
-    <!-- MAP-->
+    <!-- PERMISSION ACTIVITY-->
+    <string name="toolbar_name_permission_activity">Permission granted</string>
+    <string name="grant_permission">Grant Permission</string>
+    <string name="granted_text">Go4Lunch needs permission to acces device location to provide required services. Please allow the permission</string>
+    <string name="granted_title">Permission Request</string>
 
     <!-- SEARCHVIEW-->
     <string name="search_hint">Search...</string>
@@ -86,5 +90,6 @@
     <string name="facebook_login_protocol_scheme" translatable="false" tools:ignore="UnusedResources">fb420763051691337</string>
     <string name="votre_repas_ce_midi">YOUR LUNCH</string>
     <string name="par_defaut">Default</string>
+
 
 </resources>
