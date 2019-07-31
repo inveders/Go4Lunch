@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -23,40 +24,47 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.model.PhotoMetadata;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.APIClientGoogleSearch;
-import com.inved.go4lunch.firebase.RestaurantHelper;
-import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.base.BaseActivity;
+import com.inved.go4lunch.firebase.RestaurantHelper;
 import com.inved.go4lunch.firebase.User;
+import com.inved.go4lunch.firebase.UserHelper;
 
+import java.util.List;
 import java.util.Objects;
 
 import butterknife.BindView;
 
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_ADDRESS;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_NAME;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PHONE_NUMBER;
-import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PHOTO_REFERENCE;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PHOTO_ATTRIBUTIONS;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PHOTO_BITMAP;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PLACE_ID;
-import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_VICINITY;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_WEBSITE;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DETAIL_DATA;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_SEARCH_DATA;
 
 public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.Listener {
 
-
+    @BindView(R.id.activity_view_place_photo)
     ImageView viewPlacePhoto;
+    @BindView(R.id.activity_view_place_name)
     TextView viewPlaceName;
-    TextView viewPlaceAdress;
+    @BindView(R.id.activity_view_place_address)
+    TextView viewPlaceAddress;
+
+
+
     @BindView(R.id.activity_view_place_restaurant_type)
     TextView viewPlaceRestaurantType;
     Context context;
@@ -76,10 +84,12 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     private String photoreference;
     private String restaurantName;
-    private String vicinity;
+    private String restaurantAddress;
     private String phoneNumber;
     private String currentPlaceId;
     private String website;
+    private String attributions;
+    private List<PhotoMetadata> photoMetadata;
 
 
     private WorkmatesAdapter mRecyclerWorkmatesAdapter;
@@ -94,11 +104,12 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
         public void onReceive(Context context, Intent intent) {
             if (PLACE_DETAIL_DATA.equals(intent.getAction())) {
                 phoneNumber = intent.getStringExtra(PLACE_DATA_PHONE_NUMBER);
-                photoreference = intent.getStringExtra(PLACE_DATA_PHOTO_REFERENCE);
+              //  photoMetadata = intent.getExtras(PLACE_DATA_PHOTO_BITMAP);
                 restaurantName = intent.getStringExtra(PLACE_DATA_NAME);
-                vicinity = intent.getStringExtra(PLACE_DATA_VICINITY);
+                restaurantAddress = intent.getStringExtra(PLACE_DATA_ADDRESS);
                 currentPlaceId = intent.getStringExtra(PLACE_DATA_PLACE_ID);
-                website=intent.getStringExtra(PLACE_DATA_WEBSITE);
+                website = intent.getStringExtra(PLACE_DATA_WEBSITE);
+                attributions = intent.getStringExtra(PLACE_DATA_PHOTO_ATTRIBUTIONS);
 
             }
 
@@ -106,8 +117,9 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
 
             }
-            initializationChoosenRestaurants(currentPlaceId,restaurantName,vicinity);
-            updateViewPlaceActivity(restaurantName, vicinity, phoneNumber, photoreference);
+            initializationChoosenRestaurants(currentPlaceId, restaurantName, restaurantAddress);
+            updateViewPlaceActivity(restaurantName, restaurantAddress,attributions);
+
             displayAllWorkmatesJoining(currentPlaceId);
 
         }
@@ -117,10 +129,8 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //   setContentView(R.layout.activity_view_place);
-        context=this;
-        viewPlaceName = findViewById(R.id.activity_view_place_name);
-        viewPlaceAdress = findViewById(R.id.activity_view_place_adress);
-        viewPlacePhoto = findViewById(R.id.activity_view_place_photo);
+        context = this;
+
 
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter(PLACE_DETAIL_DATA));
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter(PLACE_SEARCH_DATA));
@@ -129,10 +139,10 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
         mRecyclerWorkmates = findViewById(R.id.activity_view_place_recycler_view);
 
 
-
     }
 
-    private void initializationChoosenRestaurants(String mCurrentPlaceId,String myRestaurantName,String myRestaurantVicinity) {
+
+    private void initializationChoosenRestaurants(String mCurrentPlaceId, String myRestaurantName, String myRestaurantVicinity) {
 
 
         //We retrieve the old restaurant to decrease customers's number
@@ -144,7 +154,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
                 String restaurantPlaceIdInFirebase = document.getString("restaurantPlaceId");
 
-                Log.d("Debago", "ViewPlaceActivity initialization: restaurantqInFirebase " + restaurantPlaceIdInFirebase+" et mCurrentPLace "+mCurrentPlaceId);
+                Log.d("Debago", "ViewPlaceActivity initialization: restaurantqInFirebase " + restaurantPlaceIdInFirebase + " et mCurrentPLace " + mCurrentPlaceId);
                 if (TextUtils.isEmpty(restaurantPlaceIdInFirebase) || !restaurantPlaceIdInFirebase.equals(mCurrentPlaceId)) {
                     isChoosenRestaurantImage.setColorFilter(Color.parseColor("#4CAF50"));//green color
 
@@ -169,8 +179,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                         assert document != null;
 
                         String restaurantPlaceIdInFirebase = document.getString("restaurantPlaceId");
-                        clickOnButton(currentPlaceId,restaurantPlaceIdInFirebase,myRestaurantName,myRestaurantVicinity);
-
+                        clickOnButton(currentPlaceId, restaurantPlaceIdInFirebase, myRestaurantName, myRestaurantVicinity);
 
 
                     }
@@ -181,10 +190,9 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
         });
 
 
-
     }
 
-    private void clickOnButton(String mCurrentPlaceId,String restaurantPlaceIdInFirebase,String myRestaurantName,String myRestaurantVicinity) {
+    private void clickOnButton(String mCurrentPlaceId, String restaurantPlaceIdInFirebase, String myRestaurantName, String myRestaurantVicinity) {
 
         if (TextUtils.isEmpty(restaurantPlaceIdInFirebase)) { //if there is no restaurant in my firebase
             Log.d("Debago", "ViewPlaceActivity clickbutton cas1: restaurantqInFirebase " + restaurantPlaceIdInFirebase);
@@ -207,11 +215,11 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                 }
             });
 
-            changeButtonColor("#B70400",mCurrentPlaceId,myRestaurantName,myRestaurantVicinity);//red color
+            changeButtonColor("#B70400", mCurrentPlaceId, myRestaurantName, myRestaurantVicinity);//red color
             Log.d("Debago", "ViewPlaceActivity choose restaurant: je fais un nouveau choix");
 
         } else if (!restaurantPlaceIdInFirebase.equals(mCurrentPlaceId)) { //if there is one restaurant in my firebase but different of actual view place
-            Log.d("Debago", "ViewPlaceActivity click button cas 2, restaurantInFirebase :"+restaurantPlaceIdInFirebase+" et currentplaceID "+mCurrentPlaceId );
+            Log.d("Debago", "ViewPlaceActivity click button cas 2, restaurantInFirebase :" + restaurantPlaceIdInFirebase + " et currentplaceID " + mCurrentPlaceId);
 
             new AlertDialog.Builder(context)
                     .setMessage(context.getString(R.string.alert_dialog_view_activity, restaurantName))
@@ -220,7 +228,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                         public void onClick(DialogInterface dialogInterface, int i) {
 
                             //We retrieve the old restaurant to decrease customers's number
-                            Log.d("Debago", "ViewPlaceActivity click button retrieve, restaurantInFirebase :"+restaurantPlaceIdInFirebase);
+                            Log.d("Debago", "ViewPlaceActivity click button retrieve, restaurantInFirebase :" + restaurantPlaceIdInFirebase);
                             RestaurantHelper.getRestaurant(restaurantPlaceIdInFirebase).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -258,8 +266,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                                 }
                             });
 
-                            changeButtonColor("#4CAF50",mCurrentPlaceId,myRestaurantName,myRestaurantVicinity);//green color
-
+                            changeButtonColor("#4CAF50", mCurrentPlaceId, myRestaurantName, myRestaurantVicinity);//green color
 
 
                         }
@@ -269,7 +276,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
 
         } else { //if there is one restaurant in my firebase and he is the same than actual view place
-            Log.d("Debago", "ViewPlaceActivity click button cas 3, restaurantInFirebase :"+restaurantPlaceIdInFirebase+" et currentplaceID "+mCurrentPlaceId );
+            Log.d("Debago", "ViewPlaceActivity click button cas 3, restaurantInFirebase :" + restaurantPlaceIdInFirebase + " et currentplaceID " + mCurrentPlaceId);
             new AlertDialog.Builder(context)
                     .setMessage(context.getString(R.string.alert_dialog_view_activity))
                     .setPositiveButton(R.string.popup_message_choice_yes, new DialogInterface.OnClickListener() {
@@ -298,7 +305,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                                 }
                             });
 
-                            changeButtonColor("#4CAF50",mCurrentPlaceId,myRestaurantName,myRestaurantVicinity);//green color
+                            changeButtonColor("#4CAF50", mCurrentPlaceId, myRestaurantName, myRestaurantVicinity);//green color
 
                             Log.d("Debago", "ViewPlaceActivity choose restaurant: je désélectionne mon choix");
                         }
@@ -311,10 +318,10 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     }
 
-    private void changeButtonColor(String newColor, String myCurrentPlaceId,String myRestaurantName,String myRestaurantVicinity){
+    private void changeButtonColor(String newColor, String myCurrentPlaceId, String myRestaurantName, String myRestaurantVicinity) {
 
         isChoosenRestaurantImage.setColorFilter(Color.parseColor(newColor));
-        initializationChoosenRestaurants(myCurrentPlaceId,myRestaurantName,myRestaurantVicinity);
+        initializationChoosenRestaurants(myCurrentPlaceId, myRestaurantName, myRestaurantVicinity);
 
     }
 
@@ -324,31 +331,36 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
     }
 
 
-    public void updateViewPlaceActivity(String restaurantName,
-                                        String vicinity,
-                                        String phoneNumber,
-                                        String photoreference) {
 
 
-        //Photo
-        StringBuilder url = new StringBuilder("https://maps.googleapis.com/maps/api/place/photo");
-        url.append("?maxwidth=" + 1000);
-        url.append("&photoreference=");
-        url.append(photoreference);
-        url.append("&key=");
-        url.append(getResources().getString(R.string.google_api_key));
 
-        Glide.with(this)
+
+    public void updateViewPlaceActivity(String restaurantName, String restaurantAddress,String attributions) {
+
+        //Textes
+        viewPlaceName.setText(restaurantName);
+        viewPlaceAddress.setText(restaurantAddress);
+
+
+        Intent intent = getIntent();
+        Bitmap bitmap = intent.getParcelableExtra(PLACE_DATA_PHOTO_BITMAP);
+
+        Log.d("Debago", "ViewPlaceActivity photometadat " + photoMetadata);
+       // updtatePhotoViewPlace(bitmap);
+
+        viewPlacePhoto.setContentDescription(attributions);
+        viewPlacePhoto.setImageBitmap(bitmap);
+        /*   Glide.with(this)
                 .load(url.toString())
                 .placeholder(R.drawable.ic_android_blue_24dp)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .error(R.drawable.ic_error_red_24dp)
-                .into(viewPlacePhoto);
+                .into(viewPlacePhoto);*/
 
-        //Textes
-        viewPlaceName.setText(restaurantName);
-        viewPlaceAdress.setText(vicinity);
 
+    }
+
+    private void updtatePhotoViewPlace(PhotoMetadata photoMetadata) {
     }
 
     @Override
@@ -383,7 +395,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     private void displayAllWorkmatesJoining(String currentPlaceId) {
 
-        this.mRecyclerWorkmatesAdapter = new WorkmatesAdapter(generateOptionsForAdapter(UserHelper.getAllWorkmatesJoining(currentPlaceId)), Glide.with(this),this,this);
+        this.mRecyclerWorkmatesAdapter = new WorkmatesAdapter(generateOptionsForAdapter(UserHelper.getAllWorkmatesJoining(currentPlaceId)), Glide.with(this), this, this);
         //Choose how to display the list in the RecyclerView (vertical or horizontal)
         mRecyclerWorkmates.setHasFixedSize(true); //REVOIR CELA
         mRecyclerWorkmates.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
@@ -392,7 +404,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
     }
 
     // Create options for RecyclerView from a Query
-    private FirestoreRecyclerOptions<User> generateOptionsForAdapter(Query query){
+    private FirestoreRecyclerOptions<User> generateOptionsForAdapter(Query query) {
         return new FirestoreRecyclerOptions.Builder<User>()
                 .setQuery(query, User.class)
                 .setLifecycleOwner(this)
