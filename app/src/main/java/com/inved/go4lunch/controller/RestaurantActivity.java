@@ -65,7 +65,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     public static final String PLACE_DATA_PHONE_NUMBER = "PLACE_DETAIL_DATA_PHONE_NUMBER";
     public static final String PLACE_DATA_PHOTO_BITMAP = "PLACE_DETAIL_DATA_PHOTO_BITMAP";
-    public static final String PLACE_DATA_PHOTO_ATTRIBUTIONS = "PHOTO_ATTRIBUTIONS";
+
 
     public static final String PLACE_SEARCH_DATA = "PLACE_SEARCH_DATA";
 

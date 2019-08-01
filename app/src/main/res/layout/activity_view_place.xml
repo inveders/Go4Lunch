@@ -87,7 +87,7 @@
         android:contentDescription="@string/fragment_people_item_image"
         app:layout_constraintTop_toBottomOf="@id/activity_view_place_address"
         android:layout_marginTop="25dp"
-        android:layout_marginEnd="50dp"
+        android:layout_marginEnd="70dp"
         android:src="@drawable/ic_phone_24dp"
         app:layout_constraintRight_toLeftOf="@+id/activity_view_place_like_image"
         />
@@ -114,7 +114,7 @@
         android:layout_marginTop="25dp"
         android:src="@drawable/ic_public_24dp"
         app:layout_constraintLeft_toRightOf="@+id/activity_view_place_like_image"
-        android:layout_marginStart="50dp"
+        android:layout_marginStart="70dp"
         />
 
     <!-- RECYCLER VIEW -->

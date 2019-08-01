@@ -64,4 +64,6 @@
     <string name="granted_text">Go4Lunch a besoin d\'une autorisation pour localiser votre périphérique afin de vous fournir les services requis. Merci d\'autoriser la localisation.</string>
     <string name="grant_permission">Autoriser la localisation</string>
     <string name="granted_title">Demande de permission</string>
+    <string name="no_phone_number">Pas de numéro de téléphone pour ce restaurant</string>
+    <string name="no_website">Pas de site web pour ce restaurant</string>
 </resources>

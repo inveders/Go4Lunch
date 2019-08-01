@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -25,10 +27,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.PhotoMetadata;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.FetchPhotoRequest;
+import com.google.android.libraries.places.api.net.FetchPlaceRequest;
+import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
@@ -38,7 +46,11 @@ import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.firebase.RestaurantHelper;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
+import com.inved.go4lunch.utils.App;
 
+import org.w3c.dom.Text;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -47,8 +59,6 @@ import butterknife.BindView;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_ADDRESS;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_NAME;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PHONE_NUMBER;
-import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PHOTO_ATTRIBUTIONS;
-import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PHOTO_BITMAP;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PLACE_ID;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_WEBSITE;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DETAIL_DATA;
@@ -88,8 +98,6 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
     private String phoneNumber;
     private String currentPlaceId;
     private String website;
-    private String attributions;
-    private List<PhotoMetadata> photoMetadata;
 
 
     private WorkmatesAdapter mRecyclerWorkmatesAdapter;
@@ -109,7 +117,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                 restaurantAddress = intent.getStringExtra(PLACE_DATA_ADDRESS);
                 currentPlaceId = intent.getStringExtra(PLACE_DATA_PLACE_ID);
                 website = intent.getStringExtra(PLACE_DATA_WEBSITE);
-                attributions = intent.getStringExtra(PLACE_DATA_PHOTO_ATTRIBUTIONS);
+
 
             }
 
@@ -118,12 +126,52 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
             }
             initializationChoosenRestaurants(currentPlaceId, restaurantName, restaurantAddress);
-            updateViewPlaceActivity(restaurantName, restaurantAddress,attributions);
-
+            updateViewPlaceActivity(restaurantName, restaurantAddress);
+            updatePhotoViewPlace(currentPlaceId);
             displayAllWorkmatesJoining(currentPlaceId);
+            actionOnButton(phoneNumber,website);
 
         }
     };
+
+    private void actionOnButton(String phoneNumber, String website) {
+
+        viewPlaceCallImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //Launch the call
+                if(!TextUtils.isEmpty(phoneNumber)){
+
+                    Intent appel = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:"+phoneNumber));
+                    startActivity(appel);
+
+                }
+                else{
+                    Toast.makeText(getApplicationContext(), getString(R.string.no_phone_number), Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+
+        viewPlaceWebsiteImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //Creation of the Chrome Custom Tabs
+                if(!TextUtils.isEmpty(website)){
+                    CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+                    CustomTabsIntent intent = builder.build();
+                    intent.launchUrl(context, Uri.parse(website));
+                }
+                else{
+                    Toast.makeText(getApplicationContext(), getString(R.string.no_website), Toast.LENGTH_SHORT).show();
+                }
+
+
+            }
+        });
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -335,21 +383,12 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
 
 
-    public void updateViewPlaceActivity(String restaurantName, String restaurantAddress,String attributions) {
+    public void updateViewPlaceActivity(String restaurantName, String restaurantAddress) {
 
         //Textes
         viewPlaceName.setText(restaurantName);
         viewPlaceAddress.setText(restaurantAddress);
 
-
-        Intent intent = getIntent();
-        Bitmap bitmap = intent.getParcelableExtra(PLACE_DATA_PHOTO_BITMAP);
-
-        Log.d("Debago", "ViewPlaceActivity photometadat " + photoMetadata);
-       // updtatePhotoViewPlace(bitmap);
-
-        viewPlacePhoto.setContentDescription(attributions);
-        viewPlacePhoto.setImageBitmap(bitmap);
         /*   Glide.with(this)
                 .load(url.toString())
                 .placeholder(R.drawable.ic_android_blue_24dp)
@@ -360,7 +399,45 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     }
 
-    private void updtatePhotoViewPlace(PhotoMetadata photoMetadata) {
+    private void updatePhotoViewPlace(String placeId) {
+
+        // Initialize Places.
+        Places.initialize(App.getInstance().getApplicationContext(), App.getResourses().getString(R.string.google_api_key));
+
+        // Create a new Places client instance.
+        PlacesClient placesClient = Places.createClient(App.getInstance().getApplicationContext());
+
+        // Specify the fields to return.
+        List<Place.Field> fields = Arrays.asList(Place.Field.PHOTO_METADATAS);
+
+        FetchPlaceRequest placeRequest = FetchPlaceRequest.builder(placeId, fields).build();
+
+        placesClient.fetchPlace(placeRequest).addOnSuccessListener((response) -> {
+            Place place = response.getPlace();
+
+            // Get the photo metadata.
+            PhotoMetadata photoMetadata = place.getPhotoMetadatas().get(0);
+
+            // Get the attribution text.
+            String attributions = photoMetadata.getAttributions();
+            viewPlacePhoto.setContentDescription(attributions);
+            // Create a FetchPhotoRequest.
+            FetchPhotoRequest photoRequest = FetchPhotoRequest.builder(photoMetadata)
+                    .setMaxWidth(500) // Optional.
+                    .setMaxHeight(300) // Optional.
+                    .build();
+            placesClient.fetchPhoto(photoRequest).addOnSuccessListener((fetchPhotoResponse) -> {
+                Bitmap bitmap = fetchPhotoResponse.getBitmap();
+                viewPlacePhoto.setImageBitmap(bitmap);
+            }).addOnFailureListener((exception) -> {
+                if (exception instanceof ApiException) {
+                    ApiException apiException = (ApiException) exception;
+                    int statusCode = apiException.getStatusCode();
+                    // Handle error with given status code.
+                    Log.e("debago", "Place not found: " + exception.getMessage());
+                }
+            });
+        });
     }
 
     @Override

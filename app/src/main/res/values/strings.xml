@@ -70,6 +70,8 @@
     <string name="is_choosen_restaurant">Choice of restaurant</string>
     <string name="alert_dialog_view_activity">Are you sure you want to change to eat at the restaurant %1$s?</string>
     <string name="restaurant_no_choosen">You have not yet chosen a restaurant</string>
+    <string name="no_phone_number">No phone number for this restaurant</string>
+    <string name="no_website">No website for this restaurant</string>
 
     <!-- PERMISSION ACTIVITY-->
     <string name="toolbar_name_permission_activity">Permission granted</string>
@@ -90,6 +92,7 @@
     <string name="facebook_login_protocol_scheme" translatable="false" tools:ignore="UnusedResources">fb420763051691337</string>
     <string name="votre_repas_ce_midi">YOUR LUNCH</string>
     <string name="par_defaut">Default</string>
+
 
 
 </resources>
