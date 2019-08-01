@@ -276,7 +276,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private void customizeMarker(String restaurantPlaceId, LatLng latLng) {
 
-        mGoogleMap.clear();
+      //  mGoogleMap.clear();
         int mZoom = 18;
         int mBearing = 0;
         int mTilt = 45;

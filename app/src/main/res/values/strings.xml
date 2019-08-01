@@ -17,6 +17,7 @@
     <string name="notification_title">You have received a notification</string>
     <string name="notification_message_text">For lunch, you eat at the restaurant %1$s located %2$s.</string>
     <string name="notification_message_workmates">Here is the list of workmates who will be eating with you: %1$s %2$s</string>
+    <string name="notification_message_no_workmates_with_you">No workmates are coming to lunch with you at the moment</string>
     <string name="notification_message_short">Find the details of the information concerning your lunch</string>
     <string name="toolbar_title_notification_activity">Notification</string>
     <string name="info_no_restaurant_name_found">No restaurant</string>
@@ -61,7 +62,7 @@
     <!-- FRAGMENT RESTAURANT PEOPLE -->
     <string name="fragment_people_item_image">Workmates image</string>
     <string name="fragment_people_item_text">Alex is eating Turkish (Snack Ender)</string>
-    <string name="workmates_text_choice">" %1$s is eating %2$s (%3$s)"</string>
+    <string name="workmates_text_choice">" %1$s is eating in restaurant %2$s"</string>
     <string name="workmates_text_joining">" %1$s is joining"</string>
     <string name="workmates_text_no_choice">%1$s hasn\'t decided yet!</string>
 
@@ -92,7 +93,7 @@
     <string name="facebook_login_protocol_scheme" translatable="false" tools:ignore="UnusedResources">fb420763051691337</string>
     <string name="votre_repas_ce_midi">YOUR LUNCH</string>
     <string name="par_defaut">Default</string>
-
+    <string name="notification_btn_see_choice">SEE MY CHOICE</string>
 
 
 </resources>

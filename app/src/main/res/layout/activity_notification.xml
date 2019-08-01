@@ -29,4 +29,17 @@
         android:layout_margin="25dp"
         android:text="@string/par_defaut"/>
 
+
+    <Button
+        android:id="@+id/activity_notification_btn_see_choice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="50dp"
+        android:visibility="invisible"
+        android:textColor="#fff"
+        android:textSize="@dimen/default_text_size"
+        android:background="@drawable/button_radius_primary_color"
+        style="?android:attr/borderlessButtonStyle"
+        android:text="@string/notification_btn_see_choice" />
+
 </LinearLayout>

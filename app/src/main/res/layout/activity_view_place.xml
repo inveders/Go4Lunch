@@ -47,35 +47,12 @@
         />
 
     <TextView
-        android:id="@+id/activity_view_place_restaurant_type"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="5dp"
-        android:text="@string/fragment_listview_item_restaurant_type"
-        app:layout_constraintTop_toBottomOf="@id/activity_view_place_name"
-        app:layout_constraintLeft_toLeftOf="parent"
-        />
-
-    <TextView
-        android:id="@+id/activity_view_place_dot"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/fragment_listview_item_dot"
-        app:layout_constraintTop_toBottomOf="@id/activity_view_place_name"
-        app:layout_constraintLeft_toRightOf="@id/activity_view_place_restaurant_type"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="5dp"
-        />
-
-    <TextView
         android:id="@+id/activity_view_place_address"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/fragment_listview_item_restaurant_adress"
         app:layout_constraintTop_toBottomOf="@id/activity_view_place_name"
-        app:layout_constraintLeft_toRightOf="@id/activity_view_place_dot"
-        android:layout_marginStart="5dp"
+        app:layout_constraintLeft_toLeftOf="@id/activity_view_place_name"
         android:layout_marginTop="5dp"
         />
 

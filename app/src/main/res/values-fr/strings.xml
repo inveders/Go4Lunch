@@ -56,7 +56,7 @@
     <string name="toolbar_title_restaurant_activity">J\'ai faim !</string>
     <string name="update_confirmation">Informations mises à jour</string>
     <string name="votre_repas_ce_midi">VOTRE DEJEUNER</string>
-    <string name="workmates_text_choice">" %1$s va manger %2$s (%3$s)"</string>
+    <string name="workmates_text_choice">" %1$s va manger au restaurant %2$s"</string>
     <string name="workmates_text_joining">" %1$s va manger ici"</string>
     <string name="workmates_text_no_choice">%1$s n\'a pas encore choisi !</string>
     <string name="search_hint">Recherche...</string>
@@ -66,4 +66,6 @@
     <string name="granted_title">Demande de permission</string>
     <string name="no_phone_number">Pas de numéro de téléphone pour ce restaurant</string>
     <string name="no_website">Pas de site web pour ce restaurant</string>
+    <string name="notification_message_no_workmates_with_you">Aucun collègue ne vient déjeuner avec vous pour l\'instant</string>
+    <string name="notification_btn_see_choice">VOIR MON CHOIX</string>
 </resources>

@@ -73,10 +73,6 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
     @BindView(R.id.activity_view_place_address)
     TextView viewPlaceAddress;
 
-
-
-    @BindView(R.id.activity_view_place_restaurant_type)
-    TextView viewPlaceRestaurantType;
     Context context;
     CollectionReference restaurants = RestaurantHelper.getRestaurantsCollection();
 

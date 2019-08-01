@@ -41,13 +41,13 @@ public class WorkmatesViewHolder extends RecyclerView.ViewHolder {
 
         String firstname = user.getFirstname();
         String restaurantPlaceId =user.getRestaurantPlaceId();
-        String restaurantType=user.getRestaurantType();
+
         String restaurantName=user.getRestaurantName();
 
         // Update user TextView
 
         if(restaurantPlaceId!=null){
-            this.mWorkmatesText.setText(App.getResourses().getString(R.string.workmates_text_choice, firstname, restaurantType, restaurantName));
+            this.mWorkmatesText.setText(App.getResourses().getString(R.string.workmates_text_choice, firstname, restaurantName));
 
             mConstraintLayoutItem.setOnClickListener(new View.OnClickListener() {
                 @Override
