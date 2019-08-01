@@ -68,4 +68,7 @@
     <string name="no_website">Pas de site web pour ce restaurant</string>
     <string name="notification_message_no_workmates_with_you">Aucun collègue ne vient déjeuner avec vous pour l\'instant</string>
     <string name="notification_btn_see_choice">VOIR MON CHOIX</string>
+    <string name="notification_enable">Activer les notifications (tous les midis)</string>
+    <string name="notifications_settings">PARAMETRES DES NOTIFICATIONS</string>
+    <string name="user_settings">INFORMATIONS SUR L\'UTILISATEUR</string>
 </resources>

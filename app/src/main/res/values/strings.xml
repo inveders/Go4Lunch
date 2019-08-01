@@ -22,6 +22,9 @@
     <string name="toolbar_title_notification_activity">Notification</string>
     <string name="info_no_restaurant_name_found">No restaurant</string>
     <string name="info_no_restaurant_adresse_found">No restaurant address</string>
+    <string name="notification_enable">Enable notifications (every lunchtime)</string>
+    <string name="notification_btn_see_choice">SEE MY CHOICE</string>
+    <string name="notifications_settings">NOTIFICATIONS SETTINGS</string>
 
     <!-- MAIN ACTIVITY -->
     <string name="error_authentication_canceled">Authentication cancelled&#8230;</string>
@@ -31,7 +34,7 @@
     <string name="button_login_text_logged">View profile</string>
     <string name="button_login_text_not_logged">Login</string>
 
-    <!-- LOGIN ACTIVITY -->
+    <!-- PROFILE ACTIVITY -->
     <string name="toolbar_title_login_activity">Your profile</string>
     <string name="text_input_firstname">Firstname</string>
     <string name="text_input_lastname">Lastname</string>
@@ -45,6 +48,7 @@
     <string name="popup_message_confirmation_delete_account">Are you sure you want to delete your account?</string>
     <string name="popup_message_choice_yes">Yes</string>
     <string name="popup_message_choice_no">No</string>
+    <string name="user_settings">USER INFORMATIONS</string>
 
     <!-- RESTAURANT ACTIVITY -->
     <string name="toolbar_title_restaurant_activity">I\'m Hungry!</string>
@@ -89,11 +93,12 @@
     <string name="bottom_navigation_menu_people">Workmates</string>
 
     <!-- FACEBOOK PURPOSE -->
-    <string name="facebook_application_id" translatable="false">420763051691337</string>
-    <string name="facebook_login_protocol_scheme" translatable="false" tools:ignore="UnusedResources">fb420763051691337</string>
+    <string name="facebook_application_id" translatable="false">2021492718158615</string>
+    <string name="facebook_login_protocol_scheme" translatable="false"
+        tools:ignore="UnusedResources">fb2021492718158615</string>
     <string name="votre_repas_ce_midi">YOUR LUNCH</string>
     <string name="par_defaut">Default</string>
-    <string name="notification_btn_see_choice">SEE MY CHOICE</string>
+
 
 
 </resources>

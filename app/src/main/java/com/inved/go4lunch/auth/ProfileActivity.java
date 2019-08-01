@@ -5,9 +5,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,10 +20,10 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.inved.go4lunch.R;
-import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.controller.MainActivity;
 import com.inved.go4lunch.firebase.User;
+import com.inved.go4lunch.firebase.UserHelper;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -39,8 +39,9 @@ public class ProfileActivity extends BaseActivity {
     TextInputEditText textInputEditTextLastname;
     @BindView(R.id.profile_activity_text_view_email)
     TextView textViewEmail;
-    @BindView(R.id.profile_activity_progress_bar)
-    ProgressBar progressBar;
+    @BindView(R.id.notification_switch)
+    Switch notificationSwitch;
+
 
 
     //FOR DATA
@@ -55,6 +56,19 @@ public class ProfileActivity extends BaseActivity {
         Log.d("DEBAGO", "ProfileActivity : oncreate ");
       //  this.configureToolbar();
         this.updateUIWhenCreating();
+
+        notificationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean bChecked) {
+                if (bChecked) {
+                    Toast.makeText(ProfileActivity.this, "Notifications actives", Toast.LENGTH_SHORT).show();
+                   // notificationActionIfEnabled();
+                } else {
+                    Toast.makeText(ProfileActivity.this, "Désactivation des notifications", Toast.LENGTH_SHORT).show();
+                 //   notificationActionIfIsNotEnabled();
+                }
+            }
+        });
     }
 
     @Override
@@ -103,7 +117,7 @@ public class ProfileActivity extends BaseActivity {
     // 3 - Update User Firstname and lastname
     private void updateNameInFirebase(){
 
-        this.progressBar.setVisibility(View.VISIBLE);
+
         String firstname = this.textInputEditTextFirstname.getText().toString();
         String lastname = this.textInputEditTextLastname.getText().toString();
         if (this.getCurrentUser() != null){
@@ -169,7 +183,7 @@ public class ProfileActivity extends BaseActivity {
                     switch (origin){
 
                         case UPDATE_NAME:
-                            progressBar.setVisibility(View.INVISIBLE);
+
                             Toast.makeText(getApplicationContext(), getString(R.string.update_confirmation), Toast.LENGTH_LONG).show();
                             break;
                         case DELETE_USER_TASK:

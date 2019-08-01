@@ -42,7 +42,7 @@ dependencies {
 
     // FirebaseUI for Cloud Firestore
     implementation 'com.firebaseui:firebase-ui-firestore:5.0.0'
-    implementation 'com.facebook.android:facebook-android-sdk:4.42.0'
+    implementation 'com.facebook.android:facebook-android-sdk:5.2.0'
     implementation 'com.google.firebase:firebase-messaging:19.0.1'
 
 
