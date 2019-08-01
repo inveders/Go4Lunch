@@ -13,7 +13,8 @@ import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.android.material.snackbar.Snackbar;
 import com.inved.go4lunch.R;
-
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
 import com.inved.go4lunch.firebase.RestaurantHelper;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.base.BaseActivity;
@@ -118,17 +119,6 @@ public class MainActivity extends BaseActivity {
         }
     }
 
- /*   private void createRestaurantInFirestore() {
-
-        if (this.getCurrentUser() != null) {
-
-            String restaurantPlaceId = null;
-            String uid = this.getCurrentUser().getUid();
-            int restaurantCustomers = 0;
-            RestaurantHelper.createRestaurant(uid,restaurantPlaceId,restaurantCustomers).addOnFailureListener(this.onFailureListener());
-        }
-    }*/
-
     // --------------------
     // NAVIGATION
     // --------------------
@@ -197,11 +187,13 @@ public class MainActivity extends BaseActivity {
         IdpResponse response = IdpResponse.fromResultIntent(data);
 
         if (requestCode == RC_SIGN_IN) {
+            Log.d("Debago", "MainActivity : SIGNIN");
             if (resultCode == RESULT_OK) { // SUCCESS
                 showSnackBar(this.coordinatorLayout, getString(R.string.connection_succeed));
                 this.createUserInFirestore(); /**C'est ici le probléme il faudrait qu'on crée l'utilisateur s'il n'existe pas déjà dans la base de données*/
                 //this.createRestaurantInFirestore();
                 this.startPermissionActivity();
+                finish();
                 //this.startRestaurantActivity();
             } else { // ERRORS
                 if (response == null) {
