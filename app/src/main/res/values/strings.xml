@@ -18,6 +18,8 @@
     <string name="notification_message_text">For lunch, you eat at the restaurant %1$s located %2$s.</string>
     <string name="notification_message_workmates">Here is the list of workmates who will be eating with you: %1$s %2$s</string>
     <string name="notification_message_no_workmates_with_you">No workmates are coming to lunch with you at the moment</string>
+
+
     <string name="notification_message_short">Find the details of the information concerning your lunch</string>
     <string name="toolbar_title_notification_activity">Notification</string>
     <string name="info_no_restaurant_name_found">No restaurant</string>
@@ -25,6 +27,7 @@
     <string name="notification_enable">Enable notifications (every lunchtime)</string>
     <string name="notification_btn_see_choice">SEE MY CHOICE</string>
     <string name="notifications_settings">NOTIFICATIONS SETTINGS</string>
+    <string name="votre_repas_ce_midi">YOUR LUNCH</string>
 
     <!-- MAIN ACTIVITY -->
     <string name="error_authentication_canceled">Authentication cancelled&#8230;</string>
@@ -74,10 +77,11 @@
     <string name="restaurant_choosen">The restaurant has been well chosen</string>
     <string name="is_choosen_restaurant">Choice of restaurant</string>
     <string name="alert_dialog_view_activity">Are you sure you want to change to eat at the restaurant %1$s?</string>
+    <string name="alert_dialog_view_activity_no_choice_yet">Are you sure you don\'t want to eat here anymore?</string>
     <string name="restaurant_no_choosen">You have not yet chosen a restaurant</string>
     <string name="no_phone_number">No phone number for this restaurant</string>
     <string name="no_website">No website for this restaurant</string>
-
+    <string name="notification_message_no_workmates_here">No workmates here for the moment</string>
     <!-- PERMISSION ACTIVITY-->
     <string name="toolbar_name_permission_activity">Permission granted</string>
     <string name="grant_permission">Grant Permission</string>
@@ -86,6 +90,7 @@
 
     <!-- SEARCHVIEW-->
     <string name="search_hint">Search...</string>
+    <string name="par_defaut">Default</string>
 
     <!-- BOTTOM NAVIGATION VIEW -->
     <string name="bottom_navigation_menu_map">Map View</string>
@@ -96,8 +101,6 @@
     <string name="facebook_application_id" translatable="false">2021492718158615</string>
     <string name="facebook_login_protocol_scheme" translatable="false"
         tools:ignore="UnusedResources">fb2021492718158615</string>
-    <string name="votre_repas_ce_midi">YOUR LUNCH</string>
-    <string name="par_defaut">Default</string>
 
 
 

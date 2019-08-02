@@ -18,7 +18,10 @@ import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.PlaceDetailsData;
 import com.inved.go4lunch.firebase.Restaurant;
 import com.inved.go4lunch.firebase.User;
+import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.utils.App;
+
+import butterknife.BindView;
 
 public class WorkmatesViewHolder extends RecyclerView.ViewHolder {
 
@@ -26,6 +29,8 @@ public class WorkmatesViewHolder extends RecyclerView.ViewHolder {
     private TextView mWorkmatesText;
     ConstraintLayout mConstraintLayoutItem;
     PlaceDetailsData placeDetailsData = new PlaceDetailsData();
+
+    private TextView textViewRecyclerViewEmpty;
 
 
     public WorkmatesViewHolder(@NonNull View itemView) {
@@ -35,6 +40,7 @@ public class WorkmatesViewHolder extends RecyclerView.ViewHolder {
         mWorkmatesText = itemView.findViewById(R.id.fragment_people_item_text);
         mWorkmatesImage = itemView.findViewById(R.id.fragment_people_item_image);
         mConstraintLayoutItem = itemView.findViewById(R.id.fragment_people_item);
+        textViewRecyclerViewEmpty = itemView.findViewById(R.id.activity_view_place_no_workmates_text);
     }
 
     public void updateWithUsers(User user, RequestManager glide){
@@ -96,9 +102,11 @@ public class WorkmatesViewHolder extends RecyclerView.ViewHolder {
         // Update user TextView
 
         if(restaurantPlaceId!=null){
+
             this.mWorkmatesText.setText(App.getResourses().getString(R.string.workmates_text_joining, firstname));
 
         }
+
 
 
         // Update image sent ImageView

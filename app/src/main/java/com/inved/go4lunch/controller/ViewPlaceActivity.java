@@ -72,6 +72,9 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
     TextView viewPlaceName;
     @BindView(R.id.activity_view_place_address)
     TextView viewPlaceAddress;
+    @BindView(R.id.activity_view_place_no_workmates_text)
+    TextView textViewRecyclerViewEmpty;
+
 
     Context context;
     CollectionReference restaurants = RestaurantHelper.getRestaurantsCollection();
@@ -189,7 +192,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
     private void initializationChoosenRestaurants(String mCurrentPlaceId, String myRestaurantName, String myRestaurantVicinity) {
 
 
-        //We retrieve the old restaurant to decrease customers's number
+
         UserHelper.getUser(getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -198,15 +201,15 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
                 String restaurantPlaceIdInFirebase = document.getString("restaurantPlaceId");
 
-                Log.d("Debago", "ViewPlaceActivity initialization: restaurantqInFirebase " + restaurantPlaceIdInFirebase + " et mCurrentPLace " + mCurrentPlaceId);
+              //  Log.d("Debago", "ViewPlaceActivity initialization: restaurantqInFirebase " + restaurantPlaceIdInFirebase + " et mCurrentPLace " + mCurrentPlaceId);
                 if (TextUtils.isEmpty(restaurantPlaceIdInFirebase) || !restaurantPlaceIdInFirebase.equals(mCurrentPlaceId)) {
-                    isChoosenRestaurantImage.setColorFilter(Color.parseColor("#4CAF50"));//green color
+              //      Log.d("Debagoo", "ViewPlaceActivity initialization: couleur rouge");
+                    isChoosenRestaurantImage.setColorFilter(Color.parseColor("#B70400"));//red color
 
                 } else {
-
-                    isChoosenRestaurantImage.setColorFilter(Color.parseColor("#B70400"));//red color
+                //    Log.d("Debagoo", "ViewPlaceActivity initialization: couleur verte");
+                    isChoosenRestaurantImage.setColorFilter(Color.parseColor("#4CAF50"));//green color
                 }
-
 
             }
         });
@@ -239,7 +242,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
     private void clickOnButton(String mCurrentPlaceId, String restaurantPlaceIdInFirebase, String myRestaurantName, String myRestaurantVicinity) {
 
         if (TextUtils.isEmpty(restaurantPlaceIdInFirebase)) { //if there is no restaurant in my firebase
-            Log.d("Debago", "ViewPlaceActivity clickbutton cas1: restaurantqInFirebase " + restaurantPlaceIdInFirebase);
+          //  Log.d("Debagoo", "ViewPlaceActivity clickbutton cas1 if there is no restaurant in my firebase: restaurantqInFirebase " + restaurantPlaceIdInFirebase);
             //We retrieve the new restaurant to increment customers's number
             RestaurantHelper.getRestaurant(mCurrentPlaceId).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
@@ -259,11 +262,13 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                 }
             });
 
-            changeButtonColor("#B70400", mCurrentPlaceId, myRestaurantName, myRestaurantVicinity);//red color
-            Log.d("Debago", "ViewPlaceActivity choose restaurant: je fais un nouveau choix");
+
+
+            changeButtonColor("#4CAF50");//green color
+          //  Log.d("Debagoo", "ViewPlaceActivity choose restaurant cas1 bis: je fais un nouveau choix");
 
         } else if (!restaurantPlaceIdInFirebase.equals(mCurrentPlaceId)) { //if there is one restaurant in my firebase but different of actual view place
-            Log.d("Debago", "ViewPlaceActivity click button cas 2, restaurantInFirebase :" + restaurantPlaceIdInFirebase + " et currentplaceID " + mCurrentPlaceId);
+         //  Log.d("Debagoo", "ViewPlaceActivity click button cas 2, if there is one restaurant in my firebase but different of actual view place restaurantInFirebase :" + restaurantPlaceIdInFirebase + " et currentplaceID " + mCurrentPlaceId);
 
             new AlertDialog.Builder(context)
                     .setMessage(context.getString(R.string.alert_dialog_view_activity, restaurantName))
@@ -272,7 +277,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                         public void onClick(DialogInterface dialogInterface, int i) {
 
                             //We retrieve the old restaurant to decrease customers's number
-                            Log.d("Debago", "ViewPlaceActivity click button retrieve, restaurantInFirebase :" + restaurantPlaceIdInFirebase);
+                          //  Log.d("Debagoo", "ViewPlaceActivity click button retrieve, restaurantInFirebase :" + restaurantPlaceIdInFirebase);
                             RestaurantHelper.getRestaurant(restaurantPlaceIdInFirebase).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -310,7 +315,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                                 }
                             });
 
-                            changeButtonColor("#4CAF50", mCurrentPlaceId, myRestaurantName, myRestaurantVicinity);//green color
+                            changeButtonColor("#4CAF50");//green color
 
 
                         }
@@ -320,9 +325,9 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
 
         } else { //if there is one restaurant in my firebase and he is the same than actual view place
-            Log.d("Debago", "ViewPlaceActivity click button cas 3, restaurantInFirebase :" + restaurantPlaceIdInFirebase + " et currentplaceID " + mCurrentPlaceId);
+         //   Log.d("Debagoo", "ViewPlaceActivity click button cas 3,if there is one restaurant in my firebase and he is the same than actual view place restaurantInFirebase :" + restaurantPlaceIdInFirebase + " et currentplaceID " + mCurrentPlaceId);
             new AlertDialog.Builder(context)
-                    .setMessage(context.getString(R.string.alert_dialog_view_activity))
+                    .setMessage(context.getString(R.string.alert_dialog_view_activity_no_choice_yet))
                     .setPositiveButton(R.string.popup_message_choice_yes, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
@@ -349,9 +354,11 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                                 }
                             });
 
-                            changeButtonColor("#4CAF50", mCurrentPlaceId, myRestaurantName, myRestaurantVicinity);//green color
 
-                            Log.d("Debago", "ViewPlaceActivity choose restaurant: je désélectionne mon choix");
+
+                            changeButtonColor("#B70400");//red color
+
+                       //     Log.d("Debagoo", "ViewPlaceActivity choose restaurant cas3 bis: je désélectionne mon choix");
                         }
                     })
                     .setNegativeButton(R.string.popup_message_choice_no, null)
@@ -362,10 +369,9 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     }
 
-    private void changeButtonColor(String newColor, String myCurrentPlaceId, String myRestaurantName, String myRestaurantVicinity) {
+    private void changeButtonColor(String newColor) {
 
         isChoosenRestaurantImage.setColorFilter(Color.parseColor(newColor));
-        initializationChoosenRestaurants(myCurrentPlaceId, myRestaurantName, myRestaurantVicinity);
 
     }
 
@@ -486,8 +492,10 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     @Override
     public void onDataChanged() {
-        // 7 - Show TextView in case RecyclerView is empty
-        //  textViewRecyclerViewEmpty.setVisibility(this.mentorChatAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
+// Show TextView in case RecyclerView is empty
+
+       // textViewRecyclerViewEmpty.setVisibility(View.VISIBLE);
+        textViewRecyclerViewEmpty.setVisibility(this.mRecyclerWorkmatesAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
     }
 
 }

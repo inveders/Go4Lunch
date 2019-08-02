@@ -94,7 +94,22 @@
         android:layout_marginStart="70dp"
         />
 
+    <!-- TEXTVIEW IF RECYCLER VIEW IS EMPTY-->
+    <TextView
+        android:id="@+id/activity_view_place_no_workmates_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constrainedWidth="true"
+        android:text="@string/notification_message_no_workmates_here"
+        app:layout_constraintTop_toTopOf="@id/activity_view_place_recycler_view"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:visibility="invisible"
+        android:layout_marginTop="5dp"
+        />
+
     <!-- RECYCLER VIEW -->
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/activity_view_place_recycler_view"
         android:layout_width="match_parent"

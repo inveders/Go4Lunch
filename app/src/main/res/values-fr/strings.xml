@@ -71,4 +71,6 @@
     <string name="notification_enable">Activer les notifications (tous les midis)</string>
     <string name="notifications_settings">PARAMETRES DES NOTIFICATIONS</string>
     <string name="user_settings">INFORMATIONS SUR L\'UTILISATEUR</string>
+    <string name="notification_message_no_workmates_here">Aucun collègue ici pour l\'instant</string>
+    <string name="alert_dialog_view_activity_no_choice_yet">Etes-vous sur de ne plus vouloir manger ici ?</string>
 </resources>
