@@ -19,9 +19,15 @@ import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.SignInMethodQueryResult;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.inved.go4lunch.R;
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
@@ -38,7 +44,6 @@ import butterknife.BindView;
 import butterknife.OnClick;
 
 public class MainActivity extends BaseActivity {
-
 
 
     //FOR DESIGN
@@ -67,6 +72,7 @@ public class MainActivity extends BaseActivity {
         if (this.isCurrentUserLogged()) {
             Log.d("Debago", "MainActivity : oncreate go in restaurantActivity");
             this.startRestaurantActivity();
+            finish();
 
 
         }
@@ -92,8 +98,6 @@ public class MainActivity extends BaseActivity {
         super.onResume();
         // this.updateUIWhenGoogleResuming();
     }
-
-
 
 
     // --------------------
@@ -137,7 +141,7 @@ public class MainActivity extends BaseActivity {
             String restaurantType = null;
             String restaurantVicinity = null;
 
-            UserHelper.createUser(uid, firstname, lastname, urlPicture, restaurantPlaceId, restaurantType,restaurantName,restaurantVicinity).addOnFailureListener(this.onFailureListener());
+            UserHelper.createUser(uid, firstname, lastname, urlPicture, restaurantPlaceId, restaurantType, restaurantName, restaurantVicinity).addOnFailureListener(this.onFailureListener());
 
 
         }
@@ -215,25 +219,30 @@ public class MainActivity extends BaseActivity {
             if (resultCode == RESULT_OK) { // SUCCESS
                 showSnackBar(this.coordinatorLayout, getString(R.string.connection_succeed));
 
-                FirebaseAuth.getInstance().fetchSignInMethodsForEmail(getCurrentUser().getEmail()).addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
+
+
+             /*
+                UserHelper.getAllUsers().addSnapshotListener(this, new EventListener<QuerySnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                        if (queryDocumentSnapshots != null) {
+                            ///LA PERSONNE CONNECTEE EST DEJA ENREGISTREE EN BDD. ON RECUPERE ET AFFICHE TOUTES SES DONNEES
 
-                        boolean check = !Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getSignInMethods()).isEmpty();
-                        Log.d("Debago", "MainActivity : check "+check);
-                        if(!check){
-                            Log.d("Debago", "MainActivity : createUserInFirestore");
-                            createUserInFirestore();
-                        }
-                        else{
-                            Log.d("Debago", "MainActivity : user already here");
-                            createUserInFirestore();
-                        }
 
+                            Log.d("Debago", "deja enregistré");
+
+                        }
+                        //LA PERSONNE CONNECTEE N'EST PAS EN BDD OU ELLE EST ENTRAIN DE CREER SON COMPTE
+                        if (response.getEmail() != null) {
+                            Log.d("Debago", "nouveau");
+
+                        }
                     }
                 });
+*/
+                createUserInFirestore();
                 this.startPermissionActivity();
-               // finish();
+                finish();
                 //this.startRestaurantActivity();
             } else { // ERRORS
                 if (response == null) {

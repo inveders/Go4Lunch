@@ -427,7 +427,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
                     assert currentUser != null;
                     String firstname = TextUtils.isEmpty(currentUser.getFirstname()) ? getString(R.string.info_no_firstname_found) : currentUser.getFirstname();
-                    String lastname = TextUtils.isEmpty(currentUser.getLastname()) ? getString(R.string.info_no_lastname_found) : currentUser.getLastname();
+                    String lastname = TextUtils.isEmpty(currentUser.getLastname()) ? "" : currentUser.getLastname();
                     navFirstname.setText(firstname);
                     navLastname.setText(lastname);
                 }
@@ -578,6 +578,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
  //   @OnClick(R.id.activity_main_drawer_logout)
     public void signOutUserFromFirebase(){
         AuthUI.getInstance()
+
                 .signOut(this)
                 .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted(SIGN_OUT_TASK));
 
@@ -590,6 +591,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
             @Override
             public void onSuccess(Void aVoid) {
                 if (origin == SIGN_OUT_TASK) {
+                    startMainActivity();
                     finish();
                 }
             }

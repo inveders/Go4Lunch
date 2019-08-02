@@ -11,13 +11,19 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.base.BaseActivity;
@@ -46,7 +52,7 @@ public class ProfileActivity extends BaseActivity {
 
     //FOR DATA
     // 2 - Identify each Http Request
-
+    private static final int SIGN_OUT_TASK = 10;
     private static final int DELETE_USER_TASK = 20;
     private static final int UPDATE_NAME = 30;
 
@@ -92,7 +98,7 @@ public class ProfileActivity extends BaseActivity {
                         public void onClick(DialogInterface dialogInterface, int i) {
                             deleteUserFromFirebase();
 
-                            startMainActivity();
+                          //  startMainActivity();
 
                         }
                     })
@@ -108,14 +114,50 @@ public class ProfileActivity extends BaseActivity {
 
 
         private void deleteUserFromFirebase(){
-            if (this.getCurrentUser() != null) {
+
+            // Get auth credentials from the user for re-authentication. The example below shows
+            // email and password credentials but there are multiple possible providers,
+            // such as GoogleAuthProvider or FacebookAuthProvider.
+            AuthCredential credential = GoogleAuthProvider
+                    .getCredential(getCurrentUser().getEmail(),null);
+
+            // Prompt the user to re-provide their sign-in credentials
+            getCurrentUser().reauthenticate(credential)
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            AuthUI.getInstance()
+                                    .delete(getApplicationContext())
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                Log.d("debago", "User account deleted.");
+                                                startMainActivity();
+                                                finish();
+                                            }
+                                        }
+                                    });
+
+                            UserHelper.deleteUser(getCurrentUser().getUid()).addOnFailureListener(onFailureListener());
+
+                        }
+                    });
+
+
+
+
+
+
+        /*    if (this.getCurrentUser() != null) {
                 AuthUI.getInstance()
                         .delete(this)
                         .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted(DELETE_USER_TASK));
 
                 UserHelper.deleteUser(this.getCurrentUser().getUid()).addOnFailureListener(this.onFailureListener());
-            }
+            }*/
         }
+
 
 
 
@@ -164,10 +206,26 @@ public class ProfileActivity extends BaseActivity {
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     User currentUser = documentSnapshot.toObject(User.class);
 
-                    String firstname = TextUtils.isEmpty(currentUser.getFirstname()) ? getString(R.string.info_no_firstname_found) : currentUser.getFirstname();
-                    String lastname = TextUtils.isEmpty(currentUser.getLastname()) ? getString(R.string.info_no_lastname_found) : currentUser.getLastname();
-                    textInputEditTextFirstname.setText(firstname);
-                    textInputEditTextLastname.setText(lastname);
+                //    String firstname = TextUtils.isEmpty(currentUser.getFirstname()) ? getString(R.string.info_no_firstname_found) : currentUser.getFirstname();
+                  //  String lastname = TextUtils.isEmpty(currentUser.getLastname()) ? getString(R.string.info_no_lastname_found) : currentUser.getLastname();
+
+
+                    String firstname = currentUser.getFirstname();
+                    if(TextUtils.isEmpty(firstname)||firstname.equals(getString(R.string.info_no_firstname_found))){
+                        textInputEditTextFirstname.setHint(getString(R.string.info_no_lastname_found));
+                    }
+                    else{
+                        textInputEditTextFirstname.setText(firstname);
+                    }
+
+                    String lastname = currentUser.getLastname();
+                    if(TextUtils.isEmpty(lastname)||lastname.equals(getString(R.string.info_no_lastname_found))){
+                        textInputEditTextLastname.setHint(getString(R.string.info_no_lastname_found));
+                    }
+                    else{
+                        textInputEditTextLastname.setText(lastname);
+                    }
+
                 }
             });
 
@@ -192,11 +250,11 @@ public class ProfileActivity extends BaseActivity {
                             Toast.makeText(getApplicationContext(), getString(R.string.update_confirmation), Toast.LENGTH_LONG).show();
                             break;
                         case DELETE_USER_TASK:
+                            Log.d("debago", "We should never arrived here");
 
                             finish();
-
-
                             break;
+
                     }
                 }
             };

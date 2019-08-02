@@ -86,7 +86,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
         //   Log.d("Debago", "RecyclerViewRestaurant getitem numberResult for restaurant "+mData.getPlace());
 
 
-          holder.mRestaurantType.setText(mData.get(position).getTypes().get(0));
+
 
                 holder.mRestaurantAdress.setText(mData.get(position).getVicinity());
                 placeId = mData.get(position).getPlaceId();
@@ -205,7 +205,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
     class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView mRestaurantName;
-        TextView mRestaurantType;
+
         TextView mRestaurantAdress;
         TextView mRestaurantOpenInformation;
         ImageView mRestaurantImage;
@@ -217,7 +217,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
             super(itemView);
 
             mRestaurantName = itemView.findViewById(R.id.fragment_listview_item_restaurant_name);
-            mRestaurantType = itemView.findViewById(R.id.fragment_listview_item_restaurant_type);
+
             mRestaurantAdress = itemView.findViewById(R.id.fragment_listview_item_restaurant_adress);
             mRestaurantOpenInformation = itemView.findViewById(R.id.fragment_listview_item_restaurant_open_information);
             mRestaurantImage = itemView.findViewById(R.id.fragment_listview_item_image);

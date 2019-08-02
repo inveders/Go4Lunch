@@ -31,33 +31,13 @@
         />
 
     <TextView
-        android:id="@+id/fragment_listview_item_restaurant_type"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/fragment_listview_item_restaurant_type"
-        app:layout_constraintTop_toBottomOf="@id/fragment_listview_item_restaurant_name"
-        app:layout_constraintLeft_toLeftOf="parent"
-
-        />
-
-    <TextView
-        android:id="@+id/fragment_listview_item_dot"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/fragment_listview_item_dot"
-        app:layout_constraintTop_toBottomOf="@id/fragment_listview_item_restaurant_name"
-        app:layout_constraintLeft_toRightOf="@id/fragment_listview_item_restaurant_type"
-        android:layout_marginStart="5dp"
-        />
-
-    <TextView
         android:id="@+id/fragment_listview_item_restaurant_adress"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
+
         android:text="@string/fragment_listview_item_restaurant_adress"
         app:layout_constraintTop_toBottomOf="@id/fragment_listview_item_restaurant_name"
-        app:layout_constraintLeft_toRightOf="@id/fragment_listview_item_dot"
+        app:layout_constraintLeft_toLeftOf="@id/fragment_listview_item_restaurant_name"
         />
 
 
@@ -67,8 +47,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/fragment_listview_item_restaurant_open_information"
-        app:layout_constraintTop_toBottomOf="@id/fragment_listview_item_restaurant_type"
-        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fragment_listview_item_restaurant_adress"
+        app:layout_constraintLeft_toLeftOf="@id/fragment_listview_item_restaurant_name"
         />
 
     <TextView
@@ -78,7 +58,7 @@
         android:text="@string/fragment_listview_item_distance"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintRight_toLeftOf="@id/fragment_listview_item_image"
-        android:layout_marginEnd="15dp"
+        android:layout_marginEnd="5dp"
 
         />
 
