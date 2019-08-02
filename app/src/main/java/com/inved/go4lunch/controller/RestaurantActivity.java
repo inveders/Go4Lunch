@@ -449,7 +449,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     @Override
     public void onLocationChanged(Location location) {
 
-        Log.d("debago", "RestaurantActivity onLocationchanged latitude "+latitude);
+
         latitude = location.getLatitude();
         longitude = location.getLongitude();
         sendLocationDataToFragments();
@@ -528,6 +528,12 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         startActivity(intent);
     }
 
+    // Launch Main Activity
+    private void startMainActivity(){
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+    }
+
     // Launch View Place Activity
     private void startViewPlaceActivity(){
         Intent intent = new Intent(this, ViewPlaceActivity.class);
@@ -574,6 +580,8 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         AuthUI.getInstance()
                 .signOut(this)
                 .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted(SIGN_OUT_TASK));
+
+
     }
 
     // Create OnCompleteListener called after tasks ended

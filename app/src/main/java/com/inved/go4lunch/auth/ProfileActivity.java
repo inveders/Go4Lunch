@@ -91,6 +91,9 @@ public class ProfileActivity extends BaseActivity {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             deleteUserFromFirebase();
+
+                            startMainActivity();
+
                         }
                     })
                     .setNegativeButton(R.string.popup_message_choice_no, null)
@@ -113,6 +116,8 @@ public class ProfileActivity extends BaseActivity {
                 UserHelper.deleteUser(this.getCurrentUser().getUid()).addOnFailureListener(this.onFailureListener());
             }
         }
+
+
 
     // 3 - Update User Firstname and lastname
     private void updateNameInFirebase(){
@@ -189,7 +194,7 @@ public class ProfileActivity extends BaseActivity {
                         case DELETE_USER_TASK:
 
                             finish();
-                          //  startMainActivity();
+
 
                             break;
                     }

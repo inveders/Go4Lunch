@@ -44,7 +44,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
             if (KEY_LOCATION_CHANGED.equals(intent.getAction())) {
                   myCurrentLat = intent.getDoubleExtra(KEY_LATITUDE, 0.0);
                   myCurrentLongi = intent.getDoubleExtra(KEY_LONGITUDE, 0.0);
-                   Log.d("Debago", "RecyclerViewRestaurant onBroadcastReceiver myCurrentLat"+myCurrentLat);
+
             }
         }
     };

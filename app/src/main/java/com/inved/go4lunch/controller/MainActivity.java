@@ -1,17 +1,27 @@
 package com.inved.go4lunch.controller;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.widget.Button;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.SignInMethodQueryResult;
 import com.inved.go4lunch.R;
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
@@ -19,7 +29,10 @@ import com.inved.go4lunch.firebase.RestaurantHelper;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.base.BaseActivity;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -48,13 +61,24 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        Log.d("Debago", "MainActivity : oncreate");
 
         // Start appropriate activity
         if (this.isCurrentUserLogged()) {
+            Log.d("Debago", "MainActivity : oncreate go in restaurantActivity");
             this.startRestaurantActivity();
 
+
         }
+
+     /*   FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            Log.d("Debago", "MainActivity : oncreate go in restaurantActivity ");
+            this.startRestaurantActivity();
+        } else {
+            // No user is signed in
+            Log.d("Debago", "MainActivity : oncreate utilisateur non connecté");
+        }*/
     }
 
     @Override
@@ -112,7 +136,7 @@ public class MainActivity extends BaseActivity {
             String restaurantName = null;
             String restaurantType = null;
             String restaurantVicinity = null;
-            Log.d("Debago", "MainActivity : createUserInFirestore");
+
             UserHelper.createUser(uid, firstname, lastname, urlPicture, restaurantPlaceId, restaurantType,restaurantName,restaurantVicinity).addOnFailureListener(this.onFailureListener());
 
 
@@ -190,10 +214,26 @@ public class MainActivity extends BaseActivity {
             Log.d("Debago", "MainActivity : SIGNIN");
             if (resultCode == RESULT_OK) { // SUCCESS
                 showSnackBar(this.coordinatorLayout, getString(R.string.connection_succeed));
-                this.createUserInFirestore(); /**C'est ici le probléme il faudrait qu'on crée l'utilisateur s'il n'existe pas déjà dans la base de données*/
-                //this.createRestaurantInFirestore();
+
+                FirebaseAuth.getInstance().fetchSignInMethodsForEmail(getCurrentUser().getEmail()).addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
+
+                        boolean check = !Objects.requireNonNull(Objects.requireNonNull(task.getResult()).getSignInMethods()).isEmpty();
+                        Log.d("Debago", "MainActivity : check "+check);
+                        if(!check){
+                            Log.d("Debago", "MainActivity : createUserInFirestore");
+                            createUserInFirestore();
+                        }
+                        else{
+                            Log.d("Debago", "MainActivity : user already here");
+                            createUserInFirestore();
+                        }
+
+                    }
+                });
                 this.startPermissionActivity();
-                finish();
+               // finish();
                 //this.startRestaurantActivity();
             } else { // ERRORS
                 if (response == null) {
