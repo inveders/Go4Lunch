@@ -46,6 +46,12 @@ public class UserHelper {
 
     }
 
+    public static Query getUserWithSameUid(String uid){
+        return UserHelper.getUsersCollection()
+                .whereEqualTo("uid",uid);
+
+    }
+
     public static Query getAllWorkmatesJoining(String currentPlacedId){
         return UserHelper.getUsersCollection()
                 .whereEqualTo("restaurantPlaceId",currentPlacedId)
