@@ -46,6 +46,44 @@
         app:layout_constraintLeft_toLeftOf="parent"
         />
 
+    <ImageView
+        android:id="@+id/activity_view_place_like_start_first"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:contentDescription="@string/fragment_people_item_image"
+        app:layout_constraintTop_toTopOf="@id/activity_view_place_name"
+        android:src="@drawable/ic_star_24dp"
+        app:layout_constraintLeft_toRightOf="@id/activity_view_place_name"
+        android:layout_marginStart="15dp"
+        android:visibility="visible"
+
+        />
+
+    <ImageView
+        android:id="@+id/activity_view_place_like_start_second"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:contentDescription="@string/fragment_people_item_image"
+        app:layout_constraintTop_toTopOf="@id/activity_view_place_name"
+        android:src="@drawable/ic_star_24dp"
+        app:layout_constraintLeft_toRightOf="@id/activity_view_place_like_start_first"
+
+        android:visibility="visible"
+
+        />
+
+    <ImageView
+        android:id="@+id/activity_view_place_like_start_third"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:contentDescription="@string/fragment_people_item_image"
+        app:layout_constraintTop_toTopOf="@id/activity_view_place_name"
+        android:src="@drawable/ic_star_24dp"
+        app:layout_constraintLeft_toRightOf="@id/activity_view_place_like_start_second"
+        android:visibility="visible"
+
+        />
+
     <TextView
         android:id="@+id/activity_view_place_address"
         android:layout_width="wrap_content"

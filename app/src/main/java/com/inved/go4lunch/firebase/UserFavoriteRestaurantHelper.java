@@ -34,6 +34,7 @@ public class UserFavoriteRestaurantHelper {
     // --- GET ---
 
 
+
     public static Query getCurrentRestaurantPlaceId(String uid, String restaurantPlaceId){
         return UserFavoriteRestaurantHelper.getUsersFavoriteRestaurantCollection(uid)
                 .whereEqualTo("restaurantPlaceId",restaurantPlaceId);
@@ -44,7 +45,7 @@ public class UserFavoriteRestaurantHelper {
     // --- UPDATE ---
 
     public static Task<Void> updateFavoriteRestaurantLiked(String uid, String restaurantPlaceId,Boolean isLiked) {
-        return UserFavoriteRestaurantHelper.getUsersFavoriteRestaurantCollection(uid).document(restaurantPlaceId).update("isLiked", isLiked);
+        return UserFavoriteRestaurantHelper.getUsersFavoriteRestaurantCollection(uid).document(restaurantPlaceId).update("liked", isLiked);
     }
 
     // --- DELETE ---

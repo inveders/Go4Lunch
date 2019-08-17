@@ -36,7 +36,7 @@ public class RestaurantHelper {
     }
 
 
-    public static Query getAllRestaurant(){
+    public static Query getAllRestaurantsLike(){
         return RestaurantHelper.getRestaurantsCollection();
 
     }

@@ -226,17 +226,17 @@ public class MainActivity extends BaseActivity {
         IdpResponse response = IdpResponse.fromResultIntent(data);
 
         if (requestCode == RC_SIGN_IN) {
-            Log.d("Debago", "MainActivity : SIGNIN");
+          //  Log.d("Debago", "MainActivity : SIGNIN");
             if (resultCode == RESULT_OK) { // SUCCESS
                 showSnackBar(this.coordinatorLayout, getString(R.string.connection_succeed));
 
                 String firebaseAuthUid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
-                Log.d("Debago", "firebaseAuthUid est " + firebaseAuthUid);
+           //     Log.d("Debago", "firebaseAuthUid est " + firebaseAuthUid);
                 UserHelper.getUserWithSameUid(firebaseAuthUid).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            Log.d("Debago", "task successful");
+                        //    Log.d("Debago", "task successful");
                             if (!task.getResult().getDocuments().isEmpty()) {
 
                              //   Log.d("Debago", "already exist " + task.getResult().getDocuments());

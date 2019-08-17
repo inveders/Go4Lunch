@@ -81,7 +81,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
 
     Context context;
-    CollectionReference restaurants = RestaurantHelper.getRestaurantsCollection();
+
 
     private static final int UPDATE_RESTAURANT_PLACE_ID = 40;
 
@@ -93,9 +93,13 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
     ImageView viewPlaceWebsiteImage;
     @BindView(R.id.activity_view_place_button_choose_restaurant)
     ImageView isChoosenRestaurantImage;
+    @BindView(R.id.activity_view_place_like_start_first)
+    ImageView likeStarFirst;
+    @BindView(R.id.activity_view_place_like_start_second)
+    ImageView likeStarSecond;
+    @BindView(R.id.activity_view_place_like_start_third)
+    ImageView likeStarThird;
 
-
-    private String photoreference;
     private String restaurantName;
     private String restaurantAddress;
     private String phoneNumber;
@@ -108,14 +112,11 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     //FOR DATA
 
-    APIClientGoogleSearch mService;
-
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (PLACE_DETAIL_DATA.equals(intent.getAction())) {
                 phoneNumber = intent.getStringExtra(PLACE_DATA_PHONE_NUMBER);
-              //  photoMetadata = intent.getExtras(PLACE_DATA_PHOTO_BITMAP);
                 restaurantName = intent.getStringExtra(PLACE_DATA_NAME);
                 restaurantAddress = intent.getStringExtra(PLACE_DATA_ADDRESS);
                 currentPlaceId = intent.getStringExtra(PLACE_DATA_PLACE_ID);
@@ -135,6 +136,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
             actionOnButton(phoneNumber,website,currentPlaceId);
             initializationLikedRestaurants(currentPlaceId);
             actionOnLikeButton(currentPlaceId);
+            calculateStarSum(currentPlaceId);
 
 
         }
@@ -153,6 +155,61 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
         //RecyclerView initialization
         mRecyclerWorkmates = findViewById(R.id.activity_view_place_recycler_view);
+
+
+
+
+
+    }
+
+    private void calculateStarSum(String currentPlaceId) {
+        RestaurantHelper.getAllRestaurantsLike().get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+
+                QuerySnapshot querySnapshot = task.getResult();
+
+                assert querySnapshot != null;
+
+                long count = 0;
+                long number=0;
+
+                for (int i = 0; i < querySnapshot.size(); i++) {
+                    long rating = querySnapshot.getDocuments().get(i).getLong("restaurantLike");
+                    count = count + rating;
+                    number = i;
+                }
+
+                long finalRating = count/number;
+                showingLikeStars(finalRating,currentPlaceId);
+
+                Log.d("TAG", count + " et finalrating "+finalRating);
+            }
+
+        });
+    }
+
+    private void showingLikeStars(long finalRating,String mCurrentPlaceId) {
+
+        RestaurantHelper.getRestaurant(mCurrentPlaceId).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                DocumentSnapshot document = task.getResult();
+                assert document != null;
+
+                long currentRestaurantLike = document.getLong("restaurantLike").intValue();
+
+                if(currentRestaurantLike<finalRating){
+                    likeStarSecond.setVisibility(View.VISIBLE);
+                    likeStarThird.setVisibility(View.INVISIBLE);
+                }
+                else{
+                    likeStarSecond.setVisibility(View.VISIBLE);
+                    likeStarThird.setVisibility(View.VISIBLE);
+                }
+
+            }
+        });
 
 
     }
@@ -355,7 +412,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                     if (!task.getResult().getDocuments().isEmpty()) {
 
 
-                        Boolean isRestaurantLiked = task.getResult().getDocuments().get(0).getBoolean("isLiked");
+                        Boolean isRestaurantLiked = task.getResult().getDocuments().get(0).getBoolean("liked");
                         if(isRestaurantLiked){
                             changeLikeButtonColor("#FFFF00");//yellow
                         }
@@ -375,6 +432,8 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
             }
         });
+
+
     }
 
     private void actionOnLikeButton(String currentPlaceId) {
@@ -392,30 +451,33 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                         assert document != null;
 
                         int currentRestaurantLike = document.getLong("restaurantLike").intValue();
-
+                        Log.d("Debago", "ViewPlaceActivity onLikeButton currentRestaurantLike: "+currentRestaurantLike);
                         UserFavoriteRestaurantHelper.getCurrentRestaurantPlaceId(getCurrentUser().getUid(),currentPlaceId).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                 if (task.isSuccessful()) {
-                                    Log.d("Debago", "task successful");
+                                    Log.d("Debago", "View Place task successful");
                                     if (!task.getResult().getDocuments().isEmpty()) {
 
                                         int newRestaurantLike;
 
 
 
-                                        Boolean isRestaurantLiked = task.getResult().getDocuments().get(0).getBoolean("isLiked");
+                                        Boolean isRestaurantLiked = task.getResult().getDocuments().get(0).getBoolean("liked");
+                                        Log.d("Debago", "ViewPlaceActivity onLikeButton isRestaurantLiked "+isRestaurantLiked);
                                         //We want to decrement
                                         if(isRestaurantLiked){
-                                            // changeLikeButtonColor("#FF5722");//orange
+                                            changeLikeButtonColor("#FF5722");//orange
                                             newRestaurantLike = currentRestaurantLike - 1;
+                                            Log.d("Debago", "ViewPlaceActivity onLikeButton : we decrement");
                                             UserFavoriteRestaurantHelper.updateFavoriteRestaurantLiked(getCurrentUser().getUid(),currentPlaceId,false);
 
                                         }
                                         //We want to increment
                                         else{
-                                            // changeLikeButtonColor("#FFFF00");//yellow
+                                            changeLikeButtonColor("#FFFF00");//yellow
                                             newRestaurantLike = currentRestaurantLike + 1;
+                                            Log.d("Debago", "ViewPlaceActivity onLikeButton : we increment");
                                             UserFavoriteRestaurantHelper.updateFavoriteRestaurantLiked(getCurrentUser().getUid(),currentPlaceId,true);
                                         }
 
@@ -428,9 +490,15 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                                     else {
 
                                         UserFavoriteRestaurantHelper.createUserFavoriteRestaurants(getCurrentUser().getUid(),currentPlaceId,true);
+                                        Log.d("Debago", "ViewPlaceActivity onLikeButton : we create favorite restaurant in Database");
+                                        changeLikeButtonColor("#FFFF00");//yellow
+                                        RestaurantHelper.updateRestaurantLike(1,currentPlaceId);
                                         actionOnLikeButton(currentPlaceId);
                                     }
 
+                                }
+                                else{
+                                    Log.d("Debago", "View Place task is not successful");
                                 }
 
 
