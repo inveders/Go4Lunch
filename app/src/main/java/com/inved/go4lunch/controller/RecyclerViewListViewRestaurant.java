@@ -19,13 +19,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.RequestManager;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.PlaceLikelihood;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.PlaceDetailsData;
+import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.model.placesearch.OpeningHours;
 import com.inved.go4lunch.model.placesearch.Result;
 import com.inved.go4lunch.utils.App;
@@ -119,8 +123,19 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
         //   Log.d("Debago", "RecyclerViewRestaurant getitem numberResult for restaurant "+mData.getPlace());
 
 
+
         holder.mRestaurantAdress.setText(mData.get(position).getVicinity());
         placeId = mData.get(position).getPlaceId();
+
+        UserHelper.getAllWorkmatesJoining(placeId).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+
+                int numberWorkmatesInRestaurant = task.getResult().size();
+                holder.mNumberRates.setText("("+numberWorkmatesInRestaurant+")");
+
+            }
+        });
 
         StringBuilder url = new StringBuilder("https://maps.googleapis.com/maps/api/place/photo");
         url.append("?maxwidth=" + 400);
@@ -155,6 +170,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
         int current_day = currentTime.getDayOfWeek().getValue();
 
+        //OPENING HOURS
         //If it open
         if (mData.get(position).getOpeningHours().getOpenNow()) {
 
@@ -192,15 +208,6 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
             });
 
 
-            /*holder.mRestaurantOpenInformation.setText("true");
-            Log.d("Debago", "RecyclerViewRestaurant OPENINGHOURS 2 " + mData.get(position).getOpeningHours().getWeekdayText());
-         /*   int openHours =mData.get(position).getOpeningHours().;
-            if (openHours<12){
-                holder.mRestaurantOpenInformation.setText("Open until "+openHours+" am");
-            }
-            else{
-                holder.mRestaurantOpenInformation.setText("Open until "+openHours+" pm");
-            }*/
         }
         //if it close
         else {
@@ -247,25 +254,37 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
             }
         });
 
-    }         //Photo
-      /*  if (mData.getPlace().getPhotoMetadatas().get(0).zza() != null) {
+        //RATING
 
-            StringBuilder url = new StringBuilder("https://maps.googleapis.com/maps/api/place/photo");
-            url.append("?maxwidth=" + 400);
-            url.append("&photoreference=");
-            url.append(mData.getPlace().getPhotoMetadatas().get(0).zza());
-            url.append("&key=");
-            url.append(App.getResourses().getString(R.string.google_api_key));
+        double ratingValue = mData.get(mPosition).getRating();
 
-            glide.load(url.toString())
-                    .placeholder(R.drawable.ic_android_blue_24dp)
-                    .error(R.drawable.ic_error_red_24dp)
-                    .into(holder.mRestaurantImage);
+        if(ratingValue>0 && ratingValue<1.665){
+            holder.mStarFirst.setVisibility(View.VISIBLE);
+            holder.mStarSecond.setVisibility(View.INVISIBLE);
+            holder.mStarThird.setVisibility(View.INVISIBLE);
+        }
+        else if(ratingValue>=1.665 && ratingValue<3.33){
+            holder.mStarFirst.setVisibility(View.VISIBLE);
+            holder.mStarSecond.setVisibility(View.VISIBLE);
+            holder.mStarThird.setVisibility(View.INVISIBLE);
+        }
+        else if(ratingValue>=3.33 && ratingValue<=5){
+            holder.mStarFirst.setVisibility(View.VISIBLE);
+            holder.mStarSecond.setVisibility(View.VISIBLE);
+            holder.mStarThird.setVisibility(View.VISIBLE);
+        }
+        else if(ratingValue==0.0){
+            holder.mStarFirst.setVisibility(View.INVISIBLE);
+            holder.mStarSecond.setVisibility(View.INVISIBLE);
+            holder.mStarThird.setVisibility(View.INVISIBLE);
+        }
 
-        } else {
-            glide.load("https://previews.123rf.com/images/glebstock/glebstock1405/glebstock140501325/29470353-silhouette-m%C3%A2le-personne-inconnue-notion.jpg")
-                    .into(holder.mRestaurantImage);
-        }*/
+    }
+
+
+
+
+
 
 
     private double convertRad(double latitudeConversion) {
@@ -312,10 +331,13 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
     class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView mRestaurantName;
-
+        TextView mNumberRates;
         TextView mRestaurantAdress;
         TextView mRestaurantOpenInformation;
         ImageView mRestaurantImage;
+        ImageView mStarFirst;
+        ImageView mStarSecond;
+        ImageView mStarThird;
         ConstraintLayout mConstraintLayoutItem;
         TextView mDistance;
 
@@ -330,6 +352,10 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
             mRestaurantImage = itemView.findViewById(R.id.fragment_listview_item_image);
             mConstraintLayoutItem = itemView.findViewById(R.id.fragment_listview_item);
             mDistance = itemView.findViewById(R.id.fragment_listview_item_distance);
+            mNumberRates = itemView.findViewById(R.id.fragment_listview_item_restaurant_number_rates);
+            mStarFirst = itemView.findViewById(R.id.fragment_listview_item_like_start_first);
+            mStarSecond = itemView.findViewById(R.id.fragment_listview_item_like_start_second);
+            mStarThird = itemView.findViewById(R.id.fragment_listview_item_like_start_third);
 
         }
 

@@ -27,6 +27,7 @@ import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_OPENIN
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PHONE_NUMBER;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PHOTO_BITMAP;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PLACE_ID;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_RATING;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_WEBSITE;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DETAIL_DATA;
 
@@ -56,7 +57,8 @@ public class PlaceDetailsData{
                 Place.Field.NAME,
                 Place.Field.PHONE_NUMBER,
                 Place.Field.ADDRESS,
-                Place.Field.WEBSITE_URI);
+                Place.Field.WEBSITE_URI,
+                Place.Field.RATING);
 
         // Construct a request object, passing the place ID and fields array.
         FetchPlaceRequest request = FetchPlaceRequest.builder(currentPlaceId, placeFields)
@@ -71,8 +73,9 @@ public class PlaceDetailsData{
             String address = place.getAddress();
             String website = place.getWebsiteUri().toString();
             OpeningHours openingHours = place.getOpeningHours();
+            double rating = place.getRating();
 
-            sendRestaurantDetailDataToOtherFragments(phoneNumber,name,address,placeId,website,openingHours);
+            sendRestaurantDetailDataToOtherFragments(phoneNumber,name,address,placeId,website,openingHours,rating);
 
             Log.d(TAG, "currentplaceaID fetchplace address " + address);
 
@@ -94,7 +97,7 @@ public class PlaceDetailsData{
     }
 
 
-    public void sendRestaurantDetailDataToOtherFragments(String numberPhone,String name, String address,String placeId,String website,OpeningHours openingHours) {
+    public void sendRestaurantDetailDataToOtherFragments(String numberPhone,String name, String address,String placeId,String website,OpeningHours openingHours,double rating) {
 
         final Intent intent = new Intent(PLACE_DETAIL_DATA);
         intent.putExtra(PLACE_DATA_PHONE_NUMBER, numberPhone);
@@ -103,7 +106,7 @@ public class PlaceDetailsData{
         intent.putExtra(PLACE_DATA_PLACE_ID, placeId);
         intent.putExtra(PLACE_DATA_WEBSITE, website);
         intent.putExtra(PLACE_DATA_OPENING_HOURS,openingHours);
-
+        intent.putExtra(PLACE_DATA_RATING,rating);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 
     }

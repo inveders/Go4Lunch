@@ -64,6 +64,7 @@ import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_ADDRES
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_NAME;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PHONE_NUMBER;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PLACE_ID;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_RATING;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_WEBSITE;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DETAIL_DATA;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_SEARCH_DATA;
@@ -105,7 +106,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
     private String phoneNumber;
     private String currentPlaceId;
     private String website;
-
+    private double rating;
 
     private WorkmatesAdapter mRecyclerWorkmatesAdapter;
     private RecyclerView mRecyclerWorkmates;
@@ -121,7 +122,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                 restaurantAddress = intent.getStringExtra(PLACE_DATA_ADDRESS);
                 currentPlaceId = intent.getStringExtra(PLACE_DATA_PLACE_ID);
                 website = intent.getStringExtra(PLACE_DATA_WEBSITE);
-
+                rating = intent.getDoubleExtra(PLACE_DATA_RATING,0.0);
 
             }
 
@@ -136,7 +137,8 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
             actionOnButton(phoneNumber,website,currentPlaceId);
             initializationLikedRestaurants(currentPlaceId);
             actionOnLikeButton(currentPlaceId);
-            calculateStarSum(currentPlaceId);
+            //calculateStarSum(currentPlaceId);
+            showingLikeStars(rating);
 
 
         }
@@ -181,35 +183,37 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                 }
 
                 long finalRating = count/number;
-                showingLikeStars(finalRating,currentPlaceId);
 
-                Log.d("TAG", count + " et finalrating "+finalRating);
+
+
             }
 
         });
     }
 
-    private void showingLikeStars(long finalRating,String mCurrentPlaceId) {
+    private void showingLikeStars(double ratingValue) {
 
-        RestaurantHelper.getRestaurant(mCurrentPlaceId).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                DocumentSnapshot document = task.getResult();
-                assert document != null;
-
-                long currentRestaurantLike = document.getLong("restaurantLike").intValue();
-
-                if(currentRestaurantLike<finalRating){
-                    likeStarSecond.setVisibility(View.VISIBLE);
-                    likeStarThird.setVisibility(View.INVISIBLE);
-                }
-                else{
-                    likeStarSecond.setVisibility(View.VISIBLE);
-                    likeStarThird.setVisibility(View.VISIBLE);
-                }
-
-            }
-        });
+        Log.d("TAG", "View Place Activity Rating Value is "+ratingValue);
+        if(ratingValue>0 && ratingValue<1.665){
+            likeStarFirst.setVisibility(View.VISIBLE);
+            likeStarSecond.setVisibility(View.INVISIBLE);
+            likeStarThird.setVisibility(View.INVISIBLE);
+        }
+        else if(ratingValue>=1.665 && ratingValue<3.33){
+            likeStarFirst.setVisibility(View.VISIBLE);
+            likeStarSecond.setVisibility(View.VISIBLE);
+            likeStarThird.setVisibility(View.INVISIBLE);
+        }
+        else if(ratingValue>=3.33 && ratingValue<=5){
+            likeStarFirst.setVisibility(View.VISIBLE);
+            likeStarSecond.setVisibility(View.VISIBLE);
+            likeStarThird.setVisibility(View.VISIBLE);
+        }
+        else if(ratingValue==0.0){
+            likeStarFirst.setVisibility(View.INVISIBLE);
+            likeStarSecond.setVisibility(View.INVISIBLE);
+            likeStarThird.setVisibility(View.INVISIBLE);
+        }
 
 
     }

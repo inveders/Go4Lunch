@@ -78,6 +78,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     public static final String PLACE_DATA_SIZE = "RESULT_SIZE";
     public static final String PLACE_DATA_PLACE_ID = "PLACE_ID";
     public static final String PLACE_DATA_WEBSITE = "WEBSITE";
+    public static final String PLACE_DATA_RATING = "RATING";
     public static final String PLACE_DATA_OPENING_HOURS = "LIST_RESULT_PLACE_SEARCH";
 
 

@@ -72,4 +72,55 @@
         app:layout_constraintTop_toBottomOf="@id/fragment_listview_item_distance"
         />
 
+    <ImageView
+        android:id="@+id/fragment_listview_item_person_icon_rate"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:contentDescription="@string/fragment_people_item_image"
+        app:layout_constraintTop_toTopOf="@id/fragment_listview_item_restaurant_number_rates"
+        android:src="@drawable/ic_perm_identity_black_24dp"
+        app:layout_constraintRight_toLeftOf="@id/fragment_listview_item_restaurant_number_rates"
+
+        android:visibility="visible"
+
+        />
+
+    <ImageView
+        android:id="@+id/fragment_listview_item_like_start_first"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:contentDescription="@string/fragment_people_item_image"
+        app:layout_constraintTop_toBottomOf="@id/fragment_listview_item_restaurant_number_rates"
+        android:src="@drawable/ic_star_24dp"
+        app:layout_constraintRight_toLeftOf="@id/fragment_listview_item_like_start_second"
+
+        android:visibility="visible"
+
+        />
+
+    <ImageView
+        android:id="@+id/fragment_listview_item_like_start_second"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:contentDescription="@string/fragment_people_item_image"
+        app:layout_constraintTop_toTopOf="@id/fragment_listview_item_like_start_first"
+        android:src="@drawable/ic_star_24dp"
+        app:layout_constraintRight_toLeftOf="@id/fragment_listview_item_like_start_third"
+        android:visibility="visible"
+
+        />
+
+    <ImageView
+        android:id="@+id/fragment_listview_item_like_start_third"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:contentDescription="@string/fragment_people_item_image"
+        app:layout_constraintTop_toTopOf="@id/fragment_listview_item_like_start_first"
+        android:src="@drawable/ic_star_24dp"
+        app:layout_constraintRight_toLeftOf="@id/fragment_listview_item_image"
+        android:layout_marginEnd="5dp"
+        android:visibility="visible"
+
+        />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
