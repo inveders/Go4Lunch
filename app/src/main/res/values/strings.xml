@@ -65,6 +65,8 @@
     <string name="fragment_listview_item_restaurant_adress">restaurant address</string>
     <string name="fragment_listview_item_restaurant_number_rates">(2)</string>
     <string name="fragment_listview_item_dot">·</string>
+    <string name="opening_hours_until">Open until %1d</string>
+    <string name="Closed_restaurant">Closed</string>
 
     <!-- FRAGMENT RESTAURANT PEOPLE -->
     <string name="fragment_people_item_image">Workmates image</string>

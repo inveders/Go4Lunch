@@ -37,14 +37,18 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.FetchPhotoRequest;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.APIClientGoogleSearch;
 import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.firebase.RestaurantHelper;
 import com.inved.go4lunch.firebase.User;
+
+import com.inved.go4lunch.firebase.UserFavoriteRestaurantHelper;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.utils.App;
 
@@ -128,49 +132,14 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
             updateViewPlaceActivity(restaurantName, restaurantAddress);
             updatePhotoViewPlace(currentPlaceId);
             displayAllWorkmatesJoining(currentPlaceId);
-            actionOnButton(phoneNumber,website);
+            actionOnButton(phoneNumber,website,currentPlaceId);
+            initializationLikedRestaurants(currentPlaceId);
+            actionOnLikeButton(currentPlaceId);
+
 
         }
     };
 
-    private void actionOnButton(String phoneNumber, String website) {
-
-        viewPlaceCallImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                //Launch the call
-                if(!TextUtils.isEmpty(phoneNumber)){
-
-                    Intent appel = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:"+phoneNumber));
-                    startActivity(appel);
-
-                }
-                else{
-                    Toast.makeText(getApplicationContext(), getString(R.string.no_phone_number), Toast.LENGTH_SHORT).show();
-                }
-
-            }
-        });
-
-        viewPlaceWebsiteImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                //Creation of the Chrome Custom Tabs
-                if(!TextUtils.isEmpty(website)){
-                    CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-                    CustomTabsIntent intent = builder.build();
-                    intent.launchUrl(context, Uri.parse(website));
-                }
-                else{
-                    Toast.makeText(getApplicationContext(), getString(R.string.no_website), Toast.LENGTH_SHORT).show();
-                }
-
-
-            }
-        });
-    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -241,8 +210,9 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     private void clickOnButton(String mCurrentPlaceId, String restaurantPlaceIdInFirebase, String myRestaurantName, String myRestaurantVicinity) {
 
+
         if (TextUtils.isEmpty(restaurantPlaceIdInFirebase)) { //if there is no restaurant in my firebase
-          //  Log.d("Debagoo", "ViewPlaceActivity clickbutton cas1 if there is no restaurant in my firebase: restaurantqInFirebase " + restaurantPlaceIdInFirebase);
+            //  Log.d("Debagoo", "ViewPlaceActivity clickbutton cas1 if there is no restaurant in my firebase: restaurantqInFirebase " + restaurantPlaceIdInFirebase);
             //We retrieve the new restaurant to increment customers's number
             RestaurantHelper.getRestaurant(mCurrentPlaceId).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
@@ -265,10 +235,10 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
 
             changeButtonColor("#4CAF50");//green color
-          //  Log.d("Debagoo", "ViewPlaceActivity choose restaurant cas1 bis: je fais un nouveau choix");
+            //  Log.d("Debagoo", "ViewPlaceActivity choose restaurant cas1 bis: je fais un nouveau choix");
 
         } else if (!restaurantPlaceIdInFirebase.equals(mCurrentPlaceId)) { //if there is one restaurant in my firebase but different of actual view place
-         //  Log.d("Debagoo", "ViewPlaceActivity click button cas 2, if there is one restaurant in my firebase but different of actual view place restaurantInFirebase :" + restaurantPlaceIdInFirebase + " et currentplaceID " + mCurrentPlaceId);
+            //  Log.d("Debagoo", "ViewPlaceActivity click button cas 2, if there is one restaurant in my firebase but different of actual view place restaurantInFirebase :" + restaurantPlaceIdInFirebase + " et currentplaceID " + mCurrentPlaceId);
 
             new AlertDialog.Builder(context)
                     .setMessage(context.getString(R.string.alert_dialog_view_activity, restaurantName))
@@ -277,7 +247,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                         public void onClick(DialogInterface dialogInterface, int i) {
 
                             //We retrieve the old restaurant to decrease customers's number
-                          //  Log.d("Debagoo", "ViewPlaceActivity click button retrieve, restaurantInFirebase :" + restaurantPlaceIdInFirebase);
+                            //  Log.d("Debagoo", "ViewPlaceActivity click button retrieve, restaurantInFirebase :" + restaurantPlaceIdInFirebase);
                             RestaurantHelper.getRestaurant(restaurantPlaceIdInFirebase).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -325,7 +295,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
 
         } else { //if there is one restaurant in my firebase and he is the same than actual view place
-         //   Log.d("Debagoo", "ViewPlaceActivity click button cas 3,if there is one restaurant in my firebase and he is the same than actual view place restaurantInFirebase :" + restaurantPlaceIdInFirebase + " et currentplaceID " + mCurrentPlaceId);
+            //   Log.d("Debagoo", "ViewPlaceActivity click button cas 3,if there is one restaurant in my firebase and he is the same than actual view place restaurantInFirebase :" + restaurantPlaceIdInFirebase + " et currentplaceID " + mCurrentPlaceId);
             new AlertDialog.Builder(context)
                     .setMessage(context.getString(R.string.alert_dialog_view_activity_no_choice_yet))
                     .setPositiveButton(R.string.popup_message_choice_yes, new DialogInterface.OnClickListener() {
@@ -358,7 +328,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
                             changeButtonColor("#B70400");//red color
 
-                       //     Log.d("Debagoo", "ViewPlaceActivity choose restaurant cas3 bis: je désélectionne mon choix");
+                            //     Log.d("Debagoo", "ViewPlaceActivity choose restaurant cas3 bis: je désélectionne mon choix");
                         }
                     })
                     .setNegativeButton(R.string.popup_message_choice_no, null)
@@ -375,14 +345,160 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     }
 
+    private void initializationLikedRestaurants(String currentPlaceId) {
+
+        UserFavoriteRestaurantHelper.getCurrentRestaurantPlaceId(getCurrentUser().getUid(),currentPlaceId).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    Log.d("Debago", "task successful");
+                    if (!task.getResult().getDocuments().isEmpty()) {
+
+
+                        Boolean isRestaurantLiked = task.getResult().getDocuments().get(0).getBoolean("isLiked");
+                        if(isRestaurantLiked){
+                            changeLikeButtonColor("#FFFF00");//yellow
+                        }
+                        else{
+                            changeLikeButtonColor("#FF5722");//orange
+
+                        }
+
+
+                    } else {
+
+                        changeLikeButtonColor("#FF5722");//orange
+                    }
+
+                }
+
+
+            }
+        });
+    }
+
+    private void actionOnLikeButton(String currentPlaceId) {
+
+        viewPlaceLikeImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+
+
+                RestaurantHelper.getRestaurant(currentPlaceId).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        DocumentSnapshot document = task.getResult();
+                        assert document != null;
+
+                        int currentRestaurantLike = document.getLong("restaurantLike").intValue();
+
+                        UserFavoriteRestaurantHelper.getCurrentRestaurantPlaceId(getCurrentUser().getUid(),currentPlaceId).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    Log.d("Debago", "task successful");
+                                    if (!task.getResult().getDocuments().isEmpty()) {
+
+                                        int newRestaurantLike;
+
+
+
+                                        Boolean isRestaurantLiked = task.getResult().getDocuments().get(0).getBoolean("isLiked");
+                                        //We want to decrement
+                                        if(isRestaurantLiked){
+                                            // changeLikeButtonColor("#FF5722");//orange
+                                            newRestaurantLike = currentRestaurantLike - 1;
+                                            UserFavoriteRestaurantHelper.updateFavoriteRestaurantLiked(getCurrentUser().getUid(),currentPlaceId,false);
+
+                                        }
+                                        //We want to increment
+                                        else{
+                                            // changeLikeButtonColor("#FFFF00");//yellow
+                                            newRestaurantLike = currentRestaurantLike + 1;
+                                            UserFavoriteRestaurantHelper.updateFavoriteRestaurantLiked(getCurrentUser().getUid(),currentPlaceId,true);
+                                        }
+
+                                        RestaurantHelper.updateRestaurantLike(newRestaurantLike,currentPlaceId);
+
+                                        actionOnLikeButton(currentPlaceId);
+
+                                    }
+                                    //First time we have select this restaurant to favorite, we create it in the database
+                                    else {
+
+                                        UserFavoriteRestaurantHelper.createUserFavoriteRestaurants(getCurrentUser().getUid(),currentPlaceId,true);
+                                        actionOnLikeButton(currentPlaceId);
+                                    }
+
+                                }
+
+
+                            }
+                        });
+
+
+                    }
+                });
+
+
+            }
+        });
+    }
+
+    private void actionOnButton(String phoneNumber, String website, String currentPlaceId) {
+
+        viewPlaceCallImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //Launch the call
+                if(!TextUtils.isEmpty(phoneNumber)){
+
+                    Intent appel = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:"+phoneNumber));
+                    startActivity(appel);
+
+                }
+                else{
+                    Toast.makeText(getApplicationContext(), getString(R.string.no_phone_number), Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+
+        viewPlaceWebsiteImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //Creation of the Chrome Custom Tabs
+                if(!TextUtils.isEmpty(website)){
+                    CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+                    CustomTabsIntent intent = builder.build();
+                    intent.launchUrl(context, Uri.parse(website));
+                }
+                else{
+                    Toast.makeText(getApplicationContext(), getString(R.string.no_website), Toast.LENGTH_SHORT).show();
+                }
+
+
+            }
+        });
+
+
+    }
+
+
+    private void changeLikeButtonColor(String newColor) {
+
+        viewPlaceLikeImage.setColorFilter(Color.parseColor(newColor));
+
+    }
+
+
     @Override
     public int getFragmentLayout() {
         return R.layout.activity_view_place;
     }
-
-
-
-
 
 
     public void updateViewPlaceActivity(String restaurantName, String restaurantAddress) {

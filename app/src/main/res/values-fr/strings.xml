@@ -73,4 +73,6 @@
     <string name="user_settings">INFORMATIONS SUR L\'UTILISATEUR</string>
     <string name="notification_message_no_workmates_here">Aucun collègue ici pour l\'instant</string>
     <string name="alert_dialog_view_activity_no_choice_yet">Etes-vous sur de ne plus vouloir manger ici ?</string>
+    <string name="opening_hours_until">Ouvert jusqu\'à</string>
+    <string name="Closed_restaurant">Fermé</string>
 </resources>

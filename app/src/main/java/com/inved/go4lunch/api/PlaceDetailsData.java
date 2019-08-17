@@ -9,6 +9,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.OpeningHours;
 import com.google.android.libraries.places.api.model.PhotoMetadata;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
@@ -22,6 +23,7 @@ import java.util.List;
 
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_ADDRESS;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_NAME;
+import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_OPENING_HOURS;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PHONE_NUMBER;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PHOTO_BITMAP;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PLACE_ID;
@@ -68,8 +70,9 @@ public class PlaceDetailsData{
             String name = place.getName();
             String address = place.getAddress();
             String website = place.getWebsiteUri().toString();
+            OpeningHours openingHours = place.getOpeningHours();
 
-            sendRestaurantDetailDataToOtherFragments(phoneNumber,name,address,placeId,website);
+            sendRestaurantDetailDataToOtherFragments(phoneNumber,name,address,placeId,website,openingHours);
 
             Log.d(TAG, "currentplaceaID fetchplace address " + address);
 
@@ -91,7 +94,7 @@ public class PlaceDetailsData{
     }
 
 
-    public void sendRestaurantDetailDataToOtherFragments(String numberPhone,String name, String address,String placeId,String website) {
+    public void sendRestaurantDetailDataToOtherFragments(String numberPhone,String name, String address,String placeId,String website,OpeningHours openingHours) {
 
         final Intent intent = new Intent(PLACE_DETAIL_DATA);
         intent.putExtra(PLACE_DATA_PHONE_NUMBER, numberPhone);
@@ -99,6 +102,7 @@ public class PlaceDetailsData{
         intent.putExtra(PLACE_DATA_ADDRESS, address);
         intent.putExtra(PLACE_DATA_PLACE_ID, placeId);
         intent.putExtra(PLACE_DATA_WEBSITE, website);
+        intent.putExtra(PLACE_DATA_OPENING_HOURS,openingHours);
 
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 

@@ -11,6 +11,9 @@ public class Result {
     @SerializedName("address_components")
     @Expose
     private List<AddressComponent> addressComponents = null;
+    @SerializedName("opening_hours")
+    @Expose
+    private OpeningHours openingHours;
     @SerializedName("adr_address")
     @Expose
     private String adrAddress;

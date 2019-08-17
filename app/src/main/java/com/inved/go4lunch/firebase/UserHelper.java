@@ -12,6 +12,7 @@ public class UserHelper {
     private static final String COLLECTION_NAME = "users";
     private static final String COLLECTION_GENERAL = "location";
     private static final String DOCUMENT_NAME = "Gnimdev";
+    private static final String SUB_COLLECTION_FAVORITE_RESTAURANT = "FavoritesRestaurants";
 
     // --- COLLECTION REFERENCE ---
 
@@ -32,6 +33,8 @@ public class UserHelper {
 
         return UserHelper.getUsersCollection().document(uid).set(userToCreate);
     }
+
+
 
     // --- GET ---
 

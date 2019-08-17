@@ -257,7 +257,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
                         } else {
                          //   Log.d("debago", "No such document");
-                            RestaurantHelper.createRestaurant(id, id, 0).addOnFailureListener(onFailureListener());
+                            RestaurantHelper.createRestaurant(id, id, 0,0).addOnFailureListener(onFailureListener());
 
                             String currentPlaceId = document.getString("id");
 

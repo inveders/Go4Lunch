@@ -14,6 +14,7 @@ public class User {
     private String restaurantType;
     private String restaurantName;
     private String restaurantVicinity;
+    private int myFavoritesRestaurants;
     public User() { }
 
     public User(String uid, String firstname, String lastname, String urlPicture, String restaurantPlaceId, String restaurantType,String restaurantName,String restaurantVicinity) {

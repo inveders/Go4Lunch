@@ -21,10 +21,10 @@ public class RestaurantHelper {
 
     // --- CREATE ---
 
-    public static Task<Void> createRestaurant(String id, String restaurantPlaceId, int restaurantCustomers) {
+    public static Task<Void> createRestaurant(String id, String restaurantPlaceId, int restaurantCustomers, int restaurantLike) {
         // 1 - Create Obj
 
-        Restaurant restaurantToCreate = new Restaurant(id, restaurantPlaceId,restaurantCustomers);
+        Restaurant restaurantToCreate = new Restaurant(id, restaurantPlaceId,restaurantCustomers,restaurantLike);
 
         return RestaurantHelper.getRestaurantsCollection().document(id).set(restaurantToCreate);
     }
@@ -49,6 +49,10 @@ public class RestaurantHelper {
 
     public static Task<Void> updateRestaurantCustomers(int restaurantCustomers, String id) {
         return RestaurantHelper.getRestaurantsCollection().document(id).update("restaurantCustomers", restaurantCustomers);
+    }
+
+    public static Task<Void> updateRestaurantLike(int restaurantLike, String id) {
+        return RestaurantHelper.getRestaurantsCollection().document(id).update("restaurantLike", restaurantLike);
     }
 
 }
