@@ -44,6 +44,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.APIClientGoogleSearch;
+import com.inved.go4lunch.auth.ProfileActivity;
 import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.firebase.RestaurantHelper;
 import com.inved.go4lunch.firebase.User;
@@ -107,6 +108,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
     private String currentPlaceId;
     private String website;
     private double rating;
+    private ProfileActivity profileActivity;
 
     private WorkmatesAdapter mRecyclerWorkmatesAdapter;
     private RecyclerView mRecyclerWorkmates;
@@ -223,7 +225,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
 
 
-        UserHelper.getUser(getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        UserHelper.getUserWhateverLocation(getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 DocumentSnapshot document = task.getResult();
@@ -249,7 +251,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
             @Override
             public void onClick(View view) {
 
-                UserHelper.getUser(getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                UserHelper.getUserWhateverLocation(getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         DocumentSnapshot document = task.getResult();
@@ -662,7 +664,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     private void displayAllWorkmatesJoining(String currentPlaceId) {
 
-        this.mRecyclerWorkmatesAdapter = new WorkmatesAdapter(generateOptionsForAdapter(UserHelper.getAllWorkmatesJoining(currentPlaceId)), Glide.with(this), this, this);
+        this.mRecyclerWorkmatesAdapter = new WorkmatesAdapter(generateOptionsForAdapter(UserHelper.getAllWorkmatesJoining(currentPlaceId,profileActivity.getTextViewJobPlaceId())), Glide.with(this), this, this);
         //Choose how to display the list in the RecyclerView (vertical or horizontal)
         mRecyclerWorkmates.setHasFixedSize(true); //REVOIR CELA
         mRecyclerWorkmates.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));

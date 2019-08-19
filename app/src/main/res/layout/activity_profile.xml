@@ -92,6 +92,79 @@
 
         </LinearLayout>
 
+        <!-- PROFILE JOB NAME CONTAINER -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/default_margin"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/text_view_job_name"
+                android:textSize="@dimen/default_text_size"
+                android:textStyle="bold" />
+
+            <!-- PROFILE JOB NAME -->
+            <TextView
+                android:id="@+id/profile_activity_text_view_job_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/default_margin"
+                android:textSize="@dimen/default_text_size" />
+
+        </LinearLayout>
+
+        <!-- PROFILE JOB ADDRESS CONTAINER -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/default_margin"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/text_view_job_address"
+                android:textSize="@dimen/default_text_size"
+                android:textStyle="bold" />
+
+            <!-- PROFILE JOB ADDRESS -->
+            <TextView
+                android:id="@+id/profile_activity_text_view_job_address"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/default_margin"
+                android:textSize="@dimen/default_text_size" />
+
+        </LinearLayout>
+
+        <!-- PROFILE JOB PLACE ID INVISIBLE CONTAINER -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/default_margin"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/text_view_job_place_id"
+                android:textSize="@dimen/default_text_size"
+                android:visibility="invisible"
+                android:textStyle="bold" />
+
+            <!-- PROFILE PLACE ID JOB -->
+            <TextView
+                android:id="@+id/profile_activity_text_view_job_place_id"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/default_margin"
+                android:visibility="invisible"
+                android:textSize="@dimen/default_text_size" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

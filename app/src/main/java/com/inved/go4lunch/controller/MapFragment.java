@@ -276,7 +276,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private void customizeMarker(String restaurantPlaceId, LatLng latLng) {
 
-      //  mGoogleMap.clear();
+//        mGoogleMap.clear();
         int mZoom = 18;
         int mBearing = 0;
         int mTilt = 45;
@@ -371,6 +371,136 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         background.draw(canvas);
         vectorDrawable.draw(canvas);
         return BitmapDescriptorFactory.fromBitmap(bitmap);
+    }
+
+
+    public void autocompleteMarker(String restaurantPlaceId, LatLng latLng) {
+
+        clearMap();
+        mGoogleMap.addMarker(new MarkerOptions().position(latLng));
+     /*   mGoogleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+
+
+
+                    placeDetailsData.setPlaceId(restaurantPlaceId);
+
+                    startViewPlaceActivity();
+
+
+
+                return true;
+            }
+        });*/
+
+//        mGoogleMap.clear();
+    /*    int mZoom = 18;
+        int mBearing = 0;
+        int mTilt = 45;
+        if (mMarker != null) {
+            mMarker.remove();
+        }
+
+        String id = restaurantPlaceId;
+
+
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.snippet(restaurantPlaceId);
+
+        restaurants.document(id)
+                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+
+                        markerOptions.position(latLng);
+
+                        //creating and getting restaurant information
+                        int numberCustomers = Integer.parseInt(Objects.requireNonNull(document.get("restaurantCustomers")).toString());
+                        if (numberCustomers > 0) {
+                            markerOptions.icon(bitmapDescriptorFromVectorSelected(getContext(), R.drawable.ic_location_selected_24dp));
+                            mGoogleMap.addMarker(markerOptions);
+
+                        } else {
+                            markerOptions.icon(bitmapDescriptorFromVectorNotSelected(getContext(), R.drawable.ic_location_not_selected_24dp));
+                            mGoogleMap.addMarker(markerOptions);
+
+                        }
+
+                        CameraPosition Liberty = CameraPosition.builder().target(latLng).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
+                        mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
+                        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                    } else {
+                        //   Log.d("debago", "No such document");
+                    }
+                } else {
+                    //  Log.d("debago", "get failed with ", task.getException());
+                }
+            }
+        });
+
+
+//Configure action on marker click
+        mGoogleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+
+                if (marker.getSnippet() != null) {
+
+                    placeDetailsData.setPlaceId(marker.getSnippet());
+
+                    startViewPlaceActivity();
+
+
+                }
+                return true;
+            }
+        });*/
+
+
+    }
+
+    public void clearMap() {
+
+        GoogleMap gm = createMap();
+        if (gm == null) {
+            Log.e("clear", "The map is null"); //for testing purposes
+            return;
+
+        } else {
+            Log.e("clear", "The map already exists"); //for testing purposes
+            mGoogleMap = gm;
+            mGoogleMap.clear();
+        }
+
+
+     /*  startLocation = null;
+        endLocation = null;
+        txtFrom.setText("");
+        txtTo.setText("");*/
+
+    }
+
+    private GoogleMap createMap() {
+
+        if (mGoogleMap != null) {
+            Log.e("create", "The map already exists"); // for testing purposes
+            return mGoogleMap;
+        }
+
+      //  mMapView = mView.findViewById(R.id.mapfrag);
+
+        try {
+            mMapView.getMapAsync(this);
+        } catch (Exception ex) {
+            Log.e("Error", ex.getLocalizedMessage());
+        }
+
+        return null;
+
     }
 
 

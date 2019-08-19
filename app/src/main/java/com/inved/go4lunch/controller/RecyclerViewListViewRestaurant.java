@@ -29,6 +29,7 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.PlaceDetailsData;
+import com.inved.go4lunch.auth.ProfileActivity;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.model.placesearch.OpeningHours;
 import com.inved.go4lunch.model.placesearch.Result;
@@ -59,6 +60,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
     private Double myCurrentLat;
     private Double myCurrentLongi;
     private OpeningHours openingHours;
+    private ProfileActivity profileActivity;
 
     PlacesClient placesClient;
 
@@ -127,7 +129,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
         holder.mRestaurantAdress.setText(mData.get(position).getVicinity());
         placeId = mData.get(position).getPlaceId();
 
-        UserHelper.getAllWorkmatesJoining(placeId).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        UserHelper.getAllWorkmatesJoining(placeId,profileActivity.getTextViewJobPlaceId()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
 

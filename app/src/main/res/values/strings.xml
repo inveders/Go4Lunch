@@ -42,12 +42,18 @@
     <string name="text_input_firstname">Firstname</string>
     <string name="text_input_lastname">Lastname</string>
     <string name="text_view_email">Email address :</string>
+    <string name="text_view_job_name">Job Name :</string>
+    <string name="text_view_job_address">Job address :</string>
+    <string name="text_view_job_place_id">Job Place id :</string>
     <string name="button_update_account">Update the information</string>
     <string name="update_confirmation">Updated information</string>
     <string name="button_delete_account">Delete my account</string>
     <string name="info_no_email_found">No email address</string>
     <string name="info_no_firstname_found">No first name</string>
     <string name="info_no_lastname_found">No last name</string>
+    <string name="info_no_job_name_found">No job name</string>
+    <string name="info_no_job_address_found">No job address</string>
+    <string name="info_no_job_place_id_found">No job place id</string>
     <string name="popup_message_confirmation_delete_account">Are you sure you want to delete your account?</string>
     <string name="popup_message_choice_yes">Yes</string>
     <string name="popup_message_choice_no">No</string>
@@ -55,6 +61,7 @@
 
     <!-- RESTAURANT ACTIVITY -->
     <string name="toolbar_title_restaurant_activity">I\'m Hungry!</string>
+    <string name="Enter_restaurant_name">Enter a restaurant name</string>
 
     <!-- FRAGMENT RESTAURANT LISTVIEW -->
     <string name="fragment_listview_item_image">restaurant image</string>
@@ -89,6 +96,12 @@
     <string name="grant_permission">Grant Permission</string>
     <string name="granted_text">Go4Lunch needs permission to acces device location to provide required services. Please allow the permission</string>
     <string name="granted_title">Permission Request</string>
+    <string name="toolbar_title_permission_activity">Permissions</string>
+
+    <!-- FIND JOB ADDRESS ACTIVITY-->
+    <string name="job_address_question">Where are you working ?</string>
+    <string name="valider">CONFIRM</string>
+    <string name="toolbar_title_find_job_address_activity">Find your job address</string>
 
     <!-- SEARCHVIEW-->
     <string name="search_hint">Search...</string>

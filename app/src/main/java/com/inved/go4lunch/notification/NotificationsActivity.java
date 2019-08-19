@@ -65,7 +65,7 @@ public class NotificationsActivity extends BaseActivity {
 
     private void firebaseInformations(){
 
-        UserHelper.getUser(this.getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        UserHelper.getUserWhateverLocation(this.getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 User currentUser = documentSnapshot.toObject(User.class);
@@ -75,7 +75,7 @@ public class NotificationsActivity extends BaseActivity {
                 String restaurantVicinity = TextUtils.isEmpty(currentUser.getRestaurantVicinity()) ? getString(R.string.info_no_restaurant_adresse_found) : currentUser.getRestaurantVicinity();
                 String restaurantPlaceId = currentUser.getRestaurantPlaceId();
 
-                UserHelper.getAllWorkmatesJoining(currentUser.getRestaurantPlaceId()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                UserHelper.getAllWorkmatesJoining(currentUser.getRestaurantPlaceId(),currentUser.getJobPlaceId()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         ArrayList<String> workmates = new ArrayList<String>();

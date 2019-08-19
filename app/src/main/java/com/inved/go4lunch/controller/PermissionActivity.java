@@ -47,7 +47,7 @@ public class PermissionActivity extends BaseActivity  {
         super.onCreate(savedInstanceState);
 
         if (ContextCompat.checkSelfPermission(PermissionActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            startActivity(new Intent(PermissionActivity.this, RestaurantActivity.class));
+            startActivity(new Intent(PermissionActivity.this, FindMyJobAddress.class));
             finish();
             return;
         }
@@ -117,7 +117,7 @@ public class PermissionActivity extends BaseActivity  {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if(requestCode == PERMS_CALL_ID){
-            startActivity(new Intent(PermissionActivity.this, RestaurantActivity.class));
+            startActivity(new Intent(PermissionActivity.this, FindMyJobAddress.class));
             finish();
         }
         else{

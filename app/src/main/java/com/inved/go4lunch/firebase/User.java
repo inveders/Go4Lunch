@@ -14,10 +14,12 @@ public class User {
     private String restaurantType;
     private String restaurantName;
     private String restaurantVicinity;
-    private int myFavoritesRestaurants;
+    private String jobAddress;
+    private String jobPlaceId;
+    private String jobName;
     public User() { }
 
-    public User(String uid, String firstname, String lastname, String urlPicture, String restaurantPlaceId, String restaurantType,String restaurantName,String restaurantVicinity) {
+    public User(String uid, String firstname, String lastname, String urlPicture, String restaurantPlaceId, String restaurantType,String restaurantName,String restaurantVicinity,String jobAddress,String jobPlaceId,String jobName) {
         this.uid = uid;
         this.firstname = firstname;
         this.lastname = lastname;
@@ -26,6 +28,9 @@ public class User {
         this.restaurantType=restaurantType;
         this.restaurantName = restaurantName;
         this.restaurantVicinity = restaurantVicinity;
+        this.jobAddress=jobAddress;
+        this.jobPlaceId=jobPlaceId;
+        this.jobName=jobName;
     }
 
     // --- GETTERS ---
@@ -37,6 +42,9 @@ public class User {
     public String getRestaurantType(){return restaurantType;}
     public String getRestaurantName() { return restaurantName; }
     public String getRestaurantVicinity() { return restaurantVicinity; }
+    public String getJobAddress() { return jobAddress; }
+    public String getJobPlaceId() { return jobPlaceId; }
+    public String getJobName() { return jobName; }
 
     // --- SETTERS ---
     public void setFirstname(String firstname) { this.firstname = firstname; }
@@ -47,4 +55,7 @@ public class User {
     public void setRestaurantType(String restaurantType){this.restaurantType=restaurantType;}
     public void setRestaurantName(String restaurantName) { this.restaurantName = restaurantName; }
     public void setRestaurantVicinity(String restaurantVicinity) { this.restaurantVicinity = restaurantVicinity; }
+    public void setJobAddress(String jobAddress) { this.jobAddress = jobAddress; }
+    public void setJobPlaceId(String jobPlaceId) { this.jobPlaceId = jobPlaceId; }
+    public void setJobName(String jobName) { this.jobName = jobName; }
 }

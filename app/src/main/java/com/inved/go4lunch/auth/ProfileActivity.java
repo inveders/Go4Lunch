@@ -25,6 +25,7 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.controller.MainActivity;
@@ -47,6 +48,12 @@ public class ProfileActivity extends BaseActivity {
     TextView textViewEmail;
     @BindView(R.id.notification_switch)
     Switch notificationSwitch;
+    @BindView(R.id.profile_activity_text_view_job_name)
+    TextView textViewJobName;
+    @BindView(R.id.profile_activity_text_view_job_address)
+    TextView textViewJobAddress;
+    @BindView(R.id.profile_activity_text_view_job_place_id)
+    TextView textViewJobPlaceId;
 
 
 
@@ -55,6 +62,7 @@ public class ProfileActivity extends BaseActivity {
     private static final int SIGN_OUT_TASK = 10;
     private static final int DELETE_USER_TASK = 20;
     private static final int UPDATE_NAME = 30;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +83,8 @@ public class ProfileActivity extends BaseActivity {
                 }
             }
         });
+
+
     }
 
     @Override
@@ -159,7 +169,9 @@ public class ProfileActivity extends BaseActivity {
         }
 
 
-
+    public String getTextViewJobPlaceId() {
+        return textViewJobPlaceId.getText().toString();
+    }
 
     // 3 - Update User Firstname and lastname
     private void updateNameInFirebase(){
@@ -201,7 +213,7 @@ public class ProfileActivity extends BaseActivity {
             this.textViewEmail.setText(email);
 
             // 7 - Get data from Firestore
-            UserHelper.getUser(this.getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            UserHelper.getUserWhateverLocation(this.getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     User currentUser = documentSnapshot.toObject(User.class);
@@ -226,11 +238,38 @@ public class ProfileActivity extends BaseActivity {
                         textInputEditTextLastname.setText(lastname);
                     }
 
+                    String jobAddress = currentUser.getJobAddress();
+                    if(TextUtils.isEmpty(jobAddress)||jobAddress.equals(getString(R.string.info_no_job_address_found))){
+                        textViewJobAddress.setHint(getString(R.string.info_no_job_address_found));
+                    }
+                    else{
+                        textViewJobAddress.setText(jobAddress);
+                    }
+
+                    String jobName = currentUser.getJobName();
+                    if(TextUtils.isEmpty(jobName)||jobName.equals(getString(R.string.info_no_job_name_found))){
+                        textViewJobName.setHint(getString(R.string.info_no_job_name_found));
+                    }
+                    else{
+                        textViewJobName.setText(jobName);
+                    }
+
+                    String jobPlaceId = currentUser.getJobPlaceId();
+                    if(TextUtils.isEmpty(jobPlaceId)||jobPlaceId.equals(getString(R.string.info_no_job_place_id_found))){
+                        textViewJobPlaceId.setHint(getString(R.string.info_no_job_place_id_found));
+                    }
+                    else{
+                        textViewJobPlaceId.setText(jobPlaceId);
+
+                    }
+
                 }
             });
 
+
         }
     }
+
 
     private void startMainActivity(){
         Intent intent = new Intent(this, MainActivity.class);

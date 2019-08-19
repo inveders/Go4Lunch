@@ -90,7 +90,12 @@
         <!-- PERMISSION ACTIVITY -->
         <activity
             android:name=".controller.PermissionActivity"
-            android:label="@string/toolbar_title_notification_activity" />
+            android:label="@string/toolbar_title_permission_activity" />
+
+        <!-- FIND JOB ADDRESS ACTIVITY -->
+        <activity
+            android:name=".controller.FindMyJobAddress"
+            android:label="@string/toolbar_title_find_job_address_activity" />
 
         <!-- NOTIFICATION ACTIVITY -->
         <activity

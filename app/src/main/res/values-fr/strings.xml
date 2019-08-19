@@ -75,4 +75,15 @@
     <string name="alert_dialog_view_activity_no_choice_yet">Etes-vous sur de ne plus vouloir manger ici ?</string>
     <string name="opening_hours_until">Ouvert jusqu\'à</string>
     <string name="Closed_restaurant">Fermé</string>
+    <string name="Enter_restaurant_name">Entrez le nom d\'un restaurant</string>
+    <string name="job_address_question">Où travaillez-vous ?</string>
+    <string name="valider">VALIDER</string>
+    <string name="toolbar_title_find_job_address_activity">Lieu de votre job</string>
+    <string name="toolbar_title_permission_activity">Permissions</string>
+    <string name="text_view_job_address">Addresse du lieu de travail :</string>
+    <string name="text_view_job_name">Nom de l\'entreprise :</string>
+    <string name="text_view_job_place_id">Job place id :</string>
+    <string name="info_no_job_address_found">Pas d\'adresse de job trouvée</string>
+    <string name="info_no_job_name_found">Pas de nom de job trouvé</string>
+    <string name="info_no_job_place_id_found">Pas de numéro de référence pour le job</string>
 </resources>

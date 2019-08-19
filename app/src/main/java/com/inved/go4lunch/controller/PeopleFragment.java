@@ -16,6 +16,7 @@ import com.bumptech.glide.Glide;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.Query;
 import com.inved.go4lunch.R;
+import com.inved.go4lunch.auth.ProfileActivity;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.firebase.User;
 
@@ -24,6 +25,7 @@ public class PeopleFragment extends Fragment implements WorkmatesAdapter.Listene
     private View mView;
     private WorkmatesAdapter mRecyclerWorkmatesAdapter;
     private RecyclerView mRecyclerWorkmates;
+    private ProfileActivity profileActivity;
 
     @Nullable
     @Override
@@ -42,7 +44,7 @@ public class PeopleFragment extends Fragment implements WorkmatesAdapter.Listene
 
     private void displayAllWorkmates() {
 
-        this.mRecyclerWorkmatesAdapter = new WorkmatesAdapter(generateOptionsForAdapter(UserHelper.getAllUsers()), Glide.with(this),this,getContext());
+        this.mRecyclerWorkmatesAdapter = new WorkmatesAdapter(generateOptionsForAdapter(UserHelper.getAllUsers(profileActivity.getTextViewJobPlaceId())), Glide.with(this),this,getContext());
         //Choose how to display the list in the RecyclerView (vertical or horizontal)
         mRecyclerWorkmates.setHasFixedSize(true); //REVOIR CELA
         mRecyclerWorkmates.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));

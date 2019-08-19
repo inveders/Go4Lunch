@@ -139,24 +139,7 @@ public class MainActivity extends BaseActivity {
     // REST REQUEST
     // --------------------
 
-    private void createUserInFirestore() {
 
-        if (this.getCurrentUser() != null) {
-
-            String urlPicture = (this.getCurrentUser().getPhotoUrl() != null) ? this.getCurrentUser().getPhotoUrl().toString() : null;
-            String firstname = this.getCurrentUser().getDisplayName();
-            String lastname = null;
-            String uid = this.getCurrentUser().getUid();
-            String restaurantPlaceId = null;
-            String restaurantName = null;
-            String restaurantType = null;
-            String restaurantVicinity = null;
-
-            UserHelper.createUser(uid, firstname, lastname, urlPicture, restaurantPlaceId, restaurantType, restaurantName, restaurantVicinity).addOnFailureListener(this.onFailureListener());
-
-
-        }
-    }
 
     // --------------------
     // NAVIGATION
@@ -230,26 +213,9 @@ public class MainActivity extends BaseActivity {
             if (resultCode == RESULT_OK) { // SUCCESS
                 showSnackBar(this.coordinatorLayout, getString(R.string.connection_succeed));
 
-                String firebaseAuthUid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
+
            //     Log.d("Debago", "firebaseAuthUid est " + firebaseAuthUid);
-                UserHelper.getUserWithSameUid(firebaseAuthUid).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                        //    Log.d("Debago", "task successful");
-                            if (!task.getResult().getDocuments().isEmpty()) {
 
-                             //   Log.d("Debago", "already exist " + task.getResult().getDocuments());
-                            } else {
-                             //   Log.d("Debago", "create user in firestore ");
-                                createUserInFirestore();
-                            }
-
-                        }
-
-
-                    }
-                });
 
                 this.startPermissionActivity();
                 finish();
