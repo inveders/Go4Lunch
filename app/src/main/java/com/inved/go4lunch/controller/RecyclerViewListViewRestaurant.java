@@ -44,6 +44,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import static com.inved.go4lunch.controller.RestaurantActivity.KEY_JOB_PLACE_ID;
+import static com.inved.go4lunch.controller.RestaurantActivity.KEY_JOB_PLACE_ID_DATA;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LATITUDE;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LOCATION_CHANGED;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LONGITUDE;
@@ -60,7 +62,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
     private Double myCurrentLat;
     private Double myCurrentLongi;
     private OpeningHours openingHours;
-    private ProfileActivity profileActivity;
+    private String jobPlaceId;
 
     PlacesClient placesClient;
 
@@ -75,6 +77,12 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
             if (PLACE_DETAIL_DATA.equals(intent.getAction())) {
                 openingHours = intent.getParcelableExtra(PLACE_DATA_OPENING_HOURS);
+
+
+            }
+
+            if (KEY_JOB_PLACE_ID.equals(intent.getAction())) {
+                jobPlaceId = intent.getStringExtra(KEY_JOB_PLACE_ID_DATA);
 
 
             }
@@ -105,7 +113,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_listview_item, parent, false);
         LocalBroadcastManager.getInstance(parent.getContext()).registerReceiver(broadcastReceiver, new IntentFilter(KEY_LOCATION_CHANGED));
         LocalBroadcastManager.getInstance(mContext).registerReceiver(broadcastReceiver, new IntentFilter(PLACE_DETAIL_DATA));
-
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(broadcastReceiver, new IntentFilter(KEY_JOB_PLACE_ID));
         // Initialize Places.
         Places.initialize(parent.getContext(), App.getResourses().getString(R.string.google_api_key));
 
@@ -129,7 +137,8 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
         holder.mRestaurantAdress.setText(mData.get(position).getVicinity());
         placeId = mData.get(position).getPlaceId();
 
-        UserHelper.getAllWorkmatesJoining(placeId,profileActivity.getTextViewJobPlaceId()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+
+        UserHelper.getAllWorkmatesJoining(placeId,jobPlaceId).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
 

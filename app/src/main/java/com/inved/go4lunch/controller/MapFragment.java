@@ -75,6 +75,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_GEOLOCALISATION;
+import static com.inved.go4lunch.controller.RestaurantActivity.KEY_JOB_PLACE_ID;
+import static com.inved.go4lunch.controller.RestaurantActivity.KEY_JOB_PLACE_ID_DATA;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LATITUDE;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LOCATION_CHANGED;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LONGITUDE;
@@ -83,13 +85,14 @@ import static com.inved.go4lunch.controller.RestaurantActivity.TAG;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
-    CollectionReference restaurants = RestaurantHelper.getRestaurantsCollection();
+
 
     GoogleMap mGoogleMap;
     private MapView mMapView;
     private View mView;
     private Marker mMarker;
     private final float DEFAULT_ZOOM =18;
+    String jobPlaceId;
 
     PlaceDetailsData placeDetailsData = new PlaceDetailsData();
 
@@ -105,8 +108,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
             }
 
+            if (KEY_JOB_PLACE_ID.equals(intent.getAction())) {
+                jobPlaceId = intent.getStringExtra(KEY_JOB_PLACE_ID_DATA);
+
+
+            }
         }
     };
+    CollectionReference restaurants = RestaurantHelper.getRestaurantsCollection(jobPlaceId);
 
     public MapFragment() {
         //Required empty public constructor
@@ -118,7 +127,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         /**OLD*/
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(broadcastReceiver, new IntentFilter(KEY_LOCATION_CHANGED));
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(broadcastReceiver, new IntentFilter(PLACE_SEARCH_DATA));
-
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(broadcastReceiver, new IntentFilter(KEY_JOB_PLACE_ID));
         findCurrentPlaceRequest();
     }
 
@@ -257,7 +266,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
                         } else {
                          //   Log.d("debago", "No such document");
-                            RestaurantHelper.createRestaurant(id, id, 0,0).addOnFailureListener(onFailureListener());
+                            RestaurantHelper.createRestaurant(id, id, 0,0,jobPlaceId).addOnFailureListener(onFailureListener());
 
                             String currentPlaceId = document.getString("id");
 

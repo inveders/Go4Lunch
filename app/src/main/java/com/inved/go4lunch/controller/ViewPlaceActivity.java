@@ -61,6 +61,8 @@ import java.util.Objects;
 
 import butterknife.BindView;
 
+import static com.inved.go4lunch.controller.RestaurantActivity.KEY_JOB_PLACE_ID;
+import static com.inved.go4lunch.controller.RestaurantActivity.KEY_JOB_PLACE_ID_DATA;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_ADDRESS;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_NAME;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PHONE_NUMBER;
@@ -109,6 +111,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
     private String website;
     private double rating;
     private ProfileActivity profileActivity;
+    private String jobPlaceId;
 
     private WorkmatesAdapter mRecyclerWorkmatesAdapter;
     private RecyclerView mRecyclerWorkmates;
@@ -142,6 +145,12 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
             //calculateStarSum(currentPlaceId);
             showingLikeStars(rating);
 
+            if (KEY_JOB_PLACE_ID.equals(intent.getAction())) {
+                jobPlaceId = intent.getStringExtra(KEY_JOB_PLACE_ID_DATA);
+
+
+            }
+
 
         }
     };
@@ -156,6 +165,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter(PLACE_DETAIL_DATA));
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter(PLACE_SEARCH_DATA));
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter(KEY_JOB_PLACE_ID));
 
         //RecyclerView initialization
         mRecyclerWorkmates = findViewById(R.id.activity_view_place_recycler_view);
@@ -167,7 +177,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
     }
 
     private void calculateStarSum(String currentPlaceId) {
-        RestaurantHelper.getAllRestaurantsLike().get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        RestaurantHelper.getAllRestaurantsLike(jobPlaceId).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
 
@@ -223,23 +233,22 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     private void initializationChoosenRestaurants(String mCurrentPlaceId, String myRestaurantName, String myRestaurantVicinity) {
 
-
-
-        UserHelper.getUserWhateverLocation(getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        UserHelper.getUserWhateverLocation(getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                DocumentSnapshot document = task.getResult();
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+
+                QuerySnapshot document = task.getResult();
                 assert document != null;
 
-                String restaurantPlaceIdInFirebase = document.getString("restaurantPlaceId");
+                String restaurantPlaceIdInFirebase = document.getDocuments().get(0).getString("restaurantPlaceId");
 
-              //  Log.d("Debago", "ViewPlaceActivity initialization: restaurantqInFirebase " + restaurantPlaceIdInFirebase + " et mCurrentPLace " + mCurrentPlaceId);
+                //  Log.d("Debago", "ViewPlaceActivity initialization: restaurantqInFirebase " + restaurantPlaceIdInFirebase + " et mCurrentPLace " + mCurrentPlaceId);
                 if (TextUtils.isEmpty(restaurantPlaceIdInFirebase) || !restaurantPlaceIdInFirebase.equals(mCurrentPlaceId)) {
-              //      Log.d("Debagoo", "ViewPlaceActivity initialization: couleur rouge");
+                    //      Log.d("Debagoo", "ViewPlaceActivity initialization: couleur rouge");
                     isChoosenRestaurantImage.setColorFilter(Color.parseColor("#B70400"));//red color
 
                 } else {
-                //    Log.d("Debagoo", "ViewPlaceActivity initialization: couleur verte");
+                    //    Log.d("Debagoo", "ViewPlaceActivity initialization: couleur verte");
                     isChoosenRestaurantImage.setColorFilter(Color.parseColor("#4CAF50"));//green color
                 }
 
@@ -251,13 +260,14 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
             @Override
             public void onClick(View view) {
 
-                UserHelper.getUserWhateverLocation(getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                UserHelper.getUserWhateverLocation(getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        DocumentSnapshot document = task.getResult();
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+
+                        QuerySnapshot document = task.getResult();
                         assert document != null;
 
-                        String restaurantPlaceIdInFirebase = document.getString("restaurantPlaceId");
+                        String restaurantPlaceIdInFirebase = document.getDocuments().get(0).getString("restaurantPlaceId");
                         clickOnButton(currentPlaceId, restaurantPlaceIdInFirebase, myRestaurantName, myRestaurantVicinity);
 
 
@@ -277,7 +287,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
         if (TextUtils.isEmpty(restaurantPlaceIdInFirebase)) { //if there is no restaurant in my firebase
             //  Log.d("Debagoo", "ViewPlaceActivity clickbutton cas1 if there is no restaurant in my firebase: restaurantqInFirebase " + restaurantPlaceIdInFirebase);
             //We retrieve the new restaurant to increment customers's number
-            RestaurantHelper.getRestaurant(mCurrentPlaceId).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            RestaurantHelper.getRestaurant(mCurrentPlaceId,jobPlaceId).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                     DocumentSnapshot document = task.getResult();
@@ -287,7 +297,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
                     //update new restaurant
                     int updateCustomersNewRestaurant = currentNewRestaurantCustomersFirebase + 1;
-                    RestaurantHelper.updateRestaurantCustomers(updateCustomersNewRestaurant, mCurrentPlaceId);
+                    RestaurantHelper.updateRestaurantCustomers(updateCustomersNewRestaurant, mCurrentPlaceId,jobPlaceId);
                     UserHelper.updateRestaurantPlaceId(mCurrentPlaceId, Objects.requireNonNull(getCurrentUser()).getUid());
                     UserHelper.updateRestaurantName(myRestaurantName, Objects.requireNonNull(getCurrentUser()).getUid());
                     UserHelper.updateRestaurantVicinity(myRestaurantVicinity, Objects.requireNonNull(getCurrentUser()).getUid());
@@ -311,7 +321,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
                             //We retrieve the old restaurant to decrease customers's number
                             //  Log.d("Debagoo", "ViewPlaceActivity click button retrieve, restaurantInFirebase :" + restaurantPlaceIdInFirebase);
-                            RestaurantHelper.getRestaurant(restaurantPlaceIdInFirebase).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            RestaurantHelper.getRestaurant(restaurantPlaceIdInFirebase,jobPlaceId).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                     DocumentSnapshot document = task.getResult();
@@ -323,7 +333,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                                     //update Old restaurant
                                     if (currentCustomersFirebase != 0) {
                                         updateCustomersOldRestaurant = currentCustomersFirebase - 1;
-                                        RestaurantHelper.updateRestaurantCustomers(updateCustomersOldRestaurant, restaurantPlaceIdInFirebase);
+                                        RestaurantHelper.updateRestaurantCustomers(updateCustomersOldRestaurant, restaurantPlaceIdInFirebase,jobPlaceId);
                                     }
 
 
@@ -331,7 +341,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                             });
 
                             //We retrieve the new restaurant customers's to increase customers's number
-                            RestaurantHelper.getRestaurant(mCurrentPlaceId).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            RestaurantHelper.getRestaurant(mCurrentPlaceId,jobPlaceId).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                     DocumentSnapshot document = task.getResult();
@@ -341,7 +351,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
                                     //update new restaurant
                                     int updateCustomersNewRestaurant = currentNewRestaurantCustomersFirebase + 1;
-                                    RestaurantHelper.updateRestaurantCustomers(updateCustomersNewRestaurant, mCurrentPlaceId);
+                                    RestaurantHelper.updateRestaurantCustomers(updateCustomersNewRestaurant, mCurrentPlaceId,jobPlaceId);
                                     UserHelper.updateRestaurantPlaceId(mCurrentPlaceId, Objects.requireNonNull(getCurrentUser()).getUid());
                                     UserHelper.updateRestaurantName(myRestaurantName, Objects.requireNonNull(getCurrentUser()).getUid());/**Faut aller chercher le nom du nouveau restaurant*/
                                     UserHelper.updateRestaurantVicinity(myRestaurantVicinity, Objects.requireNonNull(getCurrentUser()).getUid());
@@ -366,7 +376,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                         public void onClick(DialogInterface dialogInterface, int i) {
 
                             //We retrieve the old restaurant customers's number
-                            RestaurantHelper.getRestaurant(restaurantPlaceIdInFirebase).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            RestaurantHelper.getRestaurant(restaurantPlaceIdInFirebase,jobPlaceId).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                     DocumentSnapshot document = task.getResult();
@@ -377,7 +387,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                                     //update Old restaurant
                                     if (currentCustomersFirebase != 0) {
                                         updateCustomersOldRestaurant = currentCustomersFirebase - 1;
-                                        RestaurantHelper.updateRestaurantCustomers(updateCustomersOldRestaurant, restaurantPlaceIdInFirebase);
+                                        RestaurantHelper.updateRestaurantCustomers(updateCustomersOldRestaurant, restaurantPlaceIdInFirebase,jobPlaceId);
                                         UserHelper.updateRestaurantPlaceId(null, Objects.requireNonNull(getCurrentUser()).getUid());
                                         UserHelper.updateRestaurantName(null, Objects.requireNonNull(getCurrentUser()).getUid());
                                         UserHelper.updateRestaurantVicinity(myRestaurantVicinity, Objects.requireNonNull(getCurrentUser()).getUid());
@@ -410,7 +420,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     private void initializationLikedRestaurants(String currentPlaceId) {
 
-        UserFavoriteRestaurantHelper.getCurrentRestaurantPlaceId(getCurrentUser().getUid(),currentPlaceId).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        UserFavoriteRestaurantHelper.getCurrentRestaurantPlaceId(getCurrentUser().getUid(),currentPlaceId,jobPlaceId).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
@@ -450,7 +460,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
 
 
-                RestaurantHelper.getRestaurant(currentPlaceId).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                RestaurantHelper.getRestaurant(currentPlaceId,jobPlaceId).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         DocumentSnapshot document = task.getResult();
@@ -458,7 +468,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
                         int currentRestaurantLike = document.getLong("restaurantLike").intValue();
                         Log.d("Debago", "ViewPlaceActivity onLikeButton currentRestaurantLike: "+currentRestaurantLike);
-                        UserFavoriteRestaurantHelper.getCurrentRestaurantPlaceId(getCurrentUser().getUid(),currentPlaceId).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        UserFavoriteRestaurantHelper.getCurrentRestaurantPlaceId(getCurrentUser().getUid(),currentPlaceId,jobPlaceId).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                 if (task.isSuccessful()) {
@@ -476,7 +486,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                                             changeLikeButtonColor("#FF5722");//orange
                                             newRestaurantLike = currentRestaurantLike - 1;
                                             Log.d("Debago", "ViewPlaceActivity onLikeButton : we decrement");
-                                            UserFavoriteRestaurantHelper.updateFavoriteRestaurantLiked(getCurrentUser().getUid(),currentPlaceId,false);
+                                            UserFavoriteRestaurantHelper.updateFavoriteRestaurantLiked(getCurrentUser().getUid(),currentPlaceId,false,jobPlaceId);
 
                                         }
                                         //We want to increment
@@ -484,10 +494,10 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                                             changeLikeButtonColor("#FFFF00");//yellow
                                             newRestaurantLike = currentRestaurantLike + 1;
                                             Log.d("Debago", "ViewPlaceActivity onLikeButton : we increment");
-                                            UserFavoriteRestaurantHelper.updateFavoriteRestaurantLiked(getCurrentUser().getUid(),currentPlaceId,true);
+                                            UserFavoriteRestaurantHelper.updateFavoriteRestaurantLiked(getCurrentUser().getUid(),currentPlaceId,true,jobPlaceId);
                                         }
 
-                                        RestaurantHelper.updateRestaurantLike(newRestaurantLike,currentPlaceId);
+                                        RestaurantHelper.updateRestaurantLike(newRestaurantLike,currentPlaceId,jobPlaceId);
 
                                         actionOnLikeButton(currentPlaceId);
 
@@ -495,10 +505,10 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                                     //First time we have select this restaurant to favorite, we create it in the database
                                     else {
 
-                                        UserFavoriteRestaurantHelper.createUserFavoriteRestaurants(getCurrentUser().getUid(),currentPlaceId,true);
+                                        UserFavoriteRestaurantHelper.createUserFavoriteRestaurants(getCurrentUser().getUid(),currentPlaceId,true,jobPlaceId);
                                         Log.d("Debago", "ViewPlaceActivity onLikeButton : we create favorite restaurant in Database");
                                         changeLikeButtonColor("#FFFF00");//yellow
-                                        RestaurantHelper.updateRestaurantLike(1,currentPlaceId);
+                                        RestaurantHelper.updateRestaurantLike(1,currentPlaceId,jobPlaceId);
                                         actionOnLikeButton(currentPlaceId);
                                     }
 
@@ -664,7 +674,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     private void displayAllWorkmatesJoining(String currentPlaceId) {
 
-        this.mRecyclerWorkmatesAdapter = new WorkmatesAdapter(generateOptionsForAdapter(UserHelper.getAllWorkmatesJoining(currentPlaceId,profileActivity.getTextViewJobPlaceId())), Glide.with(this), this, this);
+        this.mRecyclerWorkmatesAdapter = new WorkmatesAdapter(generateOptionsForAdapter(UserHelper.getAllWorkmatesJoining(currentPlaceId,jobPlaceId)), Glide.with(this), this, this);
         //Choose how to display the list in the RecyclerView (vertical or horizontal)
         mRecyclerWorkmates.setHasFixedSize(true); //REVOIR CELA
         mRecyclerWorkmates.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));

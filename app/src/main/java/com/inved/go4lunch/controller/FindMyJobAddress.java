@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.TypeFilter;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
@@ -44,12 +45,13 @@ public class FindMyJobAddress extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i(TAG, "An error occurred: " + profileActivity.getTextViewJobPlaceId());
 
-        if(!profileActivity.getTextViewJobPlaceId().isEmpty()){
+
+      /*  if(!profileActivity.getTextViewJobPlaceId().isEmpty()){
             startRestaurantActivity();
-        }
+        }*/
 
+        Places.initialize(getApplicationContext(),getString(R.string.google_api_key));
         // Initialize the AutocompleteSupportFragment.
         AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
                 getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment_job_address);
@@ -57,8 +59,10 @@ public class FindMyJobAddress extends BaseActivity {
 // Specify the types of place data to return.
         autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME,Place.Field.ADDRESS));
         autocompleteFragment.setTypeFilter(TypeFilter.ADDRESS);
+        autocompleteFragment.setTypeFilter(TypeFilter.ESTABLISHMENT);
         autocompleteFragment.setCountry("FR");
-        
+        autocompleteFragment.setCountry("LU");
+
 
 // Set up a PlaceSelectionListener to handle the response.
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
@@ -97,9 +101,9 @@ public class FindMyJobAddress extends BaseActivity {
                                 //    Log.d("Debago", "task successful");
                                 if (!task.getResult().getDocuments().isEmpty()) {
 
-                                    //   Log.d("Debago", "already exist " + task.getResult().getDocuments());
+                                       Log.d("Debago", "already exist " + task.getResult().getDocuments());
                                 } else {
-                                    //   Log.d("Debago", "create user in firestore ");
+                                       Log.d("Debago", "create user in firestore "+jobAddress+" "+jobName+" "+jobPlaceId);
                                     createUserInFirestore(jobAddress,jobPlaceId,jobName);
                                 }
 

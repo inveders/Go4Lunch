@@ -1,48 +1,30 @@
 package com.inved.go4lunch.controller;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.Signature;
 import android.os.Bundle;
-import android.util.Base64;
 import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.auth.SignInMethodQueryResult;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.inved.go4lunch.R;
-import com.facebook.FacebookSdk;
-import com.facebook.appevents.AppEventsLogger;
-import com.inved.go4lunch.firebase.RestaurantHelper;
-import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.base.BaseActivity;
+import com.inved.go4lunch.firebase.UserHelper;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -71,13 +53,40 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("Debago", "MainActivity : oncreate");
 
         // Start appropriate activity
         if (this.isCurrentUserLogged()) {
-            Log.d("Debago", "MainActivity : oncreate go in restaurantActivity");
-            this.startRestaurantActivity();
-            finish();
+            Log.d("Debago", "MainActivity : user is already log");
+
+            UserHelper.getUserWhateverLocation(getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+
+                    if(task.isSuccessful()){
+                        Log.d("Debago", "MainActivity : oncreate go in restaurantActivity ");
+                        task.getResult().getDocuments().get(0).getString("jobPlaceId");
+                        startRestaurantActivity();
+                        finish();
+                    }else {
+                        startFindMyJobAddressActivity();
+                        Log.d("Debago","no result finisih inscription");
+                    }
+
+
+                }
+            });
+
+          /*  UserHelper.getUserWhateverLocation(getCurrentUser().getUid()).get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            queryDocumentSnapshots.getDocuments().get(0).get("uid");
+                            queryDocumentSnapshots.getDocuments().get(0).getData();
+                            // ...
+                            Log.d("Debago", "MainActivity On failure l'utilisateur n'est pas dans la base de données "+queryDocumentSnapshots.getDocuments().get(0).get("uid"));
+                        }
+                    });*/
+
 
 
         }
@@ -177,6 +186,11 @@ public class MainActivity extends BaseActivity {
         startActivity(intent);
     }
 
+    private void startFindMyJobAddressActivity() {
+        Intent intent = new Intent(this, FindMyJobAddress.class);
+        startActivity(intent);
+    }
+
     private void startPermissionActivity() {
         Intent intent = new Intent(this, PermissionActivity.class);
 
@@ -213,8 +227,6 @@ public class MainActivity extends BaseActivity {
             if (resultCode == RESULT_OK) { // SUCCESS
                 showSnackBar(this.coordinatorLayout, getString(R.string.connection_succeed));
 
-
-           //     Log.d("Debago", "firebaseAuthUid est " + firebaseAuthUid);
 
 
                 this.startPermissionActivity();

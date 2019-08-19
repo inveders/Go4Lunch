@@ -35,6 +35,7 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
@@ -50,6 +51,7 @@ import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.PlaceDetailsData;
 import com.inved.go4lunch.auth.ProfileActivity;
@@ -78,6 +80,10 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     public static final String PLACE_DATA_WEBSITE = "WEBSITE";
     public static final String PLACE_DATA_RATING = "RATING";
     public static final String PLACE_DATA_OPENING_HOURS = "LIST_RESULT_PLACE_SEARCH";
+
+    public static final String KEY_JOB_PLACE_ID = "KEY_JOB_PLACE_ID";
+    public static final String KEY_JOB_PLACE_ID_DATA = "KEY_JOB_PLACE_ID_DATA";
+
 
     public static final String TAG = "Debago";
     private static final int AUTOCOMPLETE_REQUEST_CODE = 645;
@@ -131,7 +137,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     //Localisation
 
-
     public static final String KEY_LOCATION_CHANGED = "DATA_ACTION";
     public static final String KEY_GEOLOCALISATION = "LAT_LONG";
     public static final String KEY_LATITUDE = "LAT";
@@ -142,6 +147,8 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private NavigationView navigationView;
+    ProfileActivity profileActivity;
+    String jobPlaceId;
 
     @Override
     public int getFragmentLayout() {return R.layout.activity_restaurant;}
@@ -150,6 +157,9 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        sendJobPlaceId();
+
 
         //Bottom Navigation View
         bottomNavigationView = findViewById(R.id.activity_restaurant_bottom_navigation);
@@ -230,6 +240,9 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
 
     }
+
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -454,18 +467,21 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
                 navEmail.setText(email);
             }
             // 7 - Get data from Firestore
-            UserHelper.getUserWhateverLocation(this.getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                @Override
-                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    User currentUser = documentSnapshot.toObject(User.class);
 
-                    assert currentUser != null;
-                    String firstname = TextUtils.isEmpty(currentUser.getFirstname()) ? getString(R.string.info_no_firstname_found) : currentUser.getFirstname();
-                    String lastname = TextUtils.isEmpty(currentUser.getLastname()) ? "" : currentUser.getLastname();
-                    navFirstname.setText(firstname);
-                    navLastname.setText(lastname);
-                }
-            });
+            UserHelper.getUserWhateverLocation(this.getCurrentUser().getUid()).get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            User currentUser = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
+
+                            assert currentUser != null;
+                            String firstname = TextUtils.isEmpty(currentUser.getFirstname()) ? getString(R.string.info_no_firstname_found) : currentUser.getFirstname();
+                            String lastname = TextUtils.isEmpty(currentUser.getLastname()) ? "" : currentUser.getLastname();
+                            navFirstname.setText(firstname);
+                            navLastname.setText(lastname);
+
+                        }
+                    });
 
         }
     }
@@ -499,7 +515,32 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         intent.putExtra(KEY_GEOLOCALISATION, currentGeolocalisation);
         intent.putExtra(KEY_LATITUDE, getLatitude());
         intent.putExtra(KEY_LONGITUDE, getLongitude());
+
+
+
         LocalBroadcastManager.getInstance(RestaurantActivity.this).sendBroadcast(intent);
+
+    }
+
+    public void sendJobPlaceId(){
+
+        UserHelper.getUserWhateverLocation(this.getCurrentUser().getUid()).get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        User currentUser = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
+
+                        assert currentUser != null;
+                        jobPlaceId = currentUser.getJobPlaceId();
+                        final Intent intent = new Intent(KEY_JOB_PLACE_ID);
+                        Log.d("Debago", "jobPlaceId "+jobPlaceId);
+                        intent.putExtra(KEY_JOB_PLACE_ID_DATA, jobPlaceId);
+                        LocalBroadcastManager.getInstance(RestaurantActivity.this).sendBroadcast(intent);
+
+                    }
+                });
+
+
 
     }
 
@@ -583,26 +624,23 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     //
     private void detectPlaceIdForLunch(){
 
-        UserHelper.getUserWhateverLocation(getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                DocumentSnapshot document = task.getResult();
-                assert document != null;
 
-                String restaurantPlaceIdInFirebase = document.getString("restaurantPlaceId");
-                if(!TextUtils.isEmpty(restaurantPlaceIdInFirebase)){
-                    placeDetailsData.setPlaceId(restaurantPlaceIdInFirebase);
-                    startViewPlaceActivity();
-                }
-                else{
-                    Toast.makeText(getApplicationContext(), getString(R.string.restaurant_no_choosen), Toast.LENGTH_LONG).show();
-                }
+        UserHelper.getUserWhateverLocation(this.getCurrentUser().getUid()).get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
 
+                        String restaurantPlaceIdInFirebase = queryDocumentSnapshots.getDocuments().get(0).get("restaurantPlaceId").toString();
+                        if(!TextUtils.isEmpty(restaurantPlaceIdInFirebase)){
+                            placeDetailsData.setPlaceId(restaurantPlaceIdInFirebase);
+                            startViewPlaceActivity();
+                        }
+                        else{
+                            Toast.makeText(getApplicationContext(), getString(R.string.restaurant_no_choosen), Toast.LENGTH_LONG).show();
+                        }
 
-
-
-            }
-        });
+                    }
+                });
 
     }
 

@@ -65,7 +65,7 @@ public class NotificationsActivity extends BaseActivity {
 
     private void firebaseInformations(){
 
-        UserHelper.getUserWhateverLocation(this.getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+     /**   UserHelper.getUserWhateverLocation(this.getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 User currentUser = documentSnapshot.toObject(User.class);
@@ -104,7 +104,7 @@ public class NotificationsActivity extends BaseActivity {
                 Log.d("debago","NotificationActivity notifidationMessage "+getString(R.string.notification_message_text,restaurantName,restaurantVicinity));
                 showNotificationMessageText(restaurantName,restaurantVicinity,restaurantPlaceId);
             }
-        });
+        });*/
 
     }
 

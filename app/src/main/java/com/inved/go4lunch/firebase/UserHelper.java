@@ -1,5 +1,7 @@
 package com.inved.go4lunch.firebase;
 
+import android.util.Log;
+
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -35,7 +37,7 @@ public class UserHelper {
         // 1 - Create Obj
 
         User userToCreate = new User(uid, firstname,lastname, urlPicture,restaurantPlaceId,restaurantType,restaurantName,restaurantVicinity,jobAddress,jobPlaceId,jobName);
-
+        Log.d("Debago", "createUser in Userhelper "+jobAddress+" "+jobName+" "+jobPlaceId);
         return UserHelper.getUsersCollection(jobPlaceId).document(uid).set(userToCreate);
     }
 
@@ -47,8 +49,12 @@ public class UserHelper {
         return UserHelper.getUsersCollection(jobPlaceId).document(uid).get();
     }
 
-    public static Task<DocumentSnapshot> getUserWhateverLocation(String uid){
-        return UserHelper.getUsersWhateverLocation().document(uid).get();
+    public static Query getUserWhateverLocation(String uid){
+
+        return FirebaseFirestore.getInstance().collectionGroup(COLLECTION_NAME)
+
+                .whereEqualTo("uid","J3wgqJ67umfacBCGWHyvPAnmkzk2");
+
     }
 
     public static Query getAllUsers(String jobPlaceId){

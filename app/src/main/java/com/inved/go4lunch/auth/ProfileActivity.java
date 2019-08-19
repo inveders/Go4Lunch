@@ -213,58 +213,60 @@ public class ProfileActivity extends BaseActivity {
             this.textViewEmail.setText(email);
 
             // 7 - Get data from Firestore
-            UserHelper.getUserWhateverLocation(this.getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                @Override
-                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    User currentUser = documentSnapshot.toObject(User.class);
+            UserHelper.getUserWhateverLocation(this.getCurrentUser().getUid()).get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            User currentUser = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
 
-                //    String firstname = TextUtils.isEmpty(currentUser.getFirstname()) ? getString(R.string.info_no_firstname_found) : currentUser.getFirstname();
-                  //  String lastname = TextUtils.isEmpty(currentUser.getLastname()) ? getString(R.string.info_no_lastname_found) : currentUser.getLastname();
+                            //    String firstname = TextUtils.isEmpty(currentUser.getFirstname()) ? getString(R.string.info_no_firstname_found) : currentUser.getFirstname();
+                            //  String lastname = TextUtils.isEmpty(currentUser.getLastname()) ? getString(R.string.info_no_lastname_found) : currentUser.getLastname();
 
 
-                    String firstname = currentUser.getFirstname();
-                    if(TextUtils.isEmpty(firstname)||firstname.equals(getString(R.string.info_no_firstname_found))){
-                        textInputEditTextFirstname.setHint(getString(R.string.info_no_lastname_found));
-                    }
-                    else{
-                        textInputEditTextFirstname.setText(firstname);
-                    }
+                            String firstname = currentUser.getFirstname();
+                            if(TextUtils.isEmpty(firstname)||firstname.equals(getString(R.string.info_no_firstname_found))){
+                                textInputEditTextFirstname.setHint(getString(R.string.info_no_lastname_found));
+                            }
+                            else{
+                                textInputEditTextFirstname.setText(firstname);
+                            }
 
-                    String lastname = currentUser.getLastname();
-                    if(TextUtils.isEmpty(lastname)||lastname.equals(getString(R.string.info_no_lastname_found))){
-                        textInputEditTextLastname.setHint(getString(R.string.info_no_lastname_found));
-                    }
-                    else{
-                        textInputEditTextLastname.setText(lastname);
-                    }
+                            String lastname = currentUser.getLastname();
+                            if(TextUtils.isEmpty(lastname)||lastname.equals(getString(R.string.info_no_lastname_found))){
+                                textInputEditTextLastname.setHint(getString(R.string.info_no_lastname_found));
+                            }
+                            else{
+                                textInputEditTextLastname.setText(lastname);
+                            }
 
-                    String jobAddress = currentUser.getJobAddress();
-                    if(TextUtils.isEmpty(jobAddress)||jobAddress.equals(getString(R.string.info_no_job_address_found))){
-                        textViewJobAddress.setHint(getString(R.string.info_no_job_address_found));
-                    }
-                    else{
-                        textViewJobAddress.setText(jobAddress);
-                    }
+                            String jobAddress = currentUser.getJobAddress();
+                            if(TextUtils.isEmpty(jobAddress)||jobAddress.equals(getString(R.string.info_no_job_address_found))){
+                                textViewJobAddress.setHint(getString(R.string.info_no_job_address_found));
+                            }
+                            else{
+                                textViewJobAddress.setText(jobAddress);
+                            }
 
-                    String jobName = currentUser.getJobName();
-                    if(TextUtils.isEmpty(jobName)||jobName.equals(getString(R.string.info_no_job_name_found))){
-                        textViewJobName.setHint(getString(R.string.info_no_job_name_found));
-                    }
-                    else{
-                        textViewJobName.setText(jobName);
-                    }
+                            String jobName = currentUser.getJobName();
+                            if(TextUtils.isEmpty(jobName)||jobName.equals(getString(R.string.info_no_job_name_found))){
+                                textViewJobName.setHint(getString(R.string.info_no_job_name_found));
+                            }
+                            else{
+                                textViewJobName.setText(jobName);
+                            }
 
-                    String jobPlaceId = currentUser.getJobPlaceId();
-                    if(TextUtils.isEmpty(jobPlaceId)||jobPlaceId.equals(getString(R.string.info_no_job_place_id_found))){
-                        textViewJobPlaceId.setHint(getString(R.string.info_no_job_place_id_found));
-                    }
-                    else{
-                        textViewJobPlaceId.setText(jobPlaceId);
+                            String jobPlaceId = currentUser.getJobPlaceId();
+                            if(TextUtils.isEmpty(jobPlaceId)||jobPlaceId.equals(getString(R.string.info_no_job_place_id_found))){
+                                textViewJobPlaceId.setHint(getString(R.string.info_no_job_place_id_found));
+                            }
+                            else{
+                                textViewJobPlaceId.setText(jobPlaceId);
 
-                    }
+                            }
 
-                }
-            });
+                        }
+                    });
+
 
 
         }
