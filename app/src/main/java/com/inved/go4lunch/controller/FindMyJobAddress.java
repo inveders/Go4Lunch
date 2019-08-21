@@ -2,7 +2,6 @@ package com.inved.go4lunch.controller;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -34,15 +33,12 @@ import java.util.Objects;
 
 import butterknife.BindView;
 
-import static com.inved.go4lunch.controller.RestaurantActivity.KEY_JOB_PLACE_ID;
-import static com.inved.go4lunch.controller.RestaurantActivity.KEY_JOB_PLACE_ID_DATA;
-
 public class FindMyJobAddress extends BaseActivity {
     private static final String TAG = "Debago";
     String jobAddress;
     String jobPlaceId;
     String jobName;
-    ProfileActivity profileActivity;
+
     Context context;
 
 
@@ -147,7 +143,7 @@ public class FindMyJobAddress extends BaseActivity {
             String restaurantName = null;
             String restaurantType = null;
             String restaurantVicinity = null;
-            ManageJobPlaceId.saveJobPlaceId(this,KEY_JOB_PLACE_ID_DATA,jobPlaceId);
+            ManageJobPlaceId.saveJobPlaceId(this,jobPlaceId);
             UserHelper.createUser(uid, firstname, lastname, urlPicture, restaurantPlaceId, restaurantType, restaurantName, restaurantVicinity, jobAddress, jobPlaceId, jobName).addOnFailureListener(this.onFailureListener());
 
 

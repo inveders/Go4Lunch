@@ -37,23 +37,18 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.FetchPhotoRequest;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.inved.go4lunch.R;
-import com.inved.go4lunch.api.APIClientGoogleSearch;
 import com.inved.go4lunch.auth.ProfileActivity;
 import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.firebase.RestaurantHelper;
 import com.inved.go4lunch.firebase.User;
-
 import com.inved.go4lunch.firebase.UserFavoriteRestaurantHelper;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.utils.App;
-
-import org.w3c.dom.Text;
+import com.inved.go4lunch.utils.ManageJobPlaceId;
 
 import java.util.Arrays;
 import java.util.List;
@@ -61,8 +56,7 @@ import java.util.Objects;
 
 import butterknife.BindView;
 
-import static com.inved.go4lunch.controller.RestaurantActivity.KEY_JOB_PLACE_ID;
-import static com.inved.go4lunch.controller.RestaurantActivity.KEY_JOB_PLACE_ID_DATA;
+
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_ADDRESS;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_NAME;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PHONE_NUMBER;
@@ -71,6 +65,7 @@ import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_RATING
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_WEBSITE;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DETAIL_DATA;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_SEARCH_DATA;
+import static com.inved.go4lunch.utils.ManageJobPlaceId.KEY_JOB_PLACE_ID_DATA;
 
 public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.Listener {
 
@@ -145,11 +140,6 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
             //calculateStarSum(currentPlaceId);
             showingLikeStars(rating);
 
-            if (KEY_JOB_PLACE_ID.equals(intent.getAction())) {
-                jobPlaceId = intent.getStringExtra(KEY_JOB_PLACE_ID_DATA);
-
-
-            }
 
 
         }
@@ -165,7 +155,8 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter(PLACE_DETAIL_DATA));
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter(PLACE_SEARCH_DATA));
-        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter(KEY_JOB_PLACE_ID));
+
+        jobPlaceId = ManageJobPlaceId.getJobPlaceId(this,KEY_JOB_PLACE_ID_DATA);
 
         //RecyclerView initialization
         mRecyclerWorkmates = findViewById(R.id.activity_view_place_recycler_view);
@@ -298,9 +289,9 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                     //update new restaurant
                     int updateCustomersNewRestaurant = currentNewRestaurantCustomersFirebase + 1;
                     RestaurantHelper.updateRestaurantCustomers(updateCustomersNewRestaurant, mCurrentPlaceId,jobPlaceId);
-                    UserHelper.updateRestaurantPlaceId(mCurrentPlaceId, Objects.requireNonNull(getCurrentUser()).getUid());
-                    UserHelper.updateRestaurantName(myRestaurantName, Objects.requireNonNull(getCurrentUser()).getUid());
-                    UserHelper.updateRestaurantVicinity(myRestaurantVicinity, Objects.requireNonNull(getCurrentUser()).getUid());
+                    UserHelper.updateRestaurantPlaceId(mCurrentPlaceId, Objects.requireNonNull(getCurrentUser()).getUid(),jobPlaceId);
+                    UserHelper.updateRestaurantName(myRestaurantName, Objects.requireNonNull(getCurrentUser()).getUid(),jobPlaceId);
+                    UserHelper.updateRestaurantVicinity(myRestaurantVicinity, Objects.requireNonNull(getCurrentUser()).getUid(),jobPlaceId);
 
                 }
             });
@@ -352,9 +343,9 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                                     //update new restaurant
                                     int updateCustomersNewRestaurant = currentNewRestaurantCustomersFirebase + 1;
                                     RestaurantHelper.updateRestaurantCustomers(updateCustomersNewRestaurant, mCurrentPlaceId,jobPlaceId);
-                                    UserHelper.updateRestaurantPlaceId(mCurrentPlaceId, Objects.requireNonNull(getCurrentUser()).getUid());
-                                    UserHelper.updateRestaurantName(myRestaurantName, Objects.requireNonNull(getCurrentUser()).getUid());/**Faut aller chercher le nom du nouveau restaurant*/
-                                    UserHelper.updateRestaurantVicinity(myRestaurantVicinity, Objects.requireNonNull(getCurrentUser()).getUid());
+                                    UserHelper.updateRestaurantPlaceId(mCurrentPlaceId, Objects.requireNonNull(getCurrentUser()).getUid(),jobPlaceId);
+                                    UserHelper.updateRestaurantName(myRestaurantName, Objects.requireNonNull(getCurrentUser()).getUid(),jobPlaceId);/**Faut aller chercher le nom du nouveau restaurant*/
+                                    UserHelper.updateRestaurantVicinity(myRestaurantVicinity, Objects.requireNonNull(getCurrentUser()).getUid(),jobPlaceId);
                                 }
                             });
 
@@ -388,9 +379,9 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                                     if (currentCustomersFirebase != 0) {
                                         updateCustomersOldRestaurant = currentCustomersFirebase - 1;
                                         RestaurantHelper.updateRestaurantCustomers(updateCustomersOldRestaurant, restaurantPlaceIdInFirebase,jobPlaceId);
-                                        UserHelper.updateRestaurantPlaceId(null, Objects.requireNonNull(getCurrentUser()).getUid());
-                                        UserHelper.updateRestaurantName(null, Objects.requireNonNull(getCurrentUser()).getUid());
-                                        UserHelper.updateRestaurantVicinity(myRestaurantVicinity, Objects.requireNonNull(getCurrentUser()).getUid());
+                                        UserHelper.updateRestaurantPlaceId(null, Objects.requireNonNull(getCurrentUser()).getUid(),jobPlaceId);
+                                        UserHelper.updateRestaurantName(null, Objects.requireNonNull(getCurrentUser()).getUid(),jobPlaceId);
+                                        UserHelper.updateRestaurantVicinity(myRestaurantVicinity, Objects.requireNonNull(getCurrentUser()).getUid(),jobPlaceId);
                                     }
 
 
@@ -424,7 +415,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    Log.d("Debago", "task successful");
+
                     if (!task.getResult().getDocuments().isEmpty()) {
 
 

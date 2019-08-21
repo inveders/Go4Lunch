@@ -21,7 +21,7 @@ import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
 
-import static com.inved.go4lunch.controller.RestaurantActivity.KEY_JOB_PLACE_ID_DATA;
+import static com.inved.go4lunch.utils.ManageJobPlaceId.KEY_JOB_PLACE_ID_DATA;
 
 public class PeopleFragment extends Fragment implements WorkmatesAdapter.Listener{
 

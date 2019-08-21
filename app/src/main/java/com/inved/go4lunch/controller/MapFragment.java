@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,17 +45,19 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.PlaceDetailsData;
 import com.inved.go4lunch.firebase.RestaurantHelper;
+import com.inved.go4lunch.utils.ManageAutocompleteResponse;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
-import com.inved.go4lunch.utils.MyFirebaseCallback;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import static com.inved.go4lunch.controller.RestaurantActivity.KEY_JOB_PLACE_ID_DATA;
+import static com.inved.go4lunch.controller.RestaurantActivity.KEY_GEOLOCALISATION;
+
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LOCATION_CHANGED;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_SEARCH_DATA;
 import static com.inved.go4lunch.controller.RestaurantActivity.TAG;
+import static com.inved.go4lunch.utils.ManageJobPlaceId.KEY_JOB_PLACE_ID_DATA;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
@@ -66,10 +69,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private Marker mMarker;
     private String jobPlaceId;
     private final float DEFAULT_ZOOM =18;
-
+    private String myCurrentGeolocalisation;
 
     PlaceDetailsData placeDetailsData = new PlaceDetailsData();
-    RestaurantActivity restaurantActivity = new RestaurantActivity();
+
 
 
     private static final int PERMS_CALL_ID = 1234;
@@ -79,9 +82,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (KEY_LOCATION_CHANGED.equals(intent.getAction())) {
-             //   myCurrentGeolocalisation = intent.getStringExtra(KEY_GEOLOCALISATION);
+                myCurrentGeolocalisation = intent.getStringExtra(KEY_GEOLOCALISATION);
 
             }
+
+
 
 
 
@@ -98,7 +103,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         super.onCreate(savedInstanceState);
 
         jobPlaceId = ManageJobPlaceId.getJobPlaceId(getActivity(),KEY_JOB_PLACE_ID_DATA);
-        Log.d("DEBAGO", "MapFragment oncreate jobplaceid: "+jobPlaceId);
+
         /**OLD*/
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(broadcastReceiver, new IntentFilter(KEY_LOCATION_CHANGED));
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(broadcastReceiver, new IntentFilter(PLACE_SEARCH_DATA));
@@ -129,6 +134,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         if (mMapView != null) {
             mMapView.onCreate(null);
             mMapView.onResume();
+
             mMapView.getMapAsync(this);
         }
     }
@@ -151,44 +157,65 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @SuppressLint("MissingPermission")
     private void findCurrentPlaceRequest(){
 
-        // Initialize Places.
-        Places.initialize(getContext(), getString(R.string.google_api_key));
-        // Create a new Places client instance.
-        PlacesClient placesClient = Places.createClient(getContext());
+        String sharedPreferenceRestaurantPlaceId = ManageAutocompleteResponse.getStringAutocomplete(getContext(),ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID);
+        Log.d(TAG, "Mapfragment " + "Avant la recherche placedId "+sharedPreferenceRestaurantPlaceId);
+        if(sharedPreferenceRestaurantPlaceId!=null){
+            double latitude = ManageAutocompleteResponse.getDoubleAutocomplete(getContext(),ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE);
+            double longitude = ManageAutocompleteResponse.getDoubleAutocomplete(getContext(),ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE);
+            LatLng latLngSharedPreferences = new LatLng(latitude,longitude);
+            Log.d(TAG, "Mapfragment " + "LatLng de la recherche " +latLngSharedPreferences+" et placedId "+sharedPreferenceRestaurantPlaceId);
+            customizeMarker(sharedPreferenceRestaurantPlaceId, latLngSharedPreferences);
+            createRestaurantsInFirebase(sharedPreferenceRestaurantPlaceId);
 
-        // Use fields to define the data types to return.
-        List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME,Place.Field.ID,Place.Field.LAT_LNG,Place.Field.TYPES);
+            //InitializeSharedPreferences
+            ManageAutocompleteResponse.saveAutocompleteStringResponse(getContext(),ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID,null);
+            ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(getContext(),ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE, 0);
+            ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(getContext(),ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE,0);
 
-        // Use the builder to create a FindCurrentPlaceRequest.
-        FindCurrentPlaceRequest request = FindCurrentPlaceRequest.builder(placeFields).build();
+        }
+        else{
+            // Initialize Places.
+            Places.initialize(getContext(), getString(R.string.google_api_key));
+            // Create a new Places client instance.
+            PlacesClient placesClient = Places.createClient(getContext());
 
-        placesClient.findCurrentPlace(request).addOnSuccessListener(((response) -> {
-            for (PlaceLikelihood placeLikelihood : response.getPlaceLikelihoods()) {
+            // Use fields to define the data types to return.
+            List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME,Place.Field.ID,Place.Field.LAT_LNG,Place.Field.TYPES);
 
-                List typesList = placeLikelihood.getPlace().getTypes();
+            // Use the builder to create a FindCurrentPlaceRequest.
+            FindCurrentPlaceRequest request = FindCurrentPlaceRequest.builder(placeFields).build();
 
-                assert typesList != null;
-                for (int i = 0; i<typesList.size(); i++){
-                    if("RESTAURANT".equals(typesList.get(i).toString())){
-                        String restaurantPlaceId = placeLikelihood.getPlace().getId();
-                        LatLng latLng = placeLikelihood.getPlace().getLatLng();
+            placesClient.findCurrentPlace(request).addOnSuccessListener(((response) -> {
+                for (PlaceLikelihood placeLikelihood : response.getPlaceLikelihoods()) {
 
-                        customizeMarker(restaurantPlaceId, latLng);
-                        createRestaurantsInFirebase(restaurantPlaceId);
+                    List typesList = placeLikelihood.getPlace().getTypes();
+
+                    assert typesList != null;
+                    for (int i = 0; i<typesList.size(); i++){
+                        if("RESTAURANT".equals(typesList.get(i).toString())){
+                            String restaurantPlaceId = placeLikelihood.getPlace().getId();
+                            LatLng latLng = placeLikelihood.getPlace().getLatLng();
+
+                            customizeMarker(restaurantPlaceId, latLng);
+                            createRestaurantsInFirebase(restaurantPlaceId);
+                        }
+
                     }
 
+
                 }
+            })).addOnFailureListener((exception) -> {
+                if (exception instanceof ApiException) {
+                    ApiException apiException = (ApiException) exception;
+                    Log.e(TAG, "Place not found: " + apiException.getStatusCode());
+                }
+            });
+        }
 
-
-            }
-        })).addOnFailureListener((exception) -> {
-            if (exception instanceof ApiException) {
-                ApiException apiException = (ApiException) exception;
-                Log.e(TAG, "Place not found: " + apiException.getStatusCode());
-            }
-        });
 
     }
+
+
 
     @SuppressLint("MissingPermission")
     @Override
@@ -206,6 +233,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
 
     }
+
+
 
 
 
@@ -267,7 +296,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private void customizeMarker(String restaurantPlaceId, LatLng latLng) {
 
-//        mGoogleMap.clear();
+        mGoogleMap.clear();
         int mZoom = 18;
         int mBearing = 0;
         int mTilt = 45;
@@ -370,8 +399,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     public void autocompleteMarker(String restaurantPlaceId, LatLng latLng) {
 
+
+        Log.d("debago", "Mapfragment on rentre dans autocompleteMarker");
         clearMap();
-        mGoogleMap.addMarker(new MarkerOptions().position(latLng));
+    /*    String restaurantPlaceId = placeLikelihood.getPlace().getId();
+        LatLng latLng = placeLikelihood.getPlace().getLatLng();
+
+        customizeMarker(restaurantPlaceId, latLng);
+        createRestaurantsInFirebase(restaurantPlaceId);*/
+      //  mGoogleMap.addMarker(new MarkerOptions().position(latLng));
      /*   mGoogleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
@@ -389,7 +425,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         });*/
 
 //        mGoogleMap.clear();
-    /*    int mZoom = 18;
+   /*     int mZoom = 18;
         int mBearing = 0;
         int mTilt = 45;
         if (mMarker != null) {
@@ -459,15 +495,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     public void clearMap() {
 
-        GoogleMap gm = createMap();
-        if (gm == null) {
-            Log.e("clear", "The map is null"); //for testing purposes
+
+     //   GoogleMap gm = createMap();
+        if (mGoogleMap == null) {
+            Log.d("debago", "The map is null"); //for testing purposes
             return;
 
         } else {
-            Log.e("clear", "The map already exists"); //for testing purposes
-            mGoogleMap = gm;
+            Log.d("debago", "The map already exists"); //for testing purposes
+
             mGoogleMap.clear();
+            mGoogleMap = createMap();
         }
 
 
@@ -481,7 +519,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap createMap() {
 
         if (mGoogleMap != null) {
-            Log.e("create", "The map already exists"); // for testing purposes
+            Log.d("debago", "The map already exists"); // for testing purposes
             return mGoogleMap;
         }
 
@@ -490,12 +528,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         try {
             mMapView.getMapAsync(this);
         } catch (Exception ex) {
-            Log.e("Error", ex.getLocalizedMessage());
+            Log.d("Debago", "Error "+ex.getLocalizedMessage());
         }
 
         return null;
 
     }
+
 
 
 }

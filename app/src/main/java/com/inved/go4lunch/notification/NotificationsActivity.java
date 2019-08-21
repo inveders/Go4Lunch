@@ -14,7 +14,6 @@ import androidx.annotation.Nullable;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.inved.go4lunch.R;
@@ -23,8 +22,6 @@ import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.controller.ViewPlaceActivity;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -65,10 +62,10 @@ public class NotificationsActivity extends BaseActivity {
 
     private void firebaseInformations(){
 
-     /**   UserHelper.getUserWhateverLocation(this.getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        UserHelper.getUserWhateverLocation(this.getCurrentUser().getUid()).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                User currentUser = documentSnapshot.toObject(User.class);
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                User currentUser = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
 
                 assert currentUser != null;
                 String restaurantName = TextUtils.isEmpty(currentUser.getRestaurantName()) ? getString(R.string.info_no_restaurant_name_found) : currentUser.getRestaurantName();
@@ -104,7 +101,7 @@ public class NotificationsActivity extends BaseActivity {
                 Log.d("debago","NotificationActivity notifidationMessage "+getString(R.string.notification_message_text,restaurantName,restaurantVicinity));
                 showNotificationMessageText(restaurantName,restaurantVicinity,restaurantPlaceId);
             }
-        });*/
+        });
 
     }
 
@@ -126,8 +123,6 @@ public class NotificationsActivity extends BaseActivity {
                 }
             });
         }
-
-
 
 
     }

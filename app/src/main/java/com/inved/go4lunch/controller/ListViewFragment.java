@@ -110,6 +110,7 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
        // findCurrentPlaceRequest();
         return mView;
     }
+
     private void executeHttpRequestPlaceSearchWithRetrofit(String geolocalisation) {
 
         if (geolocalisation != null) {
@@ -181,12 +182,15 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
         mRecyclerListViewAdapter.setCurrentLocalisation(myCurrentLat,myCurrentLongi);
     }*/
 
-
+    public void getQuery(String query){
+        mRecyclerListViewAdapter.getFilter().filter(query);
+    }
 
 
     @Override
     public void onResponse(@Nullable PlaceSearch response) {
         mRecyclerListViewAdapter.setData(response.results);
+
         mRecyclerListViewAdapter.setCurrentLocalisation(myCurrentLat,myCurrentLongi);
 }
 

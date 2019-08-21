@@ -23,11 +23,6 @@ public class UserHelper {
 
     }
 
-    public static CollectionReference getUsersWhateverLocation(){
-        return FirebaseFirestore.getInstance().collection(COLLECTION_GENERAL).document().collection(COLLECTION_NAME);
-
-    }
-
 
 
 
@@ -79,24 +74,24 @@ public class UserHelper {
 
     // --- UPDATE ---
 
-    public static Task<Void> updateFirstname(String firstname, String uid) {
-        return UserHelper.getUsersWhateverLocation().document(uid).update("firstname", firstname);
+    public static Task<Void> updateFirstname(String firstname, String uid,String jobPlaceId) {
+        return UserHelper.getUsersCollection(jobPlaceId).document(uid).update("firstname", firstname);
     }
 
-    public static Task<Void> updateLastname(String lastname, String uid) {
-        return UserHelper.getUsersWhateverLocation().document(uid).update("lastname", lastname);
+    public static Task<Void> updateLastname(String lastname, String uid,String jobPlaceId) {
+        return UserHelper.getUsersCollection(jobPlaceId).document(uid).update("lastname", lastname);
     }
 
-    public static Task<Void> updateRestaurantPlaceId(String restaurantPlaceId, String uid) {
-        return UserHelper.getUsersWhateverLocation().document(uid).update("restaurantPlaceId", restaurantPlaceId);
+    public static Task<Void> updateRestaurantPlaceId(String restaurantPlaceId, String uid,String jobPlaceId) {
+        return UserHelper.getUsersCollection(jobPlaceId).document(uid).update("restaurantPlaceId", restaurantPlaceId);
     }
 
-    public static Task<Void> updateRestaurantName(String restaurantName, String uid) {
-        return UserHelper.getUsersWhateverLocation().document(uid).update("restaurantName", restaurantName);
+    public static Task<Void> updateRestaurantName(String restaurantName, String uid,String jobPlaceId) {
+        return UserHelper.getUsersCollection(jobPlaceId).document(uid).update("restaurantName", restaurantName);
     }
 
-    public static Task<Void> updateRestaurantVicinity(String restaurantVicinity, String uid) {
-        return UserHelper.getUsersWhateverLocation().document(uid).update("restaurantVicinity", restaurantVicinity);
+    public static Task<Void> updateRestaurantVicinity(String restaurantVicinity, String uid,String jobPlaceId) {
+        return UserHelper.getUsersCollection(jobPlaceId).document(uid).update("restaurantVicinity", restaurantVicinity);
     }
 
     public static Task<Void> updateRestaurantType(String restaurantType, String uid,String jobPlaceId) {
@@ -105,8 +100,8 @@ public class UserHelper {
 
     // --- DELETE ---
 
-    public static Task<Void> deleteUser(String uid) {
-        return UserHelper.getUsersWhateverLocation().document(uid).delete();
+    public static Task<Void> deleteUser(String uid,String jobPlaceId) {
+        return UserHelper.getUsersCollection(jobPlaceId).document(uid).delete();
     }
 
 }

@@ -34,9 +34,7 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.AutocompletePrediction;
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
@@ -57,7 +55,7 @@ import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.notification.NotificationsActivity;
-import com.inved.go4lunch.utils.MyFirebaseCallback;
+import com.inved.go4lunch.utils.ManageAutocompleteResponse;
 
 import java.util.Arrays;
 import java.util.List;
@@ -80,8 +78,8 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     public static final String PLACE_DATA_RATING = "RATING";
     public static final String PLACE_DATA_OPENING_HOURS = "LIST_RESULT_PLACE_SEARCH";
 
-    public static final String KEY_JOB_PLACE_ID = "KEY_JOB_PLACE_ID";
-    public static final String KEY_JOB_PLACE_ID_DATA = "KEY_JOB_PLACE_ID_DATA";
+
+
 
 
     public static final String TAG = "Debago";
@@ -102,8 +100,8 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     //AUTOCOMPLETE
     private List<AutocompletePrediction> predictionList;
     AutocompleteSessionToken token;
-
-
+    MapFragment mapFragment= new MapFragment();
+    ListViewFragment listViewFragment= new ListViewFragment();
 
     List<Place.Field> fields;
 
@@ -279,16 +277,22 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+
         if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 Place place = Autocomplete.getPlaceFromIntent(data);
+
+                ManageAutocompleteResponse.saveAutocompleteStringResponse(this,ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID,place.getId());
+                ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(this,ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE, place.getLatLng().latitude);
+                ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(this,ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE,place.getLatLng().longitude);
+
                 int idCurrentFragment = getSelectedItem(bottomNavigationView);
                 switch (idCurrentFragment){
-               /*     case R.id.action_map :mapFragment.autocompleteMarker(place.getId(),place.getLatLng());
+                    case R.id.action_map :mapFragment.autocompleteMarker(place.getId(),place.getLatLng());
                         break;
-                  /*  case R.id.action_list:*** ;
+                    case R.id.action_list:listViewFragment.getQuery(place.getName());
                         break;
-                    case R.id.action_people:***;
+                  /*  case R.id.action_people:***;
                         break;*/
                     default:
                         break;

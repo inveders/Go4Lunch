@@ -8,6 +8,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -15,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.RequestManager;
@@ -37,23 +40,25 @@ import com.inved.go4lunch.utils.ManageJobPlaceId;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import static com.inved.go4lunch.controller.RestaurantActivity.KEY_JOB_PLACE_ID_DATA;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LATITUDE;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LOCATION_CHANGED;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LONGITUDE;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_OPENING_HOURS;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DETAIL_DATA;
+import static com.inved.go4lunch.utils.ManageJobPlaceId.KEY_JOB_PLACE_ID_DATA;
 
-public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<RecyclerViewListViewRestaurant.ViewHolder> {
+public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<RecyclerViewListViewRestaurant.ViewHolder> implements Filterable {
 
     private Double myCurrentLat;
     private Double myCurrentLongi;
     private OpeningHours openingHours;
     private String jobPlaceId;
+
 
     PlacesClient placesClient;
 
@@ -79,6 +84,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
     @Nullable
     //  private List<PlaceLikelihood> mData;
     private List<Result> mData;
+    private List<Result> mDataFiltered;
     private int mNumberResult;
     private int mPosition;
 
@@ -101,8 +107,8 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
         LocalBroadcastManager.getInstance(parent.getContext()).registerReceiver(broadcastReceiver, new IntentFilter(KEY_LOCATION_CHANGED));
         LocalBroadcastManager.getInstance(mContext).registerReceiver(broadcastReceiver, new IntentFilter(PLACE_DETAIL_DATA));
 
-        jobPlaceId = ManageJobPlaceId.getJobPlaceId(mContext, KEY_JOB_PLACE_ID_DATA);
-        Log.d("DEBAGO", "RecyclerViewListViewRestaurant oncreate jobplaceId: " + jobPlaceId);
+        jobPlaceId = ManageJobPlaceId.getJobPlaceId(parent.getContext(), KEY_JOB_PLACE_ID_DATA);
+
 
         // Initialize Places.
         Places.initialize(parent.getContext(), App.getResourses().getString(R.string.google_api_key));
@@ -114,13 +120,11 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerViewListViewRestaurant.ViewHolder holder, final int position) {
-        //   Log.d("Debago", "RecyclerViewRestaurant AVANT position " + position+" et mposition "+mPosition);
 
-        // Log.d("Debago", "RecyclerViewRestaurant position " + position+" et mposition "+mPosition);
 
-        holder.mRestaurantName.setText(mData.get(position).getName());
+        holder.mRestaurantName.setText(mDataFiltered.get(position).getName());
 
-        //   Log.d("Debago", "RecyclerViewRestaurant getitem numberResult for restaurant "+mData.getPlace());
+        Log.d("Debago", "RecyclerViewRestaurant placeId "+mData.get(position).getPlaceId());
 
 
         holder.mRestaurantAdress.setText(mData.get(position).getVicinity());
@@ -162,7 +166,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
         String distance = df.format(distanceDouble);
         holder.mDistance.setText(distance + " m");
 
-        // placeDetailsData.setPlaceId(placeId);
+        placeDetailsData.setPlaceId(placeId);
 
 
         //mData.get(position).getOpeningHours().getWeekdayText().get(1).toString();
@@ -256,7 +260,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
         //RATING
 
-        double ratingValue = mData.get(mPosition).getRating();
+        double ratingValue = mData.get(position).getRating();
 
         if (ratingValue > 0 && ratingValue < 1.665) {
             holder.mStarFirst.setVisibility(View.VISIBLE);
@@ -286,18 +290,63 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
     @Override
     public int getItemCount() {
-        if (mData == null) return 0;
 
-        return mData.size();
+        if(mData != null){
+            return mDataFiltered.size();
+        } else {
+            return 0;
+        }
+
     }
 
-    public void setData(List<Result> data) {
+   /* public void setData(List<Result> data) {
 
         mData = data;
 
         //Fill the Recycler View
         notifyDataSetChanged();
 
+    }*/
+
+
+
+    public void setData(final List<Result> mData){
+      //  this.context = context;
+        if(this.mData == null){
+            this.mData = mData;
+            this.mDataFiltered = mData;
+            notifyItemChanged(0, mDataFiltered.size());
+        } else {
+            final DiffUtil.DiffResult result = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+                @Override
+                public int getOldListSize() {
+                    return RecyclerViewListViewRestaurant.this.mData.size();
+                }
+
+                @Override
+                public int getNewListSize() {
+                    return mData.size();
+                }
+
+                @Override
+                public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                    return RecyclerViewListViewRestaurant.this.mData.get(oldItemPosition).getName() == mData.get(newItemPosition).getName();
+                }
+
+                @Override
+                public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+
+                    Result newData = RecyclerViewListViewRestaurant.this.mData.get(oldItemPosition);
+
+                    Result oldData = mData.get(newItemPosition);
+
+                    return newData.getName() == oldData.getName() ;
+                }
+            });
+            this.mData = mData;
+            this.mDataFiltered = mData;
+            result.dispatchUpdatesTo(this);
+        }
     }
 
  /*   public void setData(List<PlaceLikelihood> data, int numberResult, int pos) {
@@ -319,6 +368,10 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
         //  notifyDataSetChanged();
 
     }
+
+
+
+
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -351,6 +404,40 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
         }
 
+    }
+
+
+    @Override
+    public Filter getFilter(){
+        return new Filter(){
+            @Override
+            protected FilterResults performFiltering(CharSequence charSequence){
+
+                String charString = charSequence.toString();
+                if (charString.isEmpty()) {
+                    mDataFiltered = mData;
+                } else {
+                    List<Result> filteredList = new ArrayList<>();
+                    for (Result result : mData) {
+                        if (result.getName().toLowerCase().contains(charString.toLowerCase())) {
+                            filteredList.add(result);
+                        }
+                    }
+                    mDataFiltered = filteredList;
+                }
+
+                FilterResults filterResults = new FilterResults();
+                filterResults.values = mDataFiltered;
+                return filterResults;
+            }
+
+            @Override
+            protected void publishResults(CharSequence charSequence,FilterResults filterResults){
+                mDataFiltered = (List<Result>) filterResults.values;
+
+                notifyDataSetChanged();
+            }
+        };
     }
 
 

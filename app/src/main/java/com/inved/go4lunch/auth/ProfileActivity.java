@@ -22,23 +22,19 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.base.BaseActivity;
-import com.inved.go4lunch.controller.ListViewFragment;
 import com.inved.go4lunch.controller.MainActivity;
-import com.inved.go4lunch.controller.MapFragment;
-import com.inved.go4lunch.controller.PeopleFragment;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
+import com.inved.go4lunch.utils.ManageJobPlaceId;
 
 import butterknife.BindView;
 import butterknife.OnClick;
 
-import static com.inved.go4lunch.controller.RestaurantActivity.KEY_JOB_PLACE_ID_DATA;
+import static com.inved.go4lunch.utils.ManageJobPlaceId.KEY_JOB_PLACE_ID_DATA;
 
 public class ProfileActivity extends BaseActivity {
 
@@ -60,6 +56,7 @@ public class ProfileActivity extends BaseActivity {
     @BindView(R.id.profile_activity_text_view_job_place_id)
     TextView textViewJobPlaceId;
 
+    private String jobPlaceId;
 
 
     //FOR DATA
@@ -72,7 +69,10 @@ public class ProfileActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("DEBAGO", "ProfileActivity : oncreate ");
+
+        jobPlaceId = ManageJobPlaceId.getJobPlaceId(this,KEY_JOB_PLACE_ID_DATA);
+        Log.d("DEBAGO", "ViewPlaceActivity oncreate jobplaceid: "+jobPlaceId);
+
       //  this.configureToolbar();
         this.updateUIWhenCreating();
 
@@ -154,7 +154,7 @@ public class ProfileActivity extends BaseActivity {
                                         }
                                     });
 
-                            UserHelper.deleteUser(getCurrentUser().getUid()).addOnFailureListener(onFailureListener());
+                            UserHelper.deleteUser(getCurrentUser().getUid(),jobPlaceId).addOnFailureListener(onFailureListener());
 
                         }
                     });
@@ -174,9 +174,6 @@ public class ProfileActivity extends BaseActivity {
         }
 
 
-    public String getTextViewJobPlaceId() {
-        return textViewJobPlaceId.getText().toString();
-    }
 
     // 3 - Update User Firstname and lastname
     private void updateNameInFirebase(){
@@ -186,12 +183,12 @@ public class ProfileActivity extends BaseActivity {
         String lastname = this.textInputEditTextLastname.getText().toString();
         if (this.getCurrentUser() != null){
             if (!firstname.isEmpty() &&  !firstname.equals(getString(R.string.info_no_firstname_found))){
-                UserHelper.updateFirstname(firstname, this.getCurrentUser().getUid()).addOnFailureListener(this.onFailureListener()).addOnSuccessListener(this.updateUIAfterRESTRequestsCompleted(UPDATE_NAME));
+                UserHelper.updateFirstname(firstname, this.getCurrentUser().getUid(),jobPlaceId).addOnFailureListener(this.onFailureListener()).addOnSuccessListener(this.updateUIAfterRESTRequestsCompleted(UPDATE_NAME));
             }
         }
         if (this.getCurrentUser() != null){
             if (!lastname.isEmpty() &&  !lastname.equals(getString(R.string.info_no_lastname_found))){
-                UserHelper.updateLastname(lastname, this.getCurrentUser().getUid()).addOnFailureListener(this.onFailureListener()).addOnSuccessListener(this.updateUIAfterRESTRequestsCompleted(UPDATE_NAME));
+                UserHelper.updateLastname(lastname, this.getCurrentUser().getUid(),jobPlaceId).addOnFailureListener(this.onFailureListener()).addOnSuccessListener(this.updateUIAfterRESTRequestsCompleted(UPDATE_NAME));
             }
         }
     }
@@ -260,7 +257,7 @@ public class ProfileActivity extends BaseActivity {
                                 textViewJobName.setText(jobName);
                             }
 
-                            String jobPlaceId = currentUser.getJobPlaceId();
+
 
                             if(TextUtils.isEmpty(jobPlaceId)||jobPlaceId.equals(getString(R.string.info_no_job_place_id_found))){
                                 textViewJobPlaceId.setHint(getString(R.string.info_no_job_place_id_found));
