@@ -8,16 +8,11 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
-import android.location.Location;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
@@ -27,20 +22,9 @@ import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResponse;
-import com.google.android.gms.location.SettingsClient;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.libraries.places.api.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -51,35 +35,24 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.libraries.places.api.model.AutocompletePrediction;
+import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.PlaceLikelihood;
 import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.inved.go4lunch.R;
-import com.inved.go4lunch.api.GooglePlaceCalls;
 import com.inved.go4lunch.api.PlaceDetailsData;
-import com.inved.go4lunch.firebase.Restaurant;
 import com.inved.go4lunch.firebase.RestaurantHelper;
-import com.inved.go4lunch.model.placesearch.PlaceSearch;
+import com.inved.go4lunch.utils.ManageJobPlaceId;
+import com.inved.go4lunch.utils.MyFirebaseCallback;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
-import static com.inved.go4lunch.controller.RestaurantActivity.KEY_GEOLOCALISATION;
-import static com.inved.go4lunch.controller.RestaurantActivity.KEY_JOB_PLACE_ID;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_JOB_PLACE_ID_DATA;
-import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LATITUDE;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LOCATION_CHANGED;
-import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LONGITUDE;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_SEARCH_DATA;
 import static com.inved.go4lunch.controller.RestaurantActivity.TAG;
 
@@ -91,10 +64,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private MapView mMapView;
     private View mView;
     private Marker mMarker;
+    private String jobPlaceId;
     private final float DEFAULT_ZOOM =18;
-    String jobPlaceId;
+
 
     PlaceDetailsData placeDetailsData = new PlaceDetailsData();
+    RestaurantActivity restaurantActivity = new RestaurantActivity();
 
 
     private static final int PERMS_CALL_ID = 1234;
@@ -108,14 +83,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
             }
 
-            if (KEY_JOB_PLACE_ID.equals(intent.getAction())) {
-                jobPlaceId = intent.getStringExtra(KEY_JOB_PLACE_ID_DATA);
 
 
-            }
         }
     };
-    CollectionReference restaurants = RestaurantHelper.getRestaurantsCollection(jobPlaceId);
+
 
     public MapFragment() {
         //Required empty public constructor
@@ -124,15 +96,24 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        jobPlaceId = ManageJobPlaceId.getJobPlaceId(getActivity(),KEY_JOB_PLACE_ID_DATA);
+        Log.d("DEBAGO", "MapFragment oncreate jobplaceid: "+jobPlaceId);
         /**OLD*/
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(broadcastReceiver, new IntentFilter(KEY_LOCATION_CHANGED));
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(broadcastReceiver, new IntentFilter(PLACE_SEARCH_DATA));
-        LocalBroadcastManager.getInstance(getContext()).registerReceiver(broadcastReceiver, new IntentFilter(KEY_JOB_PLACE_ID));
         findCurrentPlaceRequest();
+
+
+
+
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+
 
         mView = inflater.inflate(R.layout.fragment_map, container, false);
 
@@ -243,39 +224,40 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onFailure(@NonNull Exception e) {
                 //  Toast.makeText(getApplicationContext(), getString(R.string.error_unknown_error), Toast.LENGTH_LONG).show();
-
+                Log.d(TAG, "On failure creation restaurant ");
             }
         };
     }
 
     private void createRestaurantsInFirebase(String restaurantPlaceId) {
-            //Create restaure in firebase if it doesn't exist
+            //Create restaurant in firebase if it doesn't exist
 
             String id = restaurantPlaceId;
 
-            restaurants.document(id)
-                    .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
+        RestaurantHelper.getRestaurant(id,jobPlaceId).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
 
-                         //   Log.d("debago", "Document already exist");
+                        //   Log.d("debago", "Document already exist");
 
 
-                        } else {
-                         //   Log.d("debago", "No such document");
-                            RestaurantHelper.createRestaurant(id, id, 0,0,jobPlaceId).addOnFailureListener(onFailureListener());
-
-                            String currentPlaceId = document.getString("id");
-
-                        }
                     } else {
-                   //     Log.d("debago", "get failed with ", task.getException());
+                        //   Log.d("debago", "No such document");
+                        RestaurantHelper.createRestaurant(id, id, 0,0,jobPlaceId).addOnFailureListener(onFailureListener());
+
+                        String currentPlaceId = document.getString("id");
+
                     }
+                } else {
+                    //     Log.d("debago", "get failed with ", task.getException());
                 }
-            });
+            }
+        });
+
+
 
 
 
@@ -299,39 +281,42 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.snippet(restaurantPlaceId);
 
-            restaurants.document(id)
-                    .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
 
-                            markerOptions.position(latLng);
+        RestaurantHelper.getRestaurant(restaurantPlaceId,jobPlaceId).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
 
-                            //creating and getting restaurant information
-                            int numberCustomers = Integer.parseInt(Objects.requireNonNull(document.get("restaurantCustomers")).toString());
-                            if (numberCustomers > 0) {
-                                markerOptions.icon(bitmapDescriptorFromVectorSelected(getContext(), R.drawable.ic_location_selected_24dp));
-                                mGoogleMap.addMarker(markerOptions);
+                        markerOptions.position(latLng);
 
-                            } else {
-                                markerOptions.icon(bitmapDescriptorFromVectorNotSelected(getContext(), R.drawable.ic_location_not_selected_24dp));
-                                mGoogleMap.addMarker(markerOptions);
+                        //creating and getting restaurant information
+                        int numberCustomers = Integer.parseInt(Objects.requireNonNull(document.get("restaurantCustomers")).toString());
+                        if (numberCustomers > 0) {
+                            markerOptions.icon(bitmapDescriptorFromVectorSelected(getContext(), R.drawable.ic_location_selected_24dp));
+                            mGoogleMap.addMarker(markerOptions);
 
-                            }
-
-                            CameraPosition Liberty = CameraPosition.builder().target(latLng).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
-                            mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
-                            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                         } else {
-                         //   Log.d("debago", "No such document");
+                            markerOptions.icon(bitmapDescriptorFromVectorNotSelected(getContext(), R.drawable.ic_location_not_selected_24dp));
+                            mGoogleMap.addMarker(markerOptions);
+
                         }
+
+                        CameraPosition Liberty = CameraPosition.builder().target(latLng).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
+                        mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
+                        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                     } else {
-                      //  Log.d("debago", "get failed with ", task.getException());
+                        //   Log.d("debago", "No such document");
                     }
+                } else {
+                    //  Log.d("debago", "get failed with ", task.getException());
                 }
-            });
+            }
+        });
+
+
+
 
 
 //Configure action on marker click

@@ -53,7 +53,7 @@ public class UserHelper {
 
         return FirebaseFirestore.getInstance().collectionGroup(COLLECTION_NAME)
 
-                .whereEqualTo("uid","J3wgqJ67umfacBCGWHyvPAnmkzk2");
+                .whereEqualTo("uid",uid);
 
     }
 

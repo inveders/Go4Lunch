@@ -2,6 +2,7 @@ package com.inved.go4lunch.controller;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -26,11 +27,15 @@ import com.inved.go4lunch.R;
 import com.inved.go4lunch.auth.ProfileActivity;
 import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.firebase.UserHelper;
+import com.inved.go4lunch.utils.ManageJobPlaceId;
 
 import java.util.Arrays;
 import java.util.Objects;
 
 import butterknife.BindView;
+
+import static com.inved.go4lunch.controller.RestaurantActivity.KEY_JOB_PLACE_ID;
+import static com.inved.go4lunch.controller.RestaurantActivity.KEY_JOB_PLACE_ID_DATA;
 
 public class FindMyJobAddress extends BaseActivity {
     private static final String TAG = "Debago";
@@ -38,6 +43,8 @@ public class FindMyJobAddress extends BaseActivity {
     String jobPlaceId;
     String jobName;
     ProfileActivity profileActivity;
+    Context context;
+
 
     @BindView(R.id.activity_find_job_address_btn_validation)
     Button btnValidation;
@@ -69,7 +76,7 @@ public class FindMyJobAddress extends BaseActivity {
             @Override
             public void onPlaceSelected(Place place) {
                 // TODO: Get info about the selected place.
-                Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
+                Log.d(TAG, "Place: " + place.getName() + ", " + place.getId());
                 jobAddress=place.getAddress();
                 jobPlaceId=place.getId();
                 jobName=place.getName();
@@ -82,29 +89,33 @@ public class FindMyJobAddress extends BaseActivity {
             @Override
             public void onError(Status status) {
                 // TODO: Handle the error.
-                Log.i(TAG, "An error occurred: " + status);
+                Log.d(TAG, "An error occurred: " + status);
             }
         });
 
         btnValidation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 if(TextUtils.isEmpty(jobAddress)){
-                    Log.i(TAG, "Job Address est nul "+jobAddress);
+                    Log.d(TAG, "Job Address est nul "+jobAddress);
                     Toast.makeText(getApplicationContext(), "Choisissez un lieu", Toast.LENGTH_SHORT).show();
                 }else{
+
                     String firebaseAuthUid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
                     UserHelper.getUserWithSameUid(firebaseAuthUid,jobPlaceId).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
                             if (task.isSuccessful()) {
                                 //    Log.d("Debago", "task successful");
-                                if (!task.getResult().getDocuments().isEmpty()) {
+                                if (task.getResult().getDocuments().size()!=0) {
 
-                                       Log.d("Debago", "already exist " + task.getResult().getDocuments());
+                                       Log.d("Debago", "findMyJobAddress already exist " + task.getResult().getDocuments());
+                                       startRestaurantActivity();
                                 } else {
-                                       Log.d("Debago", "create user in firestore "+jobAddress+" "+jobName+" "+jobPlaceId);
+                                       Log.d("Debago", "FindMyJobAddress create user in firestore "+jobAddress+" "+jobName+" "+jobPlaceId);
                                     createUserInFirestore(jobAddress,jobPlaceId,jobName);
+                                    startRestaurantActivity();
                                 }
 
                             }
@@ -113,7 +124,7 @@ public class FindMyJobAddress extends BaseActivity {
                         }
                     });
 
-                    startRestaurantActivity();
+
                 }
             }
         });
@@ -136,7 +147,7 @@ public class FindMyJobAddress extends BaseActivity {
             String restaurantName = null;
             String restaurantType = null;
             String restaurantVicinity = null;
-
+            ManageJobPlaceId.saveJobPlaceId(this,KEY_JOB_PLACE_ID_DATA,jobPlaceId);
             UserHelper.createUser(uid, firstname, lastname, urlPicture, restaurantPlaceId, restaurantType, restaurantName, restaurantVicinity, jobAddress, jobPlaceId, jobName).addOnFailureListener(this.onFailureListener());
 
 
@@ -145,7 +156,9 @@ public class FindMyJobAddress extends BaseActivity {
 
     private void startRestaurantActivity() {
         Intent intent = new Intent(this, RestaurantActivity.class);
-
+        Log.d("Debago", "FindMyJobAddress we go in restaurantActivity");
         startActivity(intent);
     }
+
+
 }

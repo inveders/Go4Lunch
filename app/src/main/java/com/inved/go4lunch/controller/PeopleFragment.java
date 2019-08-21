@@ -1,6 +1,7 @@
 package com.inved.go4lunch.controller;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,20 +17,25 @@ import com.bumptech.glide.Glide;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.Query;
 import com.inved.go4lunch.R;
-import com.inved.go4lunch.auth.ProfileActivity;
-import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.firebase.User;
+import com.inved.go4lunch.firebase.UserHelper;
+import com.inved.go4lunch.utils.ManageJobPlaceId;
+
+import static com.inved.go4lunch.controller.RestaurantActivity.KEY_JOB_PLACE_ID_DATA;
 
 public class PeopleFragment extends Fragment implements WorkmatesAdapter.Listener{
 
     private View mView;
     private WorkmatesAdapter mRecyclerWorkmatesAdapter;
     private RecyclerView mRecyclerWorkmates;
-    private ProfileActivity profileActivity;
+    private String jobPlaceId;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        jobPlaceId = ManageJobPlaceId.getJobPlaceId(getActivity(),KEY_JOB_PLACE_ID_DATA);
+        Log.d("DEBAGO", "PeopleFragment oncreate jobplaceid: "+jobPlaceId);
 
         mView =inflater.inflate(R.layout.fragment_people,container,false);
 
@@ -44,7 +50,7 @@ public class PeopleFragment extends Fragment implements WorkmatesAdapter.Listene
 
     private void displayAllWorkmates() {
 
-        this.mRecyclerWorkmatesAdapter = new WorkmatesAdapter(generateOptionsForAdapter(UserHelper.getAllUsers(profileActivity.getTextViewJobPlaceId())), Glide.with(this),this,getContext());
+        this.mRecyclerWorkmatesAdapter = new WorkmatesAdapter(generateOptionsForAdapter(UserHelper.getAllUsers(jobPlaceId)), Glide.with(this),this,getContext());
         //Choose how to display the list in the RecyclerView (vertical or horizontal)
         mRecyclerWorkmates.setHasFixedSize(true); //REVOIR CELA
         mRecyclerWorkmates.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));

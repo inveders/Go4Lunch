@@ -35,7 +35,6 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
@@ -50,7 +49,6 @@ import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.PlaceDetailsData;
@@ -59,6 +57,7 @@ import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.notification.NotificationsActivity;
+import com.inved.go4lunch.utils.MyFirebaseCallback;
 
 import java.util.Arrays;
 import java.util.List;
@@ -99,7 +98,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 1000; // 1000 meters for tests, after come back to 10 meters
     // The minimum time between updates in milliseconds
     private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1; // 1 minute*/
-    MapFragment mapFragment = new MapFragment();
+
     //AUTOCOMPLETE
     private List<AutocompletePrediction> predictionList;
     AutocompleteSessionToken token;
@@ -147,8 +146,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private NavigationView navigationView;
-    ProfileActivity profileActivity;
-    String jobPlaceId;
+
 
     @Override
     public int getFragmentLayout() {return R.layout.activity_restaurant;}
@@ -157,9 +155,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        sendJobPlaceId();
-
 
         //Bottom Navigation View
         bottomNavigationView = findViewById(R.id.activity_restaurant_bottom_navigation);
@@ -521,31 +516,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         LocalBroadcastManager.getInstance(RestaurantActivity.this).sendBroadcast(intent);
 
     }
-
-    public void sendJobPlaceId(){
-
-        UserHelper.getUserWhateverLocation(this.getCurrentUser().getUid()).get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        User currentUser = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
-
-                        assert currentUser != null;
-                        jobPlaceId = currentUser.getJobPlaceId();
-                        final Intent intent = new Intent(KEY_JOB_PLACE_ID);
-                        Log.d("Debago", "jobPlaceId "+jobPlaceId);
-                        intent.putExtra(KEY_JOB_PLACE_ID_DATA, jobPlaceId);
-                        LocalBroadcastManager.getInstance(RestaurantActivity.this).sendBroadcast(intent);
-
-                    }
-                });
-
-
-
-    }
-
-
-
 
     public double getLatitude(){
         if(location != null){

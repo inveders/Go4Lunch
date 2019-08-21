@@ -28,12 +28,17 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.base.BaseActivity;
+import com.inved.go4lunch.controller.ListViewFragment;
 import com.inved.go4lunch.controller.MainActivity;
+import com.inved.go4lunch.controller.MapFragment;
+import com.inved.go4lunch.controller.PeopleFragment;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
 
 import butterknife.BindView;
 import butterknife.OnClick;
+
+import static com.inved.go4lunch.controller.RestaurantActivity.KEY_JOB_PLACE_ID_DATA;
 
 public class ProfileActivity extends BaseActivity {
 
@@ -256,6 +261,7 @@ public class ProfileActivity extends BaseActivity {
                             }
 
                             String jobPlaceId = currentUser.getJobPlaceId();
+
                             if(TextUtils.isEmpty(jobPlaceId)||jobPlaceId.equals(getString(R.string.info_no_job_place_id_found))){
                                 textViewJobPlaceId.setHint(getString(R.string.info_no_job_place_id_found));
                             }
@@ -278,6 +284,8 @@ public class ProfileActivity extends BaseActivity {
 
         startActivity(intent);
     }
+
+
 
         // Create OnCompleteListener called after tasks ended
         private OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted(final int origin){

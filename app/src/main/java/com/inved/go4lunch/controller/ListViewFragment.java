@@ -174,7 +174,7 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
             }
         });
 
-    }*/
+    }
 
   /*  private void launchRecyclerView(List<PlaceLikelihood> placeLikelihood,int numberResult,int position) {
    //     mRecyclerListViewAdapter.setData(placeLikelihood,numberResult,position);

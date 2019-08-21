@@ -2,6 +2,7 @@ package com.inved.go4lunch.controller;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -63,10 +64,16 @@ public class MainActivity extends BaseActivity {
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
 
                     if(task.isSuccessful()){
-                        Log.d("Debago", "MainActivity : oncreate go in restaurantActivity ");
-                        task.getResult().getDocuments().get(0).getString("jobPlaceId");
-                        startRestaurantActivity();
-                        finish();
+                        if(task.getResult().getDocuments().size()==0){
+                            startFindMyJobAddressActivity();
+                            Log.d("Debago","no result finisih inscription "+task.getResult().getDocuments().size());
+                        }else{
+                            Log.d("Debago", "MainActivity : oncreate go in restaurantActivity "+task.getResult().getDocuments().get(0).getString("jobPlaceId"));
+
+                            startRestaurantActivity();
+                            finish();
+                        }
+
                     }else {
                         startFindMyJobAddressActivity();
                         Log.d("Debago","no result finisih inscription");

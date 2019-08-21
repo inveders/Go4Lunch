@@ -23,38 +23,29 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.model.PlaceLikelihood;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.PlaceDetailsData;
-import com.inved.go4lunch.auth.ProfileActivity;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.model.placesearch.OpeningHours;
 import com.inved.go4lunch.model.placesearch.Result;
 import com.inved.go4lunch.utils.App;
+import com.inved.go4lunch.utils.ManageJobPlaceId;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.time.LocalDate;
-
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import static com.inved.go4lunch.controller.RestaurantActivity.KEY_JOB_PLACE_ID;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_JOB_PLACE_ID_DATA;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LATITUDE;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LOCATION_CHANGED;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LONGITUDE;
-import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_ADDRESS;
-import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_NAME;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_OPENING_HOURS;
-import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PHONE_NUMBER;
-import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PLACE_ID;
-import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_WEBSITE;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DETAIL_DATA;
 
 public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<RecyclerViewListViewRestaurant.ViewHolder> {
@@ -81,11 +72,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
             }
 
-            if (KEY_JOB_PLACE_ID.equals(intent.getAction())) {
-                jobPlaceId = intent.getStringExtra(KEY_JOB_PLACE_ID_DATA);
 
-
-            }
         }
     };
 
@@ -113,11 +100,14 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_listview_item, parent, false);
         LocalBroadcastManager.getInstance(parent.getContext()).registerReceiver(broadcastReceiver, new IntentFilter(KEY_LOCATION_CHANGED));
         LocalBroadcastManager.getInstance(mContext).registerReceiver(broadcastReceiver, new IntentFilter(PLACE_DETAIL_DATA));
-        LocalBroadcastManager.getInstance(mContext).registerReceiver(broadcastReceiver, new IntentFilter(KEY_JOB_PLACE_ID));
+
+        jobPlaceId = ManageJobPlaceId.getJobPlaceId(mContext, KEY_JOB_PLACE_ID_DATA);
+        Log.d("DEBAGO", "RecyclerViewListViewRestaurant oncreate jobplaceId: " + jobPlaceId);
+
         // Initialize Places.
         Places.initialize(parent.getContext(), App.getResourses().getString(R.string.google_api_key));
 
-// Create a new Places client instance.
+        // Create a new Places client instance.
         placesClient = Places.createClient(parent.getContext());
         return new ViewHolder(v);
     }
@@ -133,17 +123,16 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
         //   Log.d("Debago", "RecyclerViewRestaurant getitem numberResult for restaurant "+mData.getPlace());
 
 
-
         holder.mRestaurantAdress.setText(mData.get(position).getVicinity());
         placeId = mData.get(position).getPlaceId();
 
 
-        UserHelper.getAllWorkmatesJoining(placeId,jobPlaceId).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        UserHelper.getAllWorkmatesJoining(placeId, jobPlaceId).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
 
                 int numberWorkmatesInRestaurant = task.getResult().size();
-                holder.mNumberRates.setText("("+numberWorkmatesInRestaurant+")");
+                holder.mNumberRates.setText("(" + numberWorkmatesInRestaurant + ")");
 
             }
         });
@@ -173,7 +162,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
         String distance = df.format(distanceDouble);
         holder.mDistance.setText(distance + " m");
 
-       // placeDetailsData.setPlaceId(placeId);
+        // placeDetailsData.setPlaceId(placeId);
 
 
         //mData.get(position).getOpeningHours().getWeekdayText().get(1).toString();
@@ -186,8 +175,8 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
         if (mData.get(position).getOpeningHours().getOpenNow()) {
 
 
-                    // Define a Place ID.
-           // String placeId = "INSERT_PLACE_ID_HERE";
+            // Define a Place ID.
+            // String placeId = "INSERT_PLACE_ID_HERE";
 
             // Specify the fields to return.
             List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.OPENING_HOURS);
@@ -201,14 +190,14 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
                 Place place = response.getPlace();
                 int opening_hours_close = Objects.requireNonNull(place.getOpeningHours()).getPeriods().get(current_day).getClose().getTime().getHours();
 
-              //  Log.d("Debago", "RecyclerViewRestaurant OPENINGHOURS 2 " + place.getOpeningHours().getPeriods().get(0));
-                if(opening_hours_close==0){
+                //  Log.d("Debago", "RecyclerViewRestaurant OPENINGHOURS 2 " + place.getOpeningHours().getPeriods().get(0));
+                if (opening_hours_close == 0) {
                     holder.mRestaurantOpenInformation.setText("Open until midnight");
-                }else{
-                    holder.mRestaurantOpenInformation.setText("Open until "+opening_hours_close);
+                } else {
+                    holder.mRestaurantOpenInformation.setText("Open until " + opening_hours_close);
                 }
 
-                Log.i("Debago", "Place found close hours: " + opening_hours_close+" current day "+current_day);
+                Log.i("Debago", "Place found close hours: " + opening_hours_close + " current day " + current_day);
             }).addOnFailureListener((exception) -> {
                 if (exception instanceof ApiException) {
                     ApiException apiException = (ApiException) exception;
@@ -238,8 +227,8 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
                 int opening_hours_open = Objects.requireNonNull(place.getOpeningHours()).getPeriods().get(current_day).getOpen().getTime().getHours();
 
                 //  Log.d("Debago", "RecyclerViewRestaurant OPENINGHOURS 2 " + place.getOpeningHours().getPeriods().get(0));
-                holder.mRestaurantOpenInformation.setText("Opening to "+opening_hours_open);
-              //  Log.i("Debago", "Place found opening hours: " + Objects.requireNonNull(place.getOpeningHours()).getPeriods().get(0).getClose().getTime().getHours());
+                holder.mRestaurantOpenInformation.setText("Opening to " + opening_hours_open);
+                //  Log.i("Debago", "Place found opening hours: " + Objects.requireNonNull(place.getOpeningHours()).getPeriods().get(0).getClose().getTime().getHours());
             }).addOnFailureListener((exception) -> {
                 if (exception instanceof ApiException) {
                     ApiException apiException = (ApiException) exception;
@@ -269,33 +258,25 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
         double ratingValue = mData.get(mPosition).getRating();
 
-        if(ratingValue>0 && ratingValue<1.665){
+        if (ratingValue > 0 && ratingValue < 1.665) {
             holder.mStarFirst.setVisibility(View.VISIBLE);
             holder.mStarSecond.setVisibility(View.INVISIBLE);
             holder.mStarThird.setVisibility(View.INVISIBLE);
-        }
-        else if(ratingValue>=1.665 && ratingValue<3.33){
+        } else if (ratingValue >= 1.665 && ratingValue < 3.33) {
             holder.mStarFirst.setVisibility(View.VISIBLE);
             holder.mStarSecond.setVisibility(View.VISIBLE);
             holder.mStarThird.setVisibility(View.INVISIBLE);
-        }
-        else if(ratingValue>=3.33 && ratingValue<=5){
+        } else if (ratingValue >= 3.33 && ratingValue <= 5) {
             holder.mStarFirst.setVisibility(View.VISIBLE);
             holder.mStarSecond.setVisibility(View.VISIBLE);
             holder.mStarThird.setVisibility(View.VISIBLE);
-        }
-        else if(ratingValue==0.0){
+        } else if (ratingValue == 0.0) {
             holder.mStarFirst.setVisibility(View.INVISIBLE);
             holder.mStarSecond.setVisibility(View.INVISIBLE);
             holder.mStarThird.setVisibility(View.INVISIBLE);
         }
 
     }
-
-
-
-
-
 
 
     private double convertRad(double latitudeConversion) {
