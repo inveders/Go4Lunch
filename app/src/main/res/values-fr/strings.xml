@@ -86,4 +86,7 @@
     <string name="info_no_job_address_found">Pas d\'adresse de job trouvée</string>
     <string name="info_no_job_name_found">Pas de nom de job trouvé</string>
     <string name="info_no_job_place_id_found">Pas de numéro de référence pour le job</string>
+    <string name="Notification_activity_Title">Votre repas</string>
+    <string name="Profile_Activity_Title">Paramètres</string>
+    <string name="toolbar_title_people_fragment">Collègues disponibles</string>
 </resources>

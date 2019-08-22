@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -21,6 +23,8 @@ import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
 
+import java.util.Objects;
+
 import static com.inved.go4lunch.utils.ManageJobPlaceId.KEY_JOB_PLACE_ID_DATA;
 
 public class PeopleFragment extends Fragment implements WorkmatesAdapter.Listener{
@@ -30,14 +34,17 @@ public class PeopleFragment extends Fragment implements WorkmatesAdapter.Listene
     private RecyclerView mRecyclerWorkmates;
     private String jobPlaceId;
 
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
 
         jobPlaceId = ManageJobPlaceId.getJobPlaceId(getActivity(),KEY_JOB_PLACE_ID_DATA);
 
 
         mView =inflater.inflate(R.layout.fragment_people,container,false);
+
 
         //RecyclerView initialization
         mRecyclerWorkmates = mView.findViewById(R.id.fragment_people_recycler_view);
@@ -47,6 +54,7 @@ public class PeopleFragment extends Fragment implements WorkmatesAdapter.Listene
         return mView;
 
     }
+
 
     private void displayAllWorkmates() {
 

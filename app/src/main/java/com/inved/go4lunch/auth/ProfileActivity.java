@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -53,11 +54,9 @@ public class ProfileActivity extends BaseActivity {
     TextView textViewJobName;
     @BindView(R.id.profile_activity_text_view_job_address)
     TextView textViewJobAddress;
-    @BindView(R.id.profile_activity_text_view_job_place_id)
-    TextView textViewJobPlaceId;
 
     private String jobPlaceId;
-
+    private Toolbar toolbar;
 
     //FOR DATA
     // 2 - Identify each Http Request
@@ -73,7 +72,7 @@ public class ProfileActivity extends BaseActivity {
         jobPlaceId = ManageJobPlaceId.getJobPlaceId(this,KEY_JOB_PLACE_ID_DATA);
         Log.d("DEBAGO", "ViewPlaceActivity oncreate jobplaceid: "+jobPlaceId);
 
-      //  this.configureToolbar();
+        this.configureToolBar();
         this.updateUIWhenCreating();
 
         notificationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -94,6 +93,15 @@ public class ProfileActivity extends BaseActivity {
 
     @Override
     public int getFragmentLayout() { return R.layout.activity_profile; }
+
+    // Configure Toolbar
+    private void configureToolBar(){
+        this.toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        setTitle(R.string.Profile_Activity_Title);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+    }
 
     // --------------------
     // ACTIONS
@@ -257,15 +265,6 @@ public class ProfileActivity extends BaseActivity {
                                 textViewJobName.setText(jobName);
                             }
 
-
-
-                            if(TextUtils.isEmpty(jobPlaceId)||jobPlaceId.equals(getString(R.string.info_no_job_place_id_found))){
-                                textViewJobPlaceId.setHint(getString(R.string.info_no_job_place_id_found));
-                            }
-                            else{
-                                textViewJobPlaceId.setText(jobPlaceId);
-
-                            }
 
                         }
                     });

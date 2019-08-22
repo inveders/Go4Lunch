@@ -156,6 +156,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        this.configureToolBar();
         //Bottom Navigation View
         bottomNavigationView = findViewById(R.id.activity_restaurant_bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
@@ -195,7 +196,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
 
         //All view configuration
-        this.configureToolBar();
+
 
         this.configureDrawerLayout();
 
@@ -381,12 +382,15 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
             switch (item.getItemId()) {
                 case R.id.action_map:
                     viewPager.setCurrentItem(0);
+                    toolbar.setTitle(getString(R.string.toolbar_title_restaurant_activity));
                     return true;
                 case R.id.action_list:
                     viewPager.setCurrentItem(1);
+                    toolbar.setTitle(getString(R.string.toolbar_title_restaurant_activity));
                     return true;
                 case R.id.action_people:
                     viewPager.setCurrentItem(2);
+                    toolbar.setTitle(getString(R.string.toolbar_title_people_fragment));
                     return true;
             }
             return false;
@@ -434,6 +438,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     private void configureToolBar(){
         this.toolbar = findViewById(R.id.activity_restaurant_toolbar);
         setSupportActionBar(toolbar);
+        setTitle(getString(R.string.toolbar_title_restaurant_activity));
     }
 
 

@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -40,6 +41,7 @@ public class NotificationsActivity extends BaseActivity {
     Button btnSeeRestaurantChoosen;
 
     PlaceDetailsData placeDetailsData = new PlaceDetailsData();
+    private Toolbar toolbar;
 
     @Override
     public int getFragmentLayout() {
@@ -55,9 +57,19 @@ public class NotificationsActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.configureToolBar();
         firebaseInformations();
 
 
+    }
+
+    // Configure Toolbar
+    private void configureToolBar(){
+        this.toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        setTitle(R.string.Notification_activity_Title);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
 
     private void firebaseInformations(){

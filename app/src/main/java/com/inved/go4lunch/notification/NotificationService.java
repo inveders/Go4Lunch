@@ -9,13 +9,11 @@ import android.media.RingtoneManager;
 import android.os.Build;
 import android.util.Log;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.inved.go4lunch.R;
-import com.inved.go4lunch.controller.RestaurantActivity;
 
 import java.util.Map;
 

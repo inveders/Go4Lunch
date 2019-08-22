@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Declaration of our Toolbar -->
+
+<androidx.appcompat.widget.Toolbar
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fitsSystemWindows="true"
+
+    android:id="@+id/toolbar"
+    android:minHeight="?attr/actionBarSize"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/colorPrimary"
+
+    android:theme="@style/ToolBarStyle"
+    app:titleTextColor="@android:color/white"
+    app:titleTextAppearance="@style/Toolbar.TitleText">
+
+</androidx.appcompat.widget.Toolbar>
+

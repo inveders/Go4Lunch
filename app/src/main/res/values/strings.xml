@@ -13,6 +13,7 @@
     <string name="email_adress">lastname.firstname@gmail.com</string>
 
     <!-- NOTIFICATION SERVICE -->
+    <string name="Notification_activity_Title">Your Lunch</string>
     <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
     <string name="notification_title">You have received a notification</string>
     <string name="notification_message_text">For lunch, you eat at the restaurant %1$s located %2$s.</string>
@@ -38,6 +39,7 @@
     <string name="button_login_text_not_logged">Login</string>
 
     <!-- PROFILE ACTIVITY -->
+    <string name="Profile_Activity_Title">Settings</string>
     <string name="toolbar_title_login_activity">Your profile</string>
     <string name="text_input_firstname">Firstname</string>
     <string name="text_input_lastname">Lastname</string>
@@ -61,6 +63,7 @@
 
     <!-- RESTAURANT ACTIVITY -->
     <string name="toolbar_title_restaurant_activity">I\'m Hungry!</string>
+    <string name="toolbar_title_people_fragment">Available Workmates</string>
     <string name="Enter_restaurant_name">Enter a restaurant name</string>
 
     <!-- FRAGMENT RESTAURANT LISTVIEW -->

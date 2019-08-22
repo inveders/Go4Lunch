@@ -169,7 +169,6 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
         placeDetailsData.setPlaceId(placeId);
 
-
         //mData.get(position).getOpeningHours().getWeekdayText().get(1).toString();
         LocalDateTime currentTime = LocalDateTime.now();
 
