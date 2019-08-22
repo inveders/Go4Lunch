@@ -107,6 +107,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         /**OLD*/
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(broadcastReceiver, new IntentFilter(KEY_LOCATION_CHANGED));
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(broadcastReceiver, new IntentFilter(PLACE_SEARCH_DATA));
+        ManageAutocompleteResponse.saveAutocompleteStringResponse(getContext(),ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID,null);
+        ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(getContext(),ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE, 0);
+        ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(getContext(),ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE,0);
         findCurrentPlaceRequest();
 
 
@@ -158,12 +161,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private void findCurrentPlaceRequest(){
 
         String sharedPreferenceRestaurantPlaceId = ManageAutocompleteResponse.getStringAutocomplete(getContext(),ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID);
-        Log.d(TAG, "Mapfragment " + "Avant la recherche placedId "+sharedPreferenceRestaurantPlaceId);
+     //   Log.d(TAG, "Mapfragment " + "Avant la recherche placedId "+sharedPreferenceRestaurantPlaceId);
         if(sharedPreferenceRestaurantPlaceId!=null){
             double latitude = ManageAutocompleteResponse.getDoubleAutocomplete(getContext(),ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE);
             double longitude = ManageAutocompleteResponse.getDoubleAutocomplete(getContext(),ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE);
             LatLng latLngSharedPreferences = new LatLng(latitude,longitude);
-            Log.d(TAG, "Mapfragment " + "LatLng de la recherche " +latLngSharedPreferences+" et placedId "+sharedPreferenceRestaurantPlaceId);
+     //       Log.d(TAG, "Mapfragment " + "LatLng de la recherche " +latLngSharedPreferences+" et placedId "+sharedPreferenceRestaurantPlaceId);
             customizeMarker(sharedPreferenceRestaurantPlaceId, latLngSharedPreferences);
             createRestaurantsInFirebase(sharedPreferenceRestaurantPlaceId);
 

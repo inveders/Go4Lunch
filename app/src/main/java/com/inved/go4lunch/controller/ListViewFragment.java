@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -28,6 +29,7 @@ import com.google.android.libraries.places.api.model.PlaceLikelihood;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.GooglePlaceCalls;
 import com.inved.go4lunch.model.placesearch.PlaceSearch;
+import com.inved.go4lunch.utils.ManageAutocompleteResponse;
 
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_GEOLOCALISATION;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LATITUDE;
@@ -41,11 +43,11 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
     private View mView;
 
     private RecyclerViewListViewRestaurant mRecyclerListViewAdapter;
-    RestaurantActivity gps = new RestaurantActivity();
+
     String myLastGeolocalisation=null;
     private Double myCurrentLat;
     private Double myCurrentLongi;
-    RestaurantActivity restaurantActivity = new RestaurantActivity();
+
     private int numberResult;
     private int z;
     private PlaceLikelihood placeLikelihood;
@@ -110,6 +112,7 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
        // findCurrentPlaceRequest();
         return mView;
     }
+
 
     private void executeHttpRequestPlaceSearchWithRetrofit(String geolocalisation) {
 
@@ -182,10 +185,17 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
         mRecyclerListViewAdapter.setCurrentLocalisation(myCurrentLat,myCurrentLongi);
     }*/
 
-    public void getQuery(String query){
-        mRecyclerListViewAdapter.getFilter().filter(query);
-    }
 
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.d("Debago", "ListViewFrqgment ondestroy ");
+        //InitializeSharedPreferences
+        ManageAutocompleteResponse.saveAutocompleteStringResponse(getContext(),ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID,null);
+        ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(getContext(),ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE, 0);
+        ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(getContext(),ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE,0);
+    }
 
     @Override
     public void onResponse(@Nullable PlaceSearch response) {

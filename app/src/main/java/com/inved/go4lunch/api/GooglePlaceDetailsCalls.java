@@ -46,7 +46,7 @@ public class GooglePlaceDetailsCalls {
                     if (response.body() != null) {
 
                     } else {
-                        Log.d("Debago", "detailcall on response est null ohhhh ");
+               //         Log.d("Debago", "detailcall on response est null ohhhh ");
                     }
                 }
 

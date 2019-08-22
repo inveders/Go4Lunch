@@ -77,7 +77,7 @@ public class PlaceDetailsData{
 
             sendRestaurantDetailDataToOtherFragments(phoneNumber,name,address,placeId,website,openingHours,rating);
 
-            Log.d(TAG, "currentplaceaID fetchplace address " + address);
+        //    Log.d(TAG, "currentplaceaID fetchplace address " + address);
 
         }).addOnFailureListener((exception) -> {
             if (exception instanceof ApiException) {

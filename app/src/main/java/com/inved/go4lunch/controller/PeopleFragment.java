@@ -35,7 +35,7 @@ public class PeopleFragment extends Fragment implements WorkmatesAdapter.Listene
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         jobPlaceId = ManageJobPlaceId.getJobPlaceId(getActivity(),KEY_JOB_PLACE_ID_DATA);
-        Log.d("DEBAGO", "PeopleFragment oncreate jobplaceid: "+jobPlaceId);
+
 
         mView =inflater.inflate(R.layout.fragment_people,container,false);
 

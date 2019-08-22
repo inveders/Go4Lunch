@@ -57,7 +57,7 @@ public class MainActivity extends BaseActivity {
 
         // Start appropriate activity
         if (this.isCurrentUserLogged()) {
-            Log.d("Debago", "MainActivity : user is already log");
+        //    Log.d("Debago", "MainActivity : user is already log");
 
             UserHelper.getUserWhateverLocation(getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
@@ -66,9 +66,9 @@ public class MainActivity extends BaseActivity {
                     if(task.isSuccessful()){
                         if(task.getResult().getDocuments().size()==0){
                             startFindMyJobAddressActivity();
-                            Log.d("Debago","no result finisih inscription "+task.getResult().getDocuments().size());
+                       //     Log.d("Debago","no result finisih inscription "+task.getResult().getDocuments().size());
                         }else{
-                            Log.d("Debago", "MainActivity : oncreate go in restaurantActivity "+task.getResult().getDocuments().get(0).getString("jobPlaceId"));
+                        //    Log.d("Debago", "MainActivity : oncreate go in restaurantActivity "+task.getResult().getDocuments().get(0).getString("jobPlaceId"));
 
                             startRestaurantActivity();
                             finish();
@@ -76,38 +76,16 @@ public class MainActivity extends BaseActivity {
 
                     }else {
                         startFindMyJobAddressActivity();
-                        Log.d("Debago","no result finisih inscription");
+                      //  Log.d("Debago","no result finisih inscription");
                     }
 
 
                 }
             });
 
-          /*  UserHelper.getUserWhateverLocation(getCurrentUser().getUid()).get()
-                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            queryDocumentSnapshots.getDocuments().get(0).get("uid");
-                            queryDocumentSnapshots.getDocuments().get(0).getData();
-                            // ...
-                            Log.d("Debago", "MainActivity On failure l'utilisateur n'est pas dans la base de données "+queryDocumentSnapshots.getDocuments().get(0).get("uid"));
-                        }
-                    });*/
-
-
 
         }
         animation = AnimationUtils.loadAnimation(this, R.anim.fadein);
-
-
-     /*   FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user != null) {
-            Log.d("Debago", "MainActivity : oncreate go in restaurantActivity ");
-            this.startRestaurantActivity();
-        } else {
-            // No user is signed in
-            Log.d("Debago", "MainActivity : oncreate utilisateur non connecté");
-        }*/
 
 
     }

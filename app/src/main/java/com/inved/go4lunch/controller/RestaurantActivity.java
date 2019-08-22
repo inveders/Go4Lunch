@@ -55,6 +55,7 @@ import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.notification.NotificationsActivity;
+import com.inved.go4lunch.utils.App;
 import com.inved.go4lunch.utils.ManageAutocompleteResponse;
 
 import java.util.Arrays;
@@ -101,7 +102,8 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     private List<AutocompletePrediction> predictionList;
     AutocompleteSessionToken token;
     MapFragment mapFragment= new MapFragment();
-    ListViewFragment listViewFragment= new ListViewFragment();
+
+    RecyclerViewListViewRestaurant adapter = new RecyclerViewListViewRestaurant(Glide.with(App.getInstance().getApplicationContext()));
 
     List<Place.Field> fields;
 
@@ -290,7 +292,10 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
                 switch (idCurrentFragment){
                     case R.id.action_map :mapFragment.autocompleteMarker(place.getId(),place.getLatLng());
                         break;
-                    case R.id.action_list:listViewFragment.getQuery(place.getName());
+                    case R.id.action_list:
+                        adapter.getFilter().filter(place.getName());
+                      //  adapter.setQuery(place.getName());
+
                         break;
                   /*  case R.id.action_people:***;
                         break;*/
@@ -307,6 +312,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
             }
         }
     }
+
 
 
     private int getSelectedItem(BottomNavigationView bottomNavigationView) {
