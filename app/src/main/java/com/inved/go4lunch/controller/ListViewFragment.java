@@ -25,11 +25,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.PlaceLikelihood;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.GooglePlaceCalls;
 import com.inved.go4lunch.model.placesearch.PlaceSearch;
 import com.inved.go4lunch.utils.ManageAutocompleteResponse;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_GEOLOCALISATION;
 import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LATITUDE;
@@ -38,13 +42,13 @@ import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LONGITUDE;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DETAIL_DATA;
 import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_SEARCH_DATA;
 
-public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callbacks{
+public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callbacks {
 
     private View mView;
 
     private RecyclerViewListViewRestaurant mRecyclerListViewAdapter;
 
-    String myLastGeolocalisation=null;
+    String myLastGeolocalisation = null;
     private Double myCurrentLat;
     private Double myCurrentLongi;
 
@@ -53,25 +57,21 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
     private PlaceLikelihood placeLikelihood;
     SearchView searchView;
     //Receive current localisation from Localisation.class
-    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver()
-    {
+    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
-        public void onReceive(Context context, Intent intent)
-        {
-            if (KEY_LOCATION_CHANGED.equals(intent.getAction()))
-            {
+        public void onReceive(Context context, Intent intent) {
+            if (KEY_LOCATION_CHANGED.equals(intent.getAction())) {
                 intent.getSerializableExtra(KEY_GEOLOCALISATION);
-                String myCurrentGeolocalisation=intent.getStringExtra(KEY_GEOLOCALISATION);
+                String myCurrentGeolocalisation = intent.getStringExtra(KEY_GEOLOCALISATION);
                 myCurrentLat = intent.getDoubleExtra(KEY_LATITUDE, 0.0);
                 myCurrentLongi = intent.getDoubleExtra(KEY_LONGITUDE, 0.0);
-                if(myCurrentGeolocalisation.equals(myLastGeolocalisation)){
+                if (myCurrentGeolocalisation.equals(myLastGeolocalisation)) {
 
-                }
-                else{
+                } else {
 
-                //    placeSearchData.setGeolocalisation(myCurrentGeolocalisation);
-                 executeHttpRequestPlaceSearchWithRetrofit(myCurrentGeolocalisation);
-                    myLastGeolocalisation=myCurrentGeolocalisation;
+                    //    placeSearchData.setGeolocalisation(myCurrentGeolocalisation);
+                    executeHttpRequestPlaceSearchWithRetrofit(myCurrentGeolocalisation);
+                    myLastGeolocalisation = myCurrentGeolocalisation;
 
                 }
 
@@ -93,7 +93,7 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        mView =inflater.inflate(R.layout.fragment_listview,container,false);
+        mView = inflater.inflate(R.layout.fragment_listview, container, false);
 
 
         //RecyclerView initialization
@@ -108,8 +108,7 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(broadcastReceiver, new IntentFilter(PLACE_SEARCH_DATA));
 
 
-
-       // findCurrentPlaceRequest();
+        // findCurrentPlaceRequest();
         return mView;
     }
 
@@ -124,6 +123,7 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
 
             GooglePlaceCalls.fetchPlaces(this, geolocalisation, radius, type, keyword, key);
         }
+
     }
 
   /*  @SuppressLint("MissingPermission")
@@ -186,28 +186,27 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
     }*/
 
 
-
     @Override
     public void onDetach() {
         super.onDetach();
         Log.d("Debago", "ListViewFrqgment ondestroy ");
         //InitializeSharedPreferences
-        ManageAutocompleteResponse.saveAutocompleteStringResponse(getContext(),ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID,null);
-        ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(getContext(),ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE, 0);
-        ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(getContext(),ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE,0);
+        ManageAutocompleteResponse.saveAutocompleteStringResponse(getContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID, null);
+        ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(getContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE, 0);
+        ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(getContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE, 0);
     }
 
     @Override
     public void onResponse(@Nullable PlaceSearch response) {
         mRecyclerListViewAdapter.setData(response.results);
-
-        mRecyclerListViewAdapter.setCurrentLocalisation(myCurrentLat,myCurrentLongi);
-}
+        mRecyclerListViewAdapter.setCurrentLocalisation(myCurrentLat, myCurrentLongi);
+    }
 
     @Override
     public void onFailure() {
 
     }
+
 
 // -------------------
     // HTTP REQUEST BY RETROFIT (Retrofit Way)
