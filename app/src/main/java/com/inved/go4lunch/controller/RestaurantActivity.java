@@ -11,11 +11,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,12 +28,9 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.model.AutocompletePrediction;
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
@@ -47,9 +41,7 @@ import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.inved.go4lunch.R;
-import com.inved.go4lunch.api.PlaceDetailsData;
 import com.inved.go4lunch.auth.ProfileActivity;
 import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.firebase.User;
@@ -60,6 +52,7 @@ import com.inved.go4lunch.utils.ManageAutocompleteResponse;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class RestaurantActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, LocationListener {
 
@@ -73,35 +66,25 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     public static final String PLACE_DATA_NAME = "RESTAURANT_NAME";
     public static final String PLACE_DATA_ADDRESS = "ADDRESS";
-    public static final String PLACE_DATA_SIZE = "RESULT_SIZE";
     public static final String PLACE_DATA_PLACE_ID = "PLACE_ID";
     public static final String PLACE_DATA_WEBSITE = "WEBSITE";
     public static final String PLACE_DATA_RATING = "RATING";
     public static final String PLACE_DATA_OPENING_HOURS = "LIST_RESULT_PLACE_SEARCH";
 
-
-
-
-
     public static final String TAG = "Debago";
     private static final int AUTOCOMPLETE_REQUEST_CODE = 645;
 
     //FOR LOCATION
-    private FusedLocationProviderClient mFusedLocationProviderClient;
     private PlacesClient placesClient;
     Location location; // location
-    private LocationCallback locationCallback;
-    private Location mLastKnownLocation;
     private LocationManager lm;
     // The minimum distance to change Updates in meters
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 1000; // 1000 meters for tests, after come back to 10 meters
     // The minimum time between updates in milliseconds
-    private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1; // 1 minute*/
+    private static final long MIN_TIME_BW_UPDATES = 1000 * 60; // 1 minute*/
 
     //AUTOCOMPLETE
-    private List<AutocompletePrediction> predictionList;
     AutocompleteSessionToken token;
-    MapFragment mapFragment= new MapFragment();
 
     RecyclerViewListViewRestaurant adapter = new RecyclerViewListViewRestaurant(Glide.with(App.getInstance().getApplicationContext()));
 
@@ -110,25 +93,13 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     double latitude; // latitude
     double longitude; // longitude
 
-    //Pour SEARCH ACTIVITY
-
-
-    private View mapView;
-
-
- //   @BindView(R.id.action_search)
-    Button btnFindSearch;
-
     //FOR DATA
     private static final int SIGN_OUT_TASK = 10;
-    PlaceDetailsData placeDetailsData = new PlaceDetailsData();
     MenuItem logout;
     TextView navFirstname;
     TextView navLastname;
     TextView navEmail;
     ImageView navProfileImage;
-    private NavigationView mNavigationView;
-    //FOR DESIGN
 
     //Declaration for fragments
     BottomNavigationView bottomNavigationView;
@@ -144,8 +115,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     //Declaration for Navigation Drawer
     private Toolbar toolbar;
     private DrawerLayout drawerLayout;
-    private ActionBarDrawerToggle actionBarDrawerToggle;
-    private NavigationView navigationView;
 
 
     @Override
@@ -171,7 +140,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         viewPager.setOnPageChangeListener(new PageChange()); //Listeners For Viewpager When Page Changed
 
         //Configuration navigation view header
-        mNavigationView=findViewById(R.id.activity_restaurant_nav_view);
+        NavigationView mNavigationView = findViewById(R.id.activity_restaurant_nav_view);
         navFirstname = mNavigationView.getHeaderView(0).findViewById(R.id.nav_header_FirstName);
         navLastname = mNavigationView.getHeaderView(0).findViewById(R.id.nav_header_LastName);
         navEmail = mNavigationView.getHeaderView(0).findViewById(R.id.nav_header_Email);
@@ -246,12 +215,9 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         getMenuInflater().inflate(R.menu.menu, menu);
 
         final MenuItem searchItem = menu.findItem(R.id.action_search);
-        searchItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem menuItem) {
-                startAutocompleteWidgetShow();
-                return true;
-            }
+        searchItem.setOnMenuItemClickListener(menuItem -> {
+            startAutocompleteWidgetShow();
+            return true;
         });
 
 
@@ -283,15 +249,16 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
         if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
+                assert data != null;
                 Place place = Autocomplete.getPlaceFromIntent(data);
 
                 ManageAutocompleteResponse.saveAutocompleteStringResponse(this,ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID,place.getId());
-                ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(this,ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE, place.getLatLng().latitude);
+                ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(this,ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE, Objects.requireNonNull(place.getLatLng()).latitude);
                 ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(this,ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE,place.getLatLng().longitude);
 
                 int idCurrentFragment = getSelectedItem(bottomNavigationView);
                 switch (idCurrentFragment){
-                    case R.id.action_map :mapFragment.autocompleteMarker(place.getId(),place.getLatLng());
+                    case R.id.action_map :
                         break;
                     case R.id.action_list:
                         adapter.getFilter().filter(place.getName());
@@ -306,6 +273,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
                 // TODO: Handle the error.
+                assert data != null;
                 Status status = Autocomplete.getStatusFromIntent(data);
                 Log.i(TAG, status.getStatusMessage());
             } else if (resultCode == RESULT_CANCELED) {
@@ -447,7 +415,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     // Configure Drawer Layout
     private void configureDrawerLayout(){
         this.drawerLayout = findViewById(R.id.activity_restaurant_drawer_layout);
-        actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
        // userInformationFromFirebase();
@@ -479,18 +447,15 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
             // 7 - Get data from Firestore
 
             UserHelper.getUserWhateverLocation(this.getCurrentUser().getUid()).get()
-                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            User currentUser = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        User currentUser = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
 
-                            assert currentUser != null;
-                            String firstname = TextUtils.isEmpty(currentUser.getFirstname()) ? getString(R.string.info_no_firstname_found) : currentUser.getFirstname();
-                            String lastname = TextUtils.isEmpty(currentUser.getLastname()) ? "" : currentUser.getLastname();
-                            navFirstname.setText(firstname);
-                            navLastname.setText(lastname);
+                        assert currentUser != null;
+                        String firstname = TextUtils.isEmpty(currentUser.getFirstname()) ? getString(R.string.info_no_firstname_found) : currentUser.getFirstname();
+                        String lastname = TextUtils.isEmpty(currentUser.getLastname()) ? "" : currentUser.getLastname();
+                        navFirstname.setText(firstname);
+                        navLastname.setText(lastname);
 
-                        }
                     });
 
         }
@@ -498,7 +463,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     // Configure NavigationView
     private void configureNavigationView(){
-        this.navigationView = findViewById(R.id.activity_restaurant_nav_view);
+        NavigationView navigationView = findViewById(R.id.activity_restaurant_nav_view);
         navigationView.setNavigationItemSelectedListener(this);
     }
 
@@ -594,41 +559,11 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         startActivity(intent);
     }
 
-    // Launch View Place Activity
-    private void startViewPlaceActivity(){
-        Intent intent = new Intent(this, ViewPlaceActivity.class);
-        startActivity(intent);
-    }
-
     // Launch Notification Activity
     private void startNotificationActivity(){
         Intent intent = new Intent(this, NotificationsActivity.class);
         startActivity(intent);
     }
-
-    //
-    private void detectPlaceIdForLunch(){
-
-
-        UserHelper.getUserWhateverLocation(this.getCurrentUser().getUid()).get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-
-                        String restaurantPlaceIdInFirebase = queryDocumentSnapshots.getDocuments().get(0).get("restaurantPlaceId").toString();
-                        if(!TextUtils.isEmpty(restaurantPlaceIdInFirebase)){
-                            placeDetailsData.setPlaceId(restaurantPlaceIdInFirebase);
-                            startViewPlaceActivity();
-                        }
-                        else{
-                            Toast.makeText(getApplicationContext(), getString(R.string.restaurant_no_choosen), Toast.LENGTH_LONG).show();
-                        }
-
-                    }
-                });
-
-    }
-
 
     //Signout
 
@@ -644,13 +579,10 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     // Create OnCompleteListener called after tasks ended
     private OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted(final int origin){
-        return new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                if (origin == SIGN_OUT_TASK) {
-                    startMainActivity();
-                    finish();
-                }
+        return aVoid -> {
+            if (origin == SIGN_OUT_TASK) {
+                startMainActivity();
+                finish();
             }
         };
     }

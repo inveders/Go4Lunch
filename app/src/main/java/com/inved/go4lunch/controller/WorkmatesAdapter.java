@@ -1,10 +1,7 @@
 package com.inved.go4lunch.controller;
 
 import android.content.Context;
-import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -13,10 +10,7 @@ import com.bumptech.glide.RequestManager;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.inved.go4lunch.R;
-import com.inved.go4lunch.api.PlaceDetailsData;
-import com.inved.go4lunch.firebase.Restaurant;
 import com.inved.go4lunch.firebase.User;
-import com.inved.go4lunch.utils.App;
 
 public class WorkmatesAdapter extends FirestoreRecyclerAdapter<User, WorkmatesViewHolder>  {
 
@@ -34,7 +28,7 @@ public class WorkmatesAdapter extends FirestoreRecyclerAdapter<User, WorkmatesVi
     //FOR COMMUNICATION
     private Listener callback;
 
-    public WorkmatesAdapter(@NonNull FirestoreRecyclerOptions<User> options, RequestManager glide, Listener callback,Context context) {
+    WorkmatesAdapter(@NonNull FirestoreRecyclerOptions<User> options, RequestManager glide, Listener callback, Context context) {
         super(options);
         this.glide = glide;
         this.callback = callback;

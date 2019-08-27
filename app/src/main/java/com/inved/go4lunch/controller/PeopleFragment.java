@@ -1,15 +1,12 @@
 package com.inved.go4lunch.controller;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -29,8 +26,6 @@ import static com.inved.go4lunch.utils.ManageJobPlaceId.KEY_JOB_PLACE_ID_DATA;
 
 public class PeopleFragment extends Fragment implements WorkmatesAdapter.Listener{
 
-    private View mView;
-    private WorkmatesAdapter mRecyclerWorkmatesAdapter;
     private RecyclerView mRecyclerWorkmates;
     private String jobPlaceId;
 
@@ -40,10 +35,10 @@ public class PeopleFragment extends Fragment implements WorkmatesAdapter.Listene
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
 
-        jobPlaceId = ManageJobPlaceId.getJobPlaceId(getActivity(),KEY_JOB_PLACE_ID_DATA);
+        jobPlaceId = ManageJobPlaceId.getJobPlaceId(Objects.requireNonNull(getActivity()),KEY_JOB_PLACE_ID_DATA);
 
 
-        mView =inflater.inflate(R.layout.fragment_people,container,false);
+        View mView = inflater.inflate(R.layout.fragment_people, container, false);
 
 
         //RecyclerView initialization
@@ -58,7 +53,7 @@ public class PeopleFragment extends Fragment implements WorkmatesAdapter.Listene
 
     private void displayAllWorkmates() {
 
-        this.mRecyclerWorkmatesAdapter = new WorkmatesAdapter(generateOptionsForAdapter(UserHelper.getAllUsers(jobPlaceId)), Glide.with(this),this,getContext());
+        WorkmatesAdapter mRecyclerWorkmatesAdapter = new WorkmatesAdapter(generateOptionsForAdapter(UserHelper.getAllUsers(jobPlaceId)), Glide.with(this), this, getContext());
         //Choose how to display the list in the RecyclerView (vertical or horizontal)
         mRecyclerWorkmates.setHasFixedSize(true); //REVOIR CELA
         mRecyclerWorkmates.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));

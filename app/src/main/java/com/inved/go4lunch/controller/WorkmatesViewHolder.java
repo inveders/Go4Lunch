@@ -3,7 +3,6 @@ package com.inved.go4lunch.controller;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -16,34 +15,28 @@ import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.PlaceDetailsData;
-import com.inved.go4lunch.firebase.Restaurant;
 import com.inved.go4lunch.firebase.User;
-import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.utils.App;
 
-import butterknife.BindView;
-
-public class WorkmatesViewHolder extends RecyclerView.ViewHolder {
+class WorkmatesViewHolder extends RecyclerView.ViewHolder {
 
     private ImageView mWorkmatesImage;
     private TextView mWorkmatesText;
-    ConstraintLayout mConstraintLayoutItem;
-    PlaceDetailsData placeDetailsData = new PlaceDetailsData();
-
-    private TextView textViewRecyclerViewEmpty;
+    private ConstraintLayout mConstraintLayoutItem;
+    private PlaceDetailsData placeDetailsData = new PlaceDetailsData();
 
 
-    public WorkmatesViewHolder(@NonNull View itemView) {
+    WorkmatesViewHolder(@NonNull View itemView) {
 
         super(itemView);
 
         mWorkmatesText = itemView.findViewById(R.id.fragment_people_item_text);
         mWorkmatesImage = itemView.findViewById(R.id.fragment_people_item_image);
         mConstraintLayoutItem = itemView.findViewById(R.id.fragment_people_item);
-        textViewRecyclerViewEmpty = itemView.findViewById(R.id.activity_view_place_no_workmates_text);
+
     }
 
-    public void updateWithUsers(User user, RequestManager glide){
+    void updateWithUsers(User user, RequestManager glide){
 
         String firstname = user.getFirstname();
         String restaurantPlaceId =user.getRestaurantPlaceId();
@@ -55,17 +48,14 @@ public class WorkmatesViewHolder extends RecyclerView.ViewHolder {
         if(restaurantPlaceId!=null){
             this.mWorkmatesText.setText(App.getResourses().getString(R.string.workmates_text_choice, firstname, restaurantName));
 
-            mConstraintLayoutItem.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+            mConstraintLayoutItem.setOnClickListener(view -> {
 
-                    placeDetailsData.setPlaceId(restaurantPlaceId);
+                placeDetailsData.setPlaceId(restaurantPlaceId);
 
-                    // Launch View Place Activity
-                    Intent intent = new Intent(view.getContext(), ViewPlaceActivity.class);
-                    view.getContext().startActivity(intent);
+                // Launch View Place Activity
+                Intent intent = new Intent(view.getContext(), ViewPlaceActivity.class);
+                view.getContext().startActivity(intent);
 
-                }
             });
 
         } else {
@@ -93,7 +83,7 @@ public class WorkmatesViewHolder extends RecyclerView.ViewHolder {
     }
 
 
-    public void updateWithWorkmatesJoining(User user, RequestManager glide){
+    void updateWithWorkmatesJoining(User user, RequestManager glide){
 
         String firstname = user.getFirstname();
         String restaurantPlaceId =user.getRestaurantPlaceId();

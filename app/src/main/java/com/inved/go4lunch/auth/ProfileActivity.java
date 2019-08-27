@@ -1,36 +1,32 @@
 package com.inved.go4lunch.auth;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.auth.AuthUI;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.controller.MainActivity;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
+
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -55,12 +51,11 @@ public class ProfileActivity extends BaseActivity {
     @BindView(R.id.profile_activity_text_view_job_address)
     TextView textViewJobAddress;
 
-    private String jobPlaceId;
-    private Toolbar toolbar;
+
 
     //FOR DATA
-    // 2 - Identify each Http Request
-    private static final int SIGN_OUT_TASK = 10;
+    private String jobPlaceId;
+
     private static final int DELETE_USER_TASK = 20;
     private static final int UPDATE_NAME = 30;
 
@@ -75,16 +70,13 @@ public class ProfileActivity extends BaseActivity {
         this.configureToolBar();
         this.updateUIWhenCreating();
 
-        notificationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean bChecked) {
-                if (bChecked) {
-                    Toast.makeText(ProfileActivity.this, "Notifications actives", Toast.LENGTH_SHORT).show();
-                   // notificationActionIfEnabled();
-                } else {
-                    Toast.makeText(ProfileActivity.this, "Désactivation des notifications", Toast.LENGTH_SHORT).show();
-                 //   notificationActionIfIsNotEnabled();
-                }
+        notificationSwitch.setOnCheckedChangeListener((compoundButton, bChecked) -> {
+            if (bChecked) {
+                Toast.makeText(ProfileActivity.this, "Notifications actives", Toast.LENGTH_SHORT).show();
+               // notificationActionIfEnabled();
+            } else {
+                Toast.makeText(ProfileActivity.this, "Désactivation des notifications", Toast.LENGTH_SHORT).show();
+             //   notificationActionIfIsNotEnabled();
             }
         });
 
@@ -96,10 +88,10 @@ public class ProfileActivity extends BaseActivity {
 
     // Configure Toolbar
     private void configureToolBar(){
-        this.toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         setTitle(R.string.Profile_Activity_Title);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
 
@@ -116,14 +108,11 @@ public class ProfileActivity extends BaseActivity {
     public void onClickDeleteButton() {
             new AlertDialog.Builder(this)
                     .setMessage(R.string.popup_message_confirmation_delete_account)
-                    .setPositiveButton(R.string.popup_message_choice_yes, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            deleteUserFromFirebase();
+                    .setPositiveButton(R.string.popup_message_choice_yes, (dialogInterface, i) -> {
+                        deleteUserFromFirebase();
 
-                          //  startMainActivity();
+                      //  startMainActivity();
 
-                        }
                     })
                     .setNegativeButton(R.string.popup_message_choice_no, null)
                     .show();
@@ -142,29 +131,23 @@ public class ProfileActivity extends BaseActivity {
             // email and password credentials but there are multiple possible providers,
             // such as GoogleAuthProvider or FacebookAuthProvider.
             AuthCredential credential = GoogleAuthProvider
-                    .getCredential(getCurrentUser().getEmail(),null);
+                    .getCredential(Objects.requireNonNull(getCurrentUser()).getEmail(),null);
 
             // Prompt the user to re-provide their sign-in credentials
             getCurrentUser().reauthenticate(credential)
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            AuthUI.getInstance()
-                                    .delete(getApplicationContext())
-                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            if (task.isSuccessful()) {
-                                                Log.d("debago", "User account deleted.");
-                                                startMainActivity();
-                                                finish();
-                                            }
-                                        }
-                                    });
+                    .addOnCompleteListener(task -> {
+                        AuthUI.getInstance()
+                                .delete(getApplicationContext())
+                                .addOnCompleteListener(task1 -> {
+                                    if (task1.isSuccessful()) {
+                                        Log.d("debago", "User account deleted.");
+                                        startMainActivity();
+                                        finish();
+                                    }
+                                });
 
-                            UserHelper.deleteUser(getCurrentUser().getUid(),jobPlaceId).addOnFailureListener(onFailureListener());
+                        UserHelper.deleteUser(getCurrentUser().getUid(),jobPlaceId).addOnFailureListener(onFailureListener());
 
-                        }
                     });
 
 
@@ -187,8 +170,8 @@ public class ProfileActivity extends BaseActivity {
     private void updateNameInFirebase(){
 
 
-        String firstname = this.textInputEditTextFirstname.getText().toString();
-        String lastname = this.textInputEditTextLastname.getText().toString();
+        String firstname = Objects.requireNonNull(this.textInputEditTextFirstname.getText()).toString();
+        String lastname = Objects.requireNonNull(this.textInputEditTextLastname.getText()).toString();
         if (this.getCurrentUser() != null){
             if (!firstname.isEmpty() &&  !firstname.equals(getString(R.string.info_no_firstname_found))){
                 UserHelper.updateFirstname(firstname, this.getCurrentUser().getUid(),jobPlaceId).addOnFailureListener(this.onFailureListener()).addOnSuccessListener(this.updateUIAfterRESTRequestsCompleted(UPDATE_NAME));
@@ -224,49 +207,47 @@ public class ProfileActivity extends BaseActivity {
 
             // 7 - Get data from Firestore
             UserHelper.getUserWhateverLocation(this.getCurrentUser().getUid()).get()
-                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            User currentUser = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        User currentUser = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
 
-                            //    String firstname = TextUtils.isEmpty(currentUser.getFirstname()) ? getString(R.string.info_no_firstname_found) : currentUser.getFirstname();
-                            //  String lastname = TextUtils.isEmpty(currentUser.getLastname()) ? getString(R.string.info_no_lastname_found) : currentUser.getLastname();
+                        //    String firstname = TextUtils.isEmpty(currentUser.getFirstname()) ? getString(R.string.info_no_firstname_found) : currentUser.getFirstname();
+                        //  String lastname = TextUtils.isEmpty(currentUser.getLastname()) ? getString(R.string.info_no_lastname_found) : currentUser.getLastname();
 
 
-                            String firstname = currentUser.getFirstname();
-                            if(TextUtils.isEmpty(firstname)||firstname.equals(getString(R.string.info_no_firstname_found))){
-                                textInputEditTextFirstname.setHint(getString(R.string.info_no_lastname_found));
-                            }
-                            else{
-                                textInputEditTextFirstname.setText(firstname);
-                            }
-
-                            String lastname = currentUser.getLastname();
-                            if(TextUtils.isEmpty(lastname)||lastname.equals(getString(R.string.info_no_lastname_found))){
-                                textInputEditTextLastname.setHint(getString(R.string.info_no_lastname_found));
-                            }
-                            else{
-                                textInputEditTextLastname.setText(lastname);
-                            }
-
-                            String jobAddress = currentUser.getJobAddress();
-                            if(TextUtils.isEmpty(jobAddress)||jobAddress.equals(getString(R.string.info_no_job_address_found))){
-                                textViewJobAddress.setHint(getString(R.string.info_no_job_address_found));
-                            }
-                            else{
-                                textViewJobAddress.setText(jobAddress);
-                            }
-
-                            String jobName = currentUser.getJobName();
-                            if(TextUtils.isEmpty(jobName)||jobName.equals(getString(R.string.info_no_job_name_found))){
-                                textViewJobName.setHint(getString(R.string.info_no_job_name_found));
-                            }
-                            else{
-                                textViewJobName.setText(jobName);
-                            }
-
-
+                        assert currentUser != null;
+                        String firstname = currentUser.getFirstname();
+                        if(TextUtils.isEmpty(firstname)||firstname.equals(getString(R.string.info_no_firstname_found))){
+                            textInputEditTextFirstname.setHint(getString(R.string.info_no_lastname_found));
                         }
+                        else{
+                            textInputEditTextFirstname.setText(firstname);
+                        }
+
+                        String lastname = currentUser.getLastname();
+                        if(TextUtils.isEmpty(lastname)||lastname.equals(getString(R.string.info_no_lastname_found))){
+                            textInputEditTextLastname.setHint(getString(R.string.info_no_lastname_found));
+                        }
+                        else{
+                            textInputEditTextLastname.setText(lastname);
+                        }
+
+                        String jobAddress = currentUser.getJobAddress();
+                        if(TextUtils.isEmpty(jobAddress)||jobAddress.equals(getString(R.string.info_no_job_address_found))){
+                            textViewJobAddress.setHint(getString(R.string.info_no_job_address_found));
+                        }
+                        else{
+                            textViewJobAddress.setText(jobAddress);
+                        }
+
+                        String jobName = currentUser.getJobName();
+                        if(TextUtils.isEmpty(jobName)||jobName.equals(getString(R.string.info_no_job_name_found))){
+                            textViewJobName.setHint(getString(R.string.info_no_job_name_found));
+                        }
+                        else{
+                            textViewJobName.setText(jobName);
+                        }
+
+
                     });
 
 
@@ -285,22 +266,19 @@ public class ProfileActivity extends BaseActivity {
 
         // Create OnCompleteListener called after tasks ended
         private OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted(final int origin){
-            return new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    switch (origin){
+            return aVoid -> {
+                switch (origin){
 
-                        case UPDATE_NAME:
+                    case UPDATE_NAME:
 
-                            Toast.makeText(getApplicationContext(), getString(R.string.update_confirmation), Toast.LENGTH_LONG).show();
-                            break;
-                        case DELETE_USER_TASK:
-                            Log.d("debago", "We should never arrived here");
+                        Toast.makeText(getApplicationContext(), getString(R.string.update_confirmation), Toast.LENGTH_LONG).show();
+                        break;
+                    case DELETE_USER_TASK:
+                        Log.d("debago", "We should never arrived here");
 
-                            finish();
-                            break;
+                        finish();
+                        break;
 
-                    }
                 }
             };
         }

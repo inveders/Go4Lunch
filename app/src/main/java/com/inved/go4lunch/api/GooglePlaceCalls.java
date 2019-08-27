@@ -52,14 +52,14 @@ public class GooglePlaceCalls {
 
                     return ;
                 }
-               
+
             }
 
 
             @Override
             public void onFailure(Call<PlaceSearch> call, Throwable t) {
                 // 2.5 - Call the proper callback used in controller (MainFragment)
-               if (callbacksWeakReference.get() != null) callbacksWeakReference.get().onFailure();
+                if (callbacksWeakReference.get() != null) callbacksWeakReference.get().onFailure();
 
             }
         });
