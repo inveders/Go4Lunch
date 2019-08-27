@@ -26,7 +26,6 @@ before_script:
 script:
 - ./gradlew clean build test check 
 - ./gradlew jacocoTestReport --stacktrace
-- ./gradlew connectedCheck
 
 after_success:
 - bash <(curl -s https://codecov.io/bash)
