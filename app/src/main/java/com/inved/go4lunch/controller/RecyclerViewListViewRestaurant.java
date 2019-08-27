@@ -36,6 +36,7 @@ import com.inved.go4lunch.model.placesearch.OpeningHours;
 import com.inved.go4lunch.model.placesearch.Result;
 import com.inved.go4lunch.utils.App;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
+import com.inved.go4lunch.utils.UnitConversion;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -87,7 +88,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
     private List<Result> mDataFiltered;
     private int mNumberResult;
     private int mPosition;
-
+    private UnitConversion unitConversion;
     private String placeId;
     private final RequestManager glide;
     Context mContext;
@@ -155,10 +156,10 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
                 .into(holder.mRestaurantImage);
 
         //Distance entre deux points
-        Double latitudeRestaurant = convertRad(mData.get(position).getGeometry().getLocation().getLat());
-        Double longitudeRestaurant = convertRad(mData.get(position).getGeometry().getLocation().getLng());
-        Double latCurrent = convertRad(myCurrentLat);
-        Double longiCurrent = convertRad(myCurrentLongi);
+        Double latitudeRestaurant = unitConversion.convertRad(mData.get(position).getGeometry().getLocation().getLat());
+        Double longitudeRestaurant = unitConversion.convertRad(mData.get(position).getGeometry().getLocation().getLng());
+        Double latCurrent = unitConversion.convertRad(myCurrentLat);
+        Double longiCurrent = unitConversion.convertRad(myCurrentLongi);
 
         DecimalFormat df = new DecimalFormat("#");
         df.setRoundingMode(RoundingMode.HALF_UP);
@@ -274,7 +275,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
             holder.mStarFirst.setVisibility(View.VISIBLE);
             holder.mStarSecond.setVisibility(View.VISIBLE);
             holder.mStarThird.setVisibility(View.VISIBLE);
-        } else if (ratingValue == 0.0) {
+        } else if (ratingValue<=0 || ratingValue>5) {
             holder.mStarFirst.setVisibility(View.INVISIBLE);
             holder.mStarSecond.setVisibility(View.INVISIBLE);
             holder.mStarThird.setVisibility(View.INVISIBLE);
@@ -283,9 +284,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
     }
 
 
-    private double convertRad(double latitudeConversion) {
-        return (Math.PI * latitudeConversion) / 180;
-    }
+
 
 
     @Override
