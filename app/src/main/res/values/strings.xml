@@ -94,6 +94,9 @@
     <string name="no_phone_number">No phone number for this restaurant</string>
     <string name="no_website">No website for this restaurant</string>
     <string name="notification_message_no_workmates_here">No workmates here for the moment</string>
+    <string name="changeButtonColor_Yellow" translatable="false">#FFFF00</string>
+    <string name="changeButtonColor_Orange" translatable="false">#FF5722</string>
+
     <!-- PERMISSION ACTIVITY-->
     <string name="toolbar_name_permission_activity">Permission granted</string>
     <string name="grant_permission">Grant Permission</string>

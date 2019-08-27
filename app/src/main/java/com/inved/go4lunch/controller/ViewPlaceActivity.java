@@ -194,7 +194,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
         });
     }
 
-    private void showingLikeStars(double ratingValue) {
+    public void showingLikeStars(double ratingValue) {
 
         Log.d("TAG", "View Place Activity Rating Value is "+ratingValue);
         if(ratingValue>0 && ratingValue<1.665){
@@ -212,7 +212,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
             likeStarSecond.setVisibility(View.VISIBLE);
             likeStarThird.setVisibility(View.VISIBLE);
         }
-        else if(ratingValue==0.0){
+        else if(ratingValue<=0 || ratingValue>5){
             likeStarFirst.setVisibility(View.INVISIBLE);
             likeStarSecond.setVisibility(View.INVISIBLE);
             likeStarThird.setVisibility(View.INVISIBLE);
@@ -421,17 +421,17 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
                         Boolean isRestaurantLiked = task.getResult().getDocuments().get(0).getBoolean("liked");
                         if(isRestaurantLiked){
-                            changeLikeButtonColor("#FFFF00");//yellow
+                            changeLikeButtonColor(getString(R.string.changeButtonColor_Yellow));
                         }
                         else{
-                            changeLikeButtonColor("#FF5722");//orange
+                            changeLikeButtonColor(getString(R.string.changeButtonColor_Orange));
 
                         }
 
 
                     } else {
 
-                        changeLikeButtonColor("#FF5722");//orange
+                        changeLikeButtonColor(getString(R.string.changeButtonColor_Orange));
                     }
 
                 }
@@ -474,7 +474,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                                         Log.d("Debago", "ViewPlaceActivity onLikeButton isRestaurantLiked "+isRestaurantLiked);
                                         //We want to decrement
                                         if(isRestaurantLiked){
-                                            changeLikeButtonColor("#FF5722");//orange
+                                            changeLikeButtonColor(getString(R.string.changeButtonColor_Orange));
                                             newRestaurantLike = currentRestaurantLike - 1;
                                             Log.d("Debago", "ViewPlaceActivity onLikeButton : we decrement");
                                             UserFavoriteRestaurantHelper.updateFavoriteRestaurantLiked(getCurrentUser().getUid(),currentPlaceId,false,jobPlaceId);
@@ -482,7 +482,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                                         }
                                         //We want to increment
                                         else{
-                                            changeLikeButtonColor("#FFFF00");//yellow
+                                            changeLikeButtonColor(getString(R.string.changeButtonColor_Yellow));
                                             newRestaurantLike = currentRestaurantLike + 1;
                                             Log.d("Debago", "ViewPlaceActivity onLikeButton : we increment");
                                             UserFavoriteRestaurantHelper.updateFavoriteRestaurantLiked(getCurrentUser().getUid(),currentPlaceId,true,jobPlaceId);
@@ -498,7 +498,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
                                         UserFavoriteRestaurantHelper.createUserFavoriteRestaurants(getCurrentUser().getUid(),currentPlaceId,true,jobPlaceId);
                                         Log.d("Debago", "ViewPlaceActivity onLikeButton : we create favorite restaurant in Database");
-                                        changeLikeButtonColor("#FFFF00");//yellow
+                                        changeLikeButtonColor(getString(R.string.changeButtonColor_Yellow));
                                         RestaurantHelper.updateRestaurantLike(1,currentPlaceId,jobPlaceId);
                                         actionOnLikeButton(currentPlaceId);
                                     }

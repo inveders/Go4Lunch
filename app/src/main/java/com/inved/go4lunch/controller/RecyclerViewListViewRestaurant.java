@@ -342,7 +342,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
             mRestaurantName = itemView.findViewById(R.id.fragment_listview_item_restaurant_name);
 
-            mRestaurantAdress = itemView.findViewById(R.id.fragment_listview_item_restaurant_adress);
+            mRestaurantAdress = itemView.findViewById(R.id.fragment_listview_item_restaurant_address);
             mRestaurantOpenInformation = itemView.findViewById(R.id.fragment_listview_item_restaurant_open_information);
             mRestaurantImage = itemView.findViewById(R.id.fragment_listview_item_image);
             mConstraintLayoutItem = itemView.findViewById(R.id.fragment_listview_item);

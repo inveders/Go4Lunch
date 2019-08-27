@@ -31,7 +31,7 @@
         />
 
     <TextView
-        android:id="@+id/fragment_listview_item_restaurant_adress"
+        android:id="@+id/fragment_listview_item_restaurant_address"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
 
@@ -47,7 +47,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/fragment_listview_item_restaurant_open_information"
-        app:layout_constraintTop_toBottomOf="@id/fragment_listview_item_restaurant_adress"
+        app:layout_constraintTop_toBottomOf="@id/fragment_listview_item_restaurant_address"
         app:layout_constraintLeft_toLeftOf="@id/fragment_listview_item_restaurant_name"
         />
 
