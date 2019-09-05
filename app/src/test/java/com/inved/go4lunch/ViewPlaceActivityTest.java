@@ -1,6 +1,5 @@
 package com.inved.go4lunch;
 
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;

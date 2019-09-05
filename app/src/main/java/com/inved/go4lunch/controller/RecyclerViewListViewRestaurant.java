@@ -109,18 +109,16 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
         //  Log.d("Debago", "RecyclerViewRestaurant placeId "+mData.get(position).getPlaceId());
 
-
         assert mData != null;
         holder.mRestaurantAdress.setText(mData.get(position).getVicinity());
         placeId = mData.get(position).getPlaceId();
 
+            UserHelper.getAllWorkmatesJoining(placeId, jobPlaceId).get().addOnCompleteListener(task -> {
 
-        UserHelper.getAllWorkmatesJoining(placeId, jobPlaceId).get().addOnCompleteListener(task -> {
+                int numberWorkmatesInRestaurant = Objects.requireNonNull(task.getResult()).size();
+                holder.mNumberRates.setText("(" + numberWorkmatesInRestaurant + ")");
 
-            int numberWorkmatesInRestaurant = Objects.requireNonNull(task.getResult()).size();
-            holder.mNumberRates.setText("(" + numberWorkmatesInRestaurant + ")");
-
-        });
+            });
 
         StringBuilder url = new StringBuilder("https://maps.googleapis.com/maps/api/place/photo");
         url.append("?maxwidth=" + 400);
@@ -147,7 +145,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
         String distance = df.format(distanceDouble);
         holder.mDistance.setText(distance + " m");
 
-        placeDetailsData.setPlaceId(placeId);
+        /**placeDetailsData.setPlaceId(placeId);*/
 
         //mData.get(position).getOpeningHours().getWeekdayText().get(1).toString();
         LocalDateTime currentTime = LocalDateTime.now();
@@ -205,7 +203,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
             FetchPlaceRequest request = FetchPlaceRequest.builder(placeId, placeFields)
                     .build();
 
-// Add a listener to handle the response.
+            // Add a listener to handle the response.
             placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
                 Place place = response.getPlace();
                 int opening_hours_open = Objects.requireNonNull(Objects.requireNonNull(place.getOpeningHours()).getPeriods().get(current_day).getOpen()).getTime().getHours();
@@ -226,6 +224,8 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
         holder.mConstraintLayoutItem.setOnClickListener(view -> {
 
+            placeId = mData.get(position).getPlaceId();
+            Log.e("Debago", "RecyclerViewList placeId: " + placeId);
             placeDetailsData.setPlaceId(placeId);
 
             // Launch View Place Activity

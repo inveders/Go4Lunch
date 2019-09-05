@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
@@ -37,6 +38,7 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.FetchPhotoRequest;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -88,8 +90,8 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
     ImageView viewPlaceLikeImage;
     @BindView(R.id.activity_view_place_website_image)
     ImageView viewPlaceWebsiteImage;
-    @BindView(R.id.activity_view_place_button_choose_restaurant)
-    ImageView isChoosenRestaurantImage;
+    @BindView(R.id.activity_view_place_floating_button)
+    FloatingActionButton isChoosenRestaurantImage;
     @BindView(R.id.activity_view_place_like_start_first)
     ImageView likeStarFirst;
     @BindView(R.id.activity_view_place_like_start_second)
@@ -193,11 +195,12 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
             assert restaurantPlaceIdInFirebase != null;
             if (TextUtils.isEmpty(restaurantPlaceIdInFirebase) || !restaurantPlaceIdInFirebase.equals(mCurrentPlaceId)) {
                 //      Log.d("Debagoo", "ViewPlaceActivity initialization: couleur rouge");
-                isChoosenRestaurantImage.setColorFilter(Color.parseColor("#B70400"));//red color
+                isChoosenRestaurantImage.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#B70400")));//red color
 
             } else {
                 //    Log.d("Debagoo", "ViewPlaceActivity initialization: couleur verte");
-                isChoosenRestaurantImage.setColorFilter(Color.parseColor("#4CAF50"));//green color
+                isChoosenRestaurantImage.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#4CAF50")));//green color
+
             }
 
         });
@@ -329,7 +332,8 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     private void changeButtonColor(String newColor) {
 
-        isChoosenRestaurantImage.setColorFilter(Color.parseColor(newColor));
+       // isChoosenRestaurantImage.setColorFilter(Color.parseColor(newColor));
+        isChoosenRestaurantImage.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(newColor)));
 
     }
 

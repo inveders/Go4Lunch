@@ -533,6 +533,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     // NAVIGATION
     // -------------------
 
+
     //Viewpager
 
     public static void setupFm(FragmentManager fragmentManager, ViewPager viewPager){
