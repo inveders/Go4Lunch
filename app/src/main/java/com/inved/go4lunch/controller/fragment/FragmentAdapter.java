@@ -1,4 +1,4 @@
-package com.inved.go4lunch.controller;
+package com.inved.go4lunch.controller.fragment;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;

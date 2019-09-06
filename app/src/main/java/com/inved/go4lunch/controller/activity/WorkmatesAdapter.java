@@ -1,4 +1,4 @@
-package com.inved.go4lunch.controller;
+package com.inved.go4lunch.controller.activity;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -28,7 +28,7 @@ public class WorkmatesAdapter extends FirestoreRecyclerAdapter<User, WorkmatesVi
     //FOR COMMUNICATION
     private Listener callback;
 
-    WorkmatesAdapter(@NonNull FirestoreRecyclerOptions<User> options, RequestManager glide, Listener callback, Context context) {
+    public WorkmatesAdapter(@NonNull FirestoreRecyclerOptions<User> options, RequestManager glide, Listener callback, Context context) {
         super(options);
         this.glide = glide;
         this.callback = callback;

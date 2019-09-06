@@ -1,4 +1,4 @@
-package com.inved.go4lunch.controller;
+package com.inved.go4lunch.controller.fragment;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -13,24 +13,28 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.GooglePlaceCalls;
+import com.inved.go4lunch.controller.activity.RecyclerViewListViewRestaurant;
 import com.inved.go4lunch.model.placesearch.PlaceSearch;
 import com.inved.go4lunch.utils.ManageAutocompleteResponse;
 
 import java.util.Objects;
 
-import static com.inved.go4lunch.controller.RestaurantActivity.KEY_GEOLOCALISATION;
-import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LATITUDE;
-import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LOCATION_CHANGED;
-import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LONGITUDE;
-import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_SEARCH_DATA;
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_GEOLOCALISATION;
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LATITUDE;
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LOCATION_CHANGED;
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LONGITUDE;
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.PLACE_SEARCH_DATA;
 
 public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callbacks {
 
@@ -39,6 +43,9 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
     private String myLastGeolocalisation = null;
     private Double myCurrentLat;
     private Double myCurrentLongi;
+    private FloatingActionButton filterButton;
+
+
 
     //Receive current localisation from Localisation.class
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -49,7 +56,7 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
                 String myCurrentGeolocalisation = intent.getStringExtra(KEY_GEOLOCALISATION);
                 myCurrentLat = intent.getDoubleExtra(KEY_LATITUDE, 0.0);
                 myCurrentLongi = intent.getDoubleExtra(KEY_LONGITUDE, 0.0);
-                if (!myCurrentGeolocalisation.equals(myLastGeolocalisation)) {
+                if (!(myCurrentGeolocalisation != null && myCurrentGeolocalisation.equals(myLastGeolocalisation))) {
                     executeHttpRequestPlaceSearchWithRetrofit(myCurrentGeolocalisation);
                     myLastGeolocalisation = myCurrentGeolocalisation;
                 }
@@ -79,11 +86,20 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
         LocalBroadcastManager.getInstance(Objects.requireNonNull(getContext())).registerReceiver(broadcastReceiver, new IntentFilter(KEY_LOCATION_CHANGED));
         LocalBroadcastManager.getInstance(getContext()).registerReceiver(broadcastReceiver, new IntentFilter(PLACE_SEARCH_DATA));
 
+        filterButton = mView.findViewById(R.id.fragment_list_view_sort_button);
+        actionOnFloatingButton();
 
         // findCurrentPlaceRequest();
         return mView;
     }
 
+    private void actionOnFloatingButton() {
+        filterButton.setOnClickListener(view -> {
+            FullScreenDialog dialog = new FullScreenDialog();
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            dialog.show(ft, FullScreenDialog.TAG);
+        });
+    }
 
     private void executeHttpRequestPlaceSearchWithRetrofit(String geolocalisation) {
 
@@ -97,8 +113,6 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
         }
 
     }
-
-
 
 
     @Override

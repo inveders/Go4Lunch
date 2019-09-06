@@ -4,7 +4,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.inved.go4lunch.controller.ViewPlaceActivity;
+import com.inved.go4lunch.controller.activity.ViewPlaceActivity;
 
 import junit.framework.Assert;
 

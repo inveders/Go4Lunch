@@ -1,4 +1,4 @@
-package com.inved.go4lunch.controller;
+package com.inved.go4lunch.controller.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -44,6 +44,10 @@ import com.google.android.material.navigation.NavigationView;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.auth.ProfileActivity;
 import com.inved.go4lunch.base.BaseActivity;
+import com.inved.go4lunch.controller.fragment.FragmentAdapter;
+import com.inved.go4lunch.controller.fragment.ListViewFragment;
+import com.inved.go4lunch.controller.fragment.MapFragment;
+import com.inved.go4lunch.controller.fragment.PeopleFragment;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.notification.NotificationsActivity;
@@ -60,7 +64,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     public static final String PLACE_DETAIL_DATA = "PLACE_DETAIL_DATA";
 
     public static final String PLACE_DATA_PHONE_NUMBER = "PLACE_DETAIL_DATA_PHONE_NUMBER";
-    public static final String PLACE_DATA_PHOTO_BITMAP = "PLACE_DETAIL_DATA_PHOTO_BITMAP";
 
     public static final String PLACE_SEARCH_DATA = "PLACE_SEARCH_DATA";
 
@@ -75,9 +78,8 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     private static final int AUTOCOMPLETE_REQUEST_CODE = 645;
 
     //FOR LOCATION
-    private PlacesClient placesClient;
+    protected PlacesClient placesClient;
     Location location; // location
-    private LocationManager lm;
     // The minimum distance to change Updates in meters
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 1000; // 1000 meters for tests, after come back to 10 meters
     // The minimum time between updates in milliseconds
@@ -94,7 +96,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     double longitude; // longitude
 
     //FOR DATA
-    private static final int SIGN_OUT_TASK = 10;
+
     MenuItem logout;
     TextView navFirstname;
     TextView navLastname;
@@ -148,17 +150,17 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
         //Location
         //Subscribe to providers
-        lm = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+        LocationManager lm = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        if (lm != null && lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
 
             lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
         }
 
-        if (lm.isProviderEnabled(LocationManager.PASSIVE_PROVIDER)) {
+        if (lm != null && lm.isProviderEnabled(LocationManager.PASSIVE_PROVIDER)) {
             lm.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
         }
 
-        if (lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+        if (lm != null && lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
             lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
         }
 
@@ -247,22 +249,23 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 assert data != null;
                 Place place = Autocomplete.getPlaceFromIntent(data);
 
-                ManageAutocompleteResponse.saveAutocompleteStringResponse(this,ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID,place.getId());
-                ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(this,ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE, Objects.requireNonNull(place.getLatLng()).latitude);
-                ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(this,ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE,place.getLatLng().longitude);
+                ManageAutocompleteResponse.saveAutocompleteStringResponse(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID, place.getId());
+                ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE, Objects.requireNonNull(place.getLatLng()).latitude);
+                ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE, place.getLatLng().longitude);
 
                 int idCurrentFragment = getSelectedItem(bottomNavigationView);
-                switch (idCurrentFragment){
-                    case R.id.action_map :
+                switch (idCurrentFragment) {
+                    case R.id.action_map:
                         break;
                     case R.id.action_list:
                         adapter.getFilter().filter(place.getName());
-                      //  adapter.setQuery(place.getName());
+                        //  adapter.setQuery(place.getName());
 
                         break;
                   /*  case R.id.action_people:***;
@@ -275,9 +278,9 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
                 // TODO: Handle the error.
                 assert data != null;
                 Status status = Autocomplete.getStatusFromIntent(data);
-                Log.i(TAG, status.getStatusMessage());
+                //Log.i(TAG, status.getStatusMessage());
             } else if (resultCode == RESULT_CANCELED) {
-                // The user canceled the operation.
+                Log.i(TAG, "User canceled the operation");
             }
         }
     }
@@ -573,18 +576,16 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         AuthUI.getInstance()
 
                 .signOut(this)
-                .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted(SIGN_OUT_TASK));
+                .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted());
 
 
     }
 
     // Create OnCompleteListener called after tasks ended
-    private OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted(final int origin){
+    private OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted(){
         return aVoid -> {
-            if (origin == SIGN_OUT_TASK) {
-                startMainActivity();
-                finish();
-            }
+            startMainActivity();
+            finish();
         };
     }
 

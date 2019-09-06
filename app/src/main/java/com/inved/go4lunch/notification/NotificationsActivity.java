@@ -20,7 +20,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.PlaceDetailsData;
 import com.inved.go4lunch.base.BaseActivity;
-import com.inved.go4lunch.controller.ViewPlaceActivity;
+import com.inved.go4lunch.controller.activity.ViewPlaceActivity;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
 

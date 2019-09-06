@@ -1,8 +1,7 @@
-package com.inved.go4lunch.controller;
+package com.inved.go4lunch.controller.activity;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.ColorStateList;
@@ -17,7 +16,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.browser.customtabs.CustomTabsIntent;
@@ -29,9 +27,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.PhotoMetadata;
 import com.google.android.libraries.places.api.model.Place;
@@ -57,14 +52,14 @@ import java.util.Objects;
 
 import butterknife.BindView;
 
-import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_ADDRESS;
-import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_NAME;
-import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PHONE_NUMBER;
-import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_PLACE_ID;
-import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_RATING;
-import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DATA_WEBSITE;
-import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_DETAIL_DATA;
-import static com.inved.go4lunch.controller.RestaurantActivity.PLACE_SEARCH_DATA;
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.PLACE_DATA_ADDRESS;
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.PLACE_DATA_NAME;
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.PLACE_DATA_PHONE_NUMBER;
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.PLACE_DATA_PLACE_ID;
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.PLACE_DATA_RATING;
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.PLACE_DATA_WEBSITE;
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.PLACE_DETAIL_DATA;
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.PLACE_SEARCH_DATA;
 import static com.inved.go4lunch.utils.ManageJobPlaceId.KEY_JOB_PLACE_ID_DATA;
 
 public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.Listener {
@@ -81,8 +76,6 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     Context context;
 
-
-    private static final int UPDATE_RESTAURANT_PLACE_ID = 40;
 
     @BindView(R.id.activity_view_place_call_image)
     ImageView viewPlaceCallImage;
@@ -280,7 +273,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                             int updateCustomersNewRestaurant = currentNewRestaurantCustomersFirebase + 1;
                             RestaurantHelper.updateRestaurantCustomers(updateCustomersNewRestaurant, mCurrentPlaceId, jobPlaceId);
                             UserHelper.updateRestaurantPlaceId(mCurrentPlaceId, Objects.requireNonNull(getCurrentUser()).getUid(), jobPlaceId);
-                            UserHelper.updateRestaurantName(myRestaurantName, Objects.requireNonNull(getCurrentUser()).getUid(), jobPlaceId);/**Faut aller chercher le nom du nouveau restaurant*/
+                            UserHelper.updateRestaurantName(myRestaurantName, Objects.requireNonNull(getCurrentUser()).getUid(), jobPlaceId);
                             UserHelper.updateRestaurantVicinity(myRestaurantVicinity, Objects.requireNonNull(getCurrentUser()).getUid(), jobPlaceId);
                         });
 
@@ -339,32 +332,29 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     private void initializationLikedRestaurants(String currentPlaceId) {
 
-        UserFavoriteRestaurantHelper.getCurrentRestaurantPlaceId(Objects.requireNonNull(getCurrentUser()).getUid(), currentPlaceId, jobPlaceId).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
+        UserFavoriteRestaurantHelper.getCurrentRestaurantPlaceId(Objects.requireNonNull(getCurrentUser()).getUid(), currentPlaceId, jobPlaceId).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
 
-                    if (!Objects.requireNonNull(task.getResult()).getDocuments().isEmpty()) {
+                if (!Objects.requireNonNull(task.getResult()).getDocuments().isEmpty()) {
 
 
-                        Boolean isRestaurantLiked = task.getResult().getDocuments().get(0).getBoolean("liked");
-                        if (isRestaurantLiked) {
-                            changeLikeButtonColor(getString(R.string.changeButtonColor_Yellow));
-                        } else {
-                            changeLikeButtonColor(getString(R.string.changeButtonColor_Orange));
-
-                        }
-
-
+                    Boolean isRestaurantLiked = task.getResult().getDocuments().get(0).getBoolean("liked");
+                    if (isRestaurantLiked) {
+                        changeLikeButtonColor(getString(R.string.changeButtonColor_Yellow));
                     } else {
-
                         changeLikeButtonColor(getString(R.string.changeButtonColor_Orange));
+
                     }
 
+
+                } else {
+
+                    changeLikeButtonColor(getString(R.string.changeButtonColor_Orange));
                 }
 
-
             }
+
+
         });
 
 
@@ -545,20 +535,6 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
     }
 
-
-    // Create OnCompleteListener called after tasks ended
-    private OnSuccessListener<Void> makeToastAfterRESTRequestsCompleted(final int origin) {
-        return aVoid -> {
-            switch (origin) {
-
-                case UPDATE_RESTAURANT_PLACE_ID:
-
-                    Toast.makeText(getApplicationContext(), getString(R.string.restaurant_choosen), Toast.LENGTH_LONG).show();
-                    break;
-
-            }
-        };
-    }
 
     private void displayAllWorkmatesJoining(String currentPlaceId) {
 

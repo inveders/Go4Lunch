@@ -1,23 +1,15 @@
 package com.inved.go4lunch.api;
 
-import android.annotation.SuppressLint;
-import android.util.Log;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.inved.go4lunch.model.placesearch.PlaceSearch;
-import com.inved.go4lunch.model.placesearch.Result;
 
 import java.lang.ref.WeakReference;
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import static com.firebase.ui.auth.AuthUI.getApplicationContext;
 
 public class GooglePlaceCalls {
 
@@ -44,20 +36,16 @@ public class GooglePlaceCalls {
 
 
             @Override
-            public void onResponse(Call<PlaceSearch> call, @NonNull Response<PlaceSearch> response) {
+            public void onResponse(@NonNull Call<PlaceSearch> call, @NonNull Response<PlaceSearch> response) {
                 // 2.5 - Call the proper callback used in controller (MainFragment)
                 if (callbacksWeakReference.get() != null) callbacksWeakReference.get().onResponse(response.body());
-                if (response.isSuccessful()){
 
-
-                    return ;
-                }
 
             }
 
 
             @Override
-            public void onFailure(Call<PlaceSearch> call, Throwable t) {
+            public void onFailure(@NonNull Call<PlaceSearch> call, @NonNull Throwable t) {
                 // 2.5 - Call the proper callback used in controller (MainFragment)
                 if (callbacksWeakReference.get() != null) callbacksWeakReference.get().onFailure();
 

@@ -1,4 +1,4 @@
-package com.inved.go4lunch.controller;
+package com.inved.go4lunch.controller.activity;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -41,9 +41,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LATITUDE;
-import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LOCATION_CHANGED;
-import static com.inved.go4lunch.controller.RestaurantActivity.KEY_LONGITUDE;
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LATITUDE;
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LOCATION_CHANGED;
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LONGITUDE;
 import static com.inved.go4lunch.utils.ManageJobPlaceId.KEY_JOB_PLACE_ID_DATA;
 
 public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<RecyclerViewListViewRestaurant.ViewHolder> implements Filterable {
@@ -116,26 +116,24 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
             UserHelper.getAllWorkmatesJoining(placeId, jobPlaceId).get().addOnCompleteListener(task -> {
 
                 int numberWorkmatesInRestaurant = Objects.requireNonNull(task.getResult()).size();
-                holder.mNumberRates.setText("(" + numberWorkmatesInRestaurant + ")");
+                holder.mNumberRates.setText(App.getResourses().getString(R.string.workmates_in_restaurant,numberWorkmatesInRestaurant));
 
             });
 
-        StringBuilder url = new StringBuilder("https://maps.googleapis.com/maps/api/place/photo");
-        url.append("?maxwidth=" + 400);
-        url.append("&photoreference=");
-        url.append(mData.get(position).getPhotos().get(0).getPhotoReference());
-        url.append("&key=");
-        url.append(App.getResourses().getString(R.string.google_api_key));
-
-        glide.load(url.toString())
+        String url = "https://maps.googleapis.com/maps/api/place/photo" + "?maxwidth=" + 400 +
+                "&photoreference=" +
+                mData.get(position).getPhotos().get(0).getPhotoReference() +
+                "&key=" +
+                App.getResourses().getString(R.string.google_api_key);
+        glide.load(url)
                 .placeholder(R.drawable.ic_android_blue_24dp)
                 .error(R.drawable.ic_error_red_24dp)
                 .into(holder.mRestaurantImage);
 
         //Distance entre deux points
-        Double latitudeRestaurant = unitConversion.convertRad(mData.get(position).getGeometry().getLocation().getLat());
+        double latitudeRestaurant = unitConversion.convertRad(mData.get(position).getGeometry().getLocation().getLat());
         Double longitudeRestaurant = unitConversion.convertRad(mData.get(position).getGeometry().getLocation().getLng());
-        Double latCurrent = unitConversion.convertRad(myCurrentLat);
+        double latCurrent = unitConversion.convertRad(myCurrentLat);
         Double longiCurrent = unitConversion.convertRad(myCurrentLongi);
 
         DecimalFormat df = new DecimalFormat("#");
@@ -143,9 +141,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
         Double distanceDouble = Math.acos(Math.sin(latCurrent) * Math.sin(latitudeRestaurant) + Math.cos(latCurrent) * Math.cos(latitudeRestaurant) * Math.cos(longitudeRestaurant - longiCurrent)) * 6371 * 1000;
         String distance = df.format(distanceDouble);
-        holder.mDistance.setText(distance + " m");
-
-        /**placeDetailsData.setPlaceId(placeId);*/
+        holder.mDistance.setText(App.getResourses().getString(R.string.distance_text,distance));
 
         //mData.get(position).getOpeningHours().getWeekdayText().get(1).toString();
         LocalDateTime currentTime = LocalDateTime.now();
@@ -174,21 +170,20 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
                 //  Log.d("Debago", "RecyclerViewRestaurant OPENINGHOURS 2 " + place.getOpeningHours().getPeriods().get(0));
                 if (opening_hours_close == 0) {
-                    holder.mRestaurantOpenInformation.setText("Open until midnight");
+                    holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.opening_hours_midnight));
                 } else {
-                    holder.mRestaurantOpenInformation.setText("Open until " + opening_hours_close);
+                    holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.open_hours_until,opening_hours_close));
+
                 }
 
                 //   Log.i("Debago", "Place found close hours: " + opening_hours_close + " current day " + current_day);
             }).addOnFailureListener((exception) -> {
                 if (exception instanceof ApiException) {
 
-
                     // Handle error with given status code.
                     Log.e("Debago", "Place not found: " + exception.getMessage());
                 }
             });
-
 
         }
         //if it close
@@ -209,7 +204,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
                 int opening_hours_open = Objects.requireNonNull(Objects.requireNonNull(place.getOpeningHours()).getPeriods().get(current_day).getOpen()).getTime().getHours();
 
                 //  Log.d("Debago", "RecyclerViewRestaurant OPENINGHOURS 2 " + place.getOpeningHours().getPeriods().get(0));
-                holder.mRestaurantOpenInformation.setText("Opening to " + opening_hours_open);
+                holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.open_hours_text,opening_hours_open));
                 //  Log.i("Debago", "Place found opening hours: " + Objects.requireNonNull(place.getOpeningHours()).getPeriods().get(0).getClose().getTime().getHours());
             }).addOnFailureListener((exception) -> {
                 if (exception instanceof ApiException) {

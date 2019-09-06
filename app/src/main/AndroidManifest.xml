@@ -60,7 +60,7 @@
 
         <uses-library android:name="com.google.android.maps" />
 
-        <activity android:name=".controller.MainActivity">
+        <activity android:name=".controller.activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -70,38 +70,38 @@
 
         <!-- RESTAURANT ACTIVITY -->
         <activity
-            android:name=".controller.RestaurantActivity"
+            android:name=".controller.activity.RestaurantActivity"
             android:label="@string/toolbar_title_restaurant_activity" />
 
 
 
         <!-- VIEW PLACE ACTIVITY -->
         <activity
-            android:name=".controller.ViewPlaceActivity"
+            android:name=".controller.activity.ViewPlaceActivity"
             android:label="@string/toolbar_title_login_activity"
-            android:parentActivityName=".controller.RestaurantActivity" />
+            android:parentActivityName=".controller.activity.RestaurantActivity" />
 
         <!-- PROFILE ACTIVITY -->
         <activity
             android:name=".auth.ProfileActivity"
             android:label="@string/toolbar_title_login_activity"
-            android:parentActivityName=".controller.RestaurantActivity" />
+            android:parentActivityName=".controller.activity.RestaurantActivity" />
 
         <!-- PERMISSION ACTIVITY -->
         <activity
-            android:name=".controller.PermissionActivity"
+            android:name=".controller.activity.PermissionActivity"
             android:label="@string/toolbar_title_permission_activity" />
 
         <!-- FIND JOB ADDRESS ACTIVITY -->
         <activity
-            android:name=".controller.FindMyJobAddress"
+            android:name=".controller.activity.FindMyJobAddressActivity"
             android:label="@string/toolbar_title_find_job_address_activity" />
 
         <!-- NOTIFICATION ACTIVITY -->
         <activity
             android:name=".notification.NotificationsActivity"
             android:label="@string/toolbar_title_notification_activity"
-            android:parentActivityName=".controller.RestaurantActivity" />
+            android:parentActivityName=".controller.activity.RestaurantActivity" />
 
         <!-- NOTIFICATION SERVICE -->
         <service android:name=".notification.NotificationService"

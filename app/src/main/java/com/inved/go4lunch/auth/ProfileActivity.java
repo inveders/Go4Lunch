@@ -21,7 +21,7 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.base.BaseActivity;
-import com.inved.go4lunch.controller.MainActivity;
+import com.inved.go4lunch.controller.activity.MainActivity;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
@@ -55,10 +55,6 @@ public class ProfileActivity extends BaseActivity {
 
     //FOR DATA
     private String jobPlaceId;
-
-    private static final int DELETE_USER_TASK = 20;
-    private static final int UPDATE_NAME = 30;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,18 +146,6 @@ public class ProfileActivity extends BaseActivity {
 
                     });
 
-
-
-
-
-
-        /*    if (this.getCurrentUser() != null) {
-                AuthUI.getInstance()
-                        .delete(this)
-                        .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted(DELETE_USER_TASK));
-
-                UserHelper.deleteUser(this.getCurrentUser().getUid()).addOnFailureListener(this.onFailureListener());
-            }*/
         }
 
 
@@ -174,12 +158,12 @@ public class ProfileActivity extends BaseActivity {
         String lastname = Objects.requireNonNull(this.textInputEditTextLastname.getText()).toString();
         if (this.getCurrentUser() != null){
             if (!firstname.isEmpty() &&  !firstname.equals(getString(R.string.info_no_firstname_found))){
-                UserHelper.updateFirstname(firstname, this.getCurrentUser().getUid(),jobPlaceId).addOnFailureListener(this.onFailureListener()).addOnSuccessListener(this.updateUIAfterRESTRequestsCompleted(UPDATE_NAME));
+                UserHelper.updateFirstname(firstname, this.getCurrentUser().getUid(),jobPlaceId).addOnFailureListener(this.onFailureListener()).addOnSuccessListener(this.updateUIAfterRESTRequestsCompleted());
             }
         }
         if (this.getCurrentUser() != null){
             if (!lastname.isEmpty() &&  !lastname.equals(getString(R.string.info_no_lastname_found))){
-                UserHelper.updateLastname(lastname, this.getCurrentUser().getUid(),jobPlaceId).addOnFailureListener(this.onFailureListener()).addOnSuccessListener(this.updateUIAfterRESTRequestsCompleted(UPDATE_NAME));
+                UserHelper.updateLastname(lastname, this.getCurrentUser().getUid(),jobPlaceId).addOnFailureListener(this.onFailureListener()).addOnSuccessListener(this.updateUIAfterRESTRequestsCompleted());
             }
         }
     }
@@ -265,21 +249,7 @@ public class ProfileActivity extends BaseActivity {
 
 
         // Create OnCompleteListener called after tasks ended
-        private OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted(final int origin){
-            return aVoid -> {
-                switch (origin){
-
-                    case UPDATE_NAME:
-
-                        Toast.makeText(getApplicationContext(), getString(R.string.update_confirmation), Toast.LENGTH_LONG).show();
-                        break;
-                    case DELETE_USER_TASK:
-                        Log.d("debago", "We should never arrived here");
-
-                        finish();
-                        break;
-
-                }
-            };
+        private OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted(){
+            return aVoid -> Toast.makeText(getApplicationContext(), getString(R.string.update_confirmation), Toast.LENGTH_LONG).show();
         }
 }

@@ -1,4 +1,4 @@
-package com.inved.go4lunch.controller;
+package com.inved.go4lunch.controller.activity;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -15,6 +15,7 @@ import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.PlaceDetailsData;
+import com.inved.go4lunch.controller.activity.ViewPlaceActivity;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.utils.App;
 

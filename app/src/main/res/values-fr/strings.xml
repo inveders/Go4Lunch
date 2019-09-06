@@ -73,7 +73,6 @@
     <string name="user_settings">INFORMATIONS SUR L\'UTILISATEUR</string>
     <string name="notification_message_no_workmates_here">Aucun collègue ici pour l\'instant</string>
     <string name="alert_dialog_view_activity_no_choice_yet">Etes-vous sur de ne plus vouloir manger ici ?</string>
-    <string name="opening_hours_until">Ouvert jusqu\'à</string>
     <string name="Closed_restaurant">Fermé</string>
     <string name="Enter_restaurant_name">Entrez le nom d\'un restaurant</string>
     <string name="job_address_question">Où travaillez-vous ?</string>
@@ -89,4 +88,14 @@
     <string name="Notification_activity_Title">Votre repas</string>
     <string name="Profile_Activity_Title">Paramètres</string>
     <string name="toolbar_title_people_fragment">Collègues disponibles</string>
+    <string name="opening_hours_midnight">Ouvert jusqu\'à minuit</string>
+    <string name="open_hours_text">Ouvre à %d</string>
+    <string name="open_hours_until">Ouvert jusqu\'à %d</string>
+    <string name="fullscreen_dialog__by_distance_from_me">Distance</string>
+    <string name="fullscreen_dialog__by_opening_hours">Heures d\'ouvertures</string>
+    <string name="fullscreen_dialog__by_price_level">Prix</string>
+    <string name="fullscreen_dialog__by_rating">Note</string>
+    <string name="fullscreen_dialog_page_title">Trouvez VOTRE restaurant !</string>
+    <string name="fullscreen_dialog_sort_out_text">TRIER</string>
+    <string name="fullscreen_dialog__by_opening_hours_close">Heure de fermeture</string>
 </resources>

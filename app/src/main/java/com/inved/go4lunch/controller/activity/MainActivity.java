@@ -1,4 +1,4 @@
-package com.inved.go4lunch.controller;
+package com.inved.go4lunch.controller.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -157,7 +157,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void startFindMyJobAddressActivity() {
-        Intent intent = new Intent(this, FindMyJobAddress.class);
+        Intent intent = new Intent(this, FindMyJobAddressActivity.class);
         startActivity(intent);
     }
 

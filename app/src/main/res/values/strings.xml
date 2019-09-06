@@ -75,8 +75,14 @@
     <string name="fragment_listview_item_restaurant_adress">restaurant address</string>
     <string name="fragment_listview_item_restaurant_number_rates">(2)</string>
     <string name="fragment_listview_item_dot">·</string>
-    <string name="opening_hours_until">Open until %1d</string>
+
+    <string name="opening_hours_midnight">Open until midnight</string>
     <string name="Closed_restaurant">Closed</string>
+    <string name="workmates_in_restaurant" translatable="false">( %d )</string>
+    <string name="open_hours_text">Opening to %d</string>
+    <string name="open_hours_until">Open until %d</string>
+    <string name="distance_text" translatable="false">%1$s m</string>
+
 
     <!-- FRAGMENT RESTAURANT PEOPLE -->
     <string name="fragment_people_item_image">Workmates image</string>
@@ -110,7 +116,7 @@
     <string name="toolbar_title_find_job_address_activity">Find your job address</string>
 
     <!-- SEARCHVIEW-->
-    <string name="search_hint">Search...</string>
+    <string name="search_hint">Search…</string>
     <string name="par_defaut">Default</string>
 
     <!-- BOTTOM NAVIGATION VIEW -->
@@ -123,6 +129,13 @@
     <string name="facebook_login_protocol_scheme" translatable="false"
         tools:ignore="UnusedResources">fb2021492718158615</string>
 
-
+    <!-- FULLSCREEN DIALOG-->
+    <string name="fullscreen_dialog_sort_out_text">SORT OUT</string>
+    <string name="fullscreen_dialog_page_title">Find YOUR restaurant !</string>
+    <string name="fullscreen_dialog__by_rating">Rating</string>
+    <string name="fullscreen_dialog__by_opening_hours">Opening hours</string>
+    <string name="fullscreen_dialog__by_opening_hours_close">Close hours</string>
+    <string name="fullscreen_dialog__by_distance_from_me">Distance</string>
+    <string name="fullscreen_dialog__by_price_level">Price level</string>
 
 </resources>

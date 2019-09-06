@@ -1,4 +1,4 @@
-package com.inved.go4lunch.controller;
+package com.inved.go4lunch.controller.activity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -23,8 +23,8 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.inved.go4lunch.R;
-import com.inved.go4lunch.auth.ProfileActivity;
 import com.inved.go4lunch.base.BaseActivity;
+import com.inved.go4lunch.controller.activity.RestaurantActivity;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
 
@@ -33,7 +33,7 @@ import java.util.Objects;
 
 import butterknife.BindView;
 
-public class FindMyJobAddress extends BaseActivity {
+public class FindMyJobAddressActivity extends BaseActivity {
     private static final String TAG = "Debago";
     String jobAddress;
     String jobPlaceId;
@@ -109,7 +109,7 @@ public class FindMyJobAddress extends BaseActivity {
                                        Log.d("Debago", "findMyJobAddress already exist " + task.getResult().getDocuments());
                                        startRestaurantActivity();
                                 } else {
-                                       Log.d("Debago", "FindMyJobAddress create user in firestore "+jobAddress+" "+jobName+" "+jobPlaceId);
+                                       Log.d("Debago", "FindMyJobAddressActivity create user in firestore "+jobAddress+" "+jobName+" "+jobPlaceId);
                                     createUserInFirestore(jobAddress,jobPlaceId,jobName);
                                     startRestaurantActivity();
                                 }
@@ -152,7 +152,7 @@ public class FindMyJobAddress extends BaseActivity {
 
     private void startRestaurantActivity() {
         Intent intent = new Intent(this, RestaurantActivity.class);
-        Log.d("Debago", "FindMyJobAddress we go in restaurantActivity");
+        Log.d("Debago", "FindMyJobAddressActivity we go in restaurantActivity");
         startActivity(intent);
     }
 

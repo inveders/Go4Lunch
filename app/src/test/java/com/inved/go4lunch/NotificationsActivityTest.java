@@ -1,23 +1,5 @@
 package com.inved.go4lunch;
 
-import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import com.inved.go4lunch.controller.ViewPlaceActivity;
-import com.inved.go4lunch.notification.NotificationsActivity;
-import com.inved.go4lunch.utils.UnitConversion;
-
-import junit.framework.Assert;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
-
 /*
 @RunWith(RobolectricTestRunner.class)
 public class NotificationsActivityTest {

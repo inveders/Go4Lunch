@@ -17,7 +17,7 @@ import com.inved.go4lunch.R;
 
 import java.util.Map;
 
-import static com.inved.go4lunch.controller.RestaurantActivity.TAG;
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.TAG;
 
 public class NotificationService extends FirebaseMessagingService {
 
