@@ -26,6 +26,7 @@ public class NotificationService extends FirebaseMessagingService {
     private NotificationsActivity notificationsActivity = new NotificationsActivity();
 
 
+
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         //  super.onMessageReceived(remoteMessage);
@@ -69,9 +70,9 @@ public class NotificationService extends FirebaseMessagingService {
         Intent intent = new Intent(this, NotificationsActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
 
-        Map<String, String> data = remoteMessage.getData();
+      /*  Map<String, String> data = remoteMessage.getData();
         String restaurantName = data.get("restaurantName");
-        String restaurantAddress = data.get("restaurantAddress");
+        String restaurantAddress = data.get("restaurantAddress");*/
 
         // 2 - Create a Style for the Notification
         NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
@@ -86,7 +87,7 @@ public class NotificationService extends FirebaseMessagingService {
                 new NotificationCompat.Builder(this, channelId)
                         .setSmallIcon(R.drawable.ic_notifications_primary_color_24dp)
                         .setContentTitle(getString(R.string.app_name))
-                        .setContentText(remoteMessage.getData().get(getString(R.string.notification_message_text, restaurantName, restaurantAddress)))
+                        .setContentText(remoteMessage.getData().get(getString(R.string.notification_message_text, "La table de Mario", "12 rue principale Ottange")))
                         .setAutoCancel(true)
                         .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                         .setContentIntent(pendingIntent)

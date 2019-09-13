@@ -335,14 +335,17 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
                 } else {
                     //   Log.d("Debago", "RecyclerViewRestaurant GETfILTER : charString is not empty result "+   mData.get(0).getName()+" contains charString "+ charString);
                     List<Result> filteredList = new ArrayList<>();
-                    Log.d("Debago", "RecyclerViewRestaurant GETfILTER : charString is not empty filteredList " + filteredList);
+                    Log.d("Debago", "RecyclerViewRestaurant GETfILTER : charString is not empty filteredList " + mData);
 
+                    /**ICI MON mData est null ce qui est normal vu que je ne fais pas de set Data avant d'entrer ici. Comment
+                     * Faire pour transmettre des données depuis un searchview placé dans l'activity et l'afficher dans le fragment?*/
                     for (Result result : mData) {
                         Log.d("Debago", "RecyclerViewRestaurant GETfILTER : charString is not empty result " + result.getName() + " contains charString " + charString);
                         if (result.getName().toLowerCase().contains(charString.toLowerCase())) {
                             filteredList.add(result);
                         }
                     }
+
                     mDataFiltered = filteredList;
                     Log.d("Debago", "RecyclerViewRestaurant GETfILTER : charString is not empty mDataFilteredList " + mDataFiltered);
                 }
@@ -363,6 +366,5 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
             }
         };
     }
-
 
 }

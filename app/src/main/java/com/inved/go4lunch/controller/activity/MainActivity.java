@@ -2,6 +2,7 @@ package com.inved.go4lunch.controller.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -16,6 +17,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.firebase.UserHelper;
+import com.inved.go4lunch.utils.ManageJobPlaceId;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -57,17 +59,17 @@ public class MainActivity extends BaseActivity {
                 if(task.isSuccessful()){
                     if(Objects.requireNonNull(task.getResult()).getDocuments().size()==0){
                         startFindMyJobAddressActivity();
-                   //     Log.d("Debago","no result finisih inscription "+task.getResult().getDocuments().size());
+                        Log.d("Debago","no result finisih inscription "+task.getResult().getDocuments().size());
                     }else{
-                    //    Log.d("Debago", "MainActivity : oncreate go in restaurantActivity "+task.getResult().getDocuments().get(0).getString("jobPlaceId"));
-
+                        Log.d("Debago", "MainActivity : oncreate go in restaurantActivity "+task.getResult().getDocuments().get(0).getString("jobPlaceId"));
+                        ManageJobPlaceId.saveJobPlaceId(this, task.getResult().getDocuments().get(0).getString("jobPlaceId"));
                         startRestaurantActivity();
                         finish();
                     }
 
                 }else {
                     startFindMyJobAddressActivity();
-                  //  Log.d("Debago","no result finisih inscription");
+                    Log.d("Debago","no result finisih inscription");
                 }
 
 

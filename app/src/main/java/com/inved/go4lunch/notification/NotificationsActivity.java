@@ -30,6 +30,9 @@ import butterknife.BindView;
 
 public class NotificationsActivity extends BaseActivity {
 
+    public static final String NOTIFICATION_RESTAURANT_NAME = "RESTAURANT_NAME";
+    public static final String NOTIFICATION_RESTAURANT_ADDRESS = "RESTAURANT_ADDRESS";
+
     //FOR DESIGN
     @BindView(R.id.activity_notification_message_text)
     TextView notificationMessageText;
@@ -83,6 +86,7 @@ public class NotificationsActivity extends BaseActivity {
                 String restaurantName = TextUtils.isEmpty(currentUser.getRestaurantName()) ? getString(R.string.info_no_restaurant_name_found) : currentUser.getRestaurantName();
                 String restaurantVicinity = TextUtils.isEmpty(currentUser.getRestaurantVicinity()) ? getString(R.string.info_no_restaurant_adresse_found) : currentUser.getRestaurantVicinity();
                 String restaurantPlaceId = currentUser.getRestaurantPlaceId();
+             //   sendDataInService(restaurantName,restaurantVicinity);
 
                 UserHelper.getAllWorkmatesJoining(currentUser.getRestaurantPlaceId(),currentUser.getJobPlaceId()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -114,6 +118,17 @@ public class NotificationsActivity extends BaseActivity {
                 showNotificationMessageText(restaurantName,restaurantVicinity,restaurantPlaceId);
             }
         });
+
+    }
+
+    private void sendDataInService(String restaurantName, String restaurantVicinity) {
+
+        Intent mIntent = new Intent(this, NotificationService.class);
+        Bundle extras = mIntent.getExtras();
+        if (extras != null) {
+            extras.putString(NOTIFICATION_RESTAURANT_NAME, restaurantName);
+            extras.putString(NOTIFICATION_RESTAURANT_ADDRESS, restaurantVicinity);
+        }
 
     }
 

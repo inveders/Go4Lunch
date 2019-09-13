@@ -49,18 +49,36 @@ public class FindMyJobAddressActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        UserHelper.getUserWhateverLocation(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).get().addOnCompleteListener(task -> {
+
+            if(task.isSuccessful()){
+                if(Objects.requireNonNull(task.getResult()).getDocuments().size()==0){
+
+                    Log.d("Debago","FindMyJob on create no result finisih inscription "+task.getResult().getDocuments().size());
+                }else{
+                    Log.d("Debago", "FindMyJob on create : oncreate go in restaurantActivity "+task.getResult().getDocuments().get(0).getString("jobPlaceId"));
+                    ManageJobPlaceId.saveJobPlaceId(this, task.getResult().getDocuments().get(0).getString("jobPlaceId"));
+                    startRestaurantActivity();
+                    finish();
+                }
+
+            }
+
+
+        });
+
 
       /*  if(!profileActivity.getTextViewJobPlaceId().isEmpty()){
             startRestaurantActivity();
         }*/
 
-        Places.initialize(getApplicationContext(),getString(R.string.google_api_key));
+        Places.initialize(getApplicationContext(), getString(R.string.google_api_key));
         // Initialize the AutocompleteSupportFragment.
         AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
                 getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment_job_address);
 
 // Specify the types of place data to return.
-        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME,Place.Field.ADDRESS));
+        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS));
         autocompleteFragment.setTypeFilter(TypeFilter.ADDRESS);
         autocompleteFragment.setTypeFilter(TypeFilter.ESTABLISHMENT);
         autocompleteFragment.setCountry("FR");
@@ -73,11 +91,9 @@ public class FindMyJobAddressActivity extends BaseActivity {
             public void onPlaceSelected(Place place) {
                 // TODO: Get info about the selected place.
                 Log.d(TAG, "Place: " + place.getName() + ", " + place.getId());
-                jobAddress=place.getAddress();
-                jobPlaceId=place.getId();
-                jobName=place.getName();
-
-
+                jobAddress = place.getAddress();
+                jobPlaceId = place.getId();
+                jobName = place.getName();
 
 
             }
@@ -93,24 +109,25 @@ public class FindMyJobAddressActivity extends BaseActivity {
             @Override
             public void onClick(View view) {
 
-                if(TextUtils.isEmpty(jobAddress)){
-                    Log.d(TAG, "Job Address est nul "+jobAddress);
+                if (TextUtils.isEmpty(jobAddress)) {
+                    Log.d(TAG, "Job Address est nul " + jobAddress);
                     Toast.makeText(getApplicationContext(), "Choisissez un lieu", Toast.LENGTH_SHORT).show();
-                }else{
+                } else {
 
                     String firebaseAuthUid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
-                    UserHelper.getUserWithSameUid(firebaseAuthUid,jobPlaceId).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    UserHelper.getUserWithSameUid(firebaseAuthUid, jobPlaceId).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
                             if (task.isSuccessful()) {
                                 //    Log.d("Debago", "task successful");
-                                if (task.getResult().getDocuments().size()!=0) {
+                                if (task.getResult().getDocuments().size() != 0) {
 
-                                       Log.d("Debago", "findMyJobAddress already exist " + task.getResult().getDocuments());
-                                       startRestaurantActivity();
+                                    Log.d("Debago", "findMyJobAddress already exist " + task.getResult().getDocuments());
+                                    ManageJobPlaceId.saveJobPlaceId(getApplicationContext(), jobPlaceId);
+                                    startRestaurantActivity();
                                 } else {
-                                       Log.d("Debago", "FindMyJobAddressActivity create user in firestore "+jobAddress+" "+jobName+" "+jobPlaceId);
-                                    createUserInFirestore(jobAddress,jobPlaceId,jobName);
+                                    Log.d("Debago", "FindMyJobAddressActivity create user in firestore " + jobAddress + " " + jobName + " " + jobPlaceId);
+                                    createUserInFirestore(jobAddress, jobPlaceId, jobName);
                                     startRestaurantActivity();
                                 }
 
@@ -131,7 +148,7 @@ public class FindMyJobAddressActivity extends BaseActivity {
         return R.layout.activity_find_job_address;
     }
 
-    private void createUserInFirestore(String jobAddress,String jobPlaceId, String jobName) {
+    private void createUserInFirestore(String jobAddress, String jobPlaceId, String jobName) {
 
         if (this.getCurrentUser() != null) {
 
@@ -143,7 +160,7 @@ public class FindMyJobAddressActivity extends BaseActivity {
             String restaurantName = null;
             String restaurantType = null;
             String restaurantVicinity = null;
-            ManageJobPlaceId.saveJobPlaceId(this,jobPlaceId);
+            ManageJobPlaceId.saveJobPlaceId(this, jobPlaceId);
             UserHelper.createUser(uid, firstname, lastname, urlPicture, restaurantPlaceId, restaurantType, restaurantName, restaurantVicinity, jobAddress, jobPlaceId, jobName).addOnFailureListener(this.onFailureListener());
 
 

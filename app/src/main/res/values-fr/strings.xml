@@ -98,4 +98,8 @@
     <string name="fullscreen_dialog_page_title">Trouvez VOTRE restaurant !</string>
     <string name="fullscreen_dialog_sort_out_text">TRIER</string>
     <string name="fullscreen_dialog__by_opening_hours_close">Heure de fermeture</string>
+    <string name="fullscreen_dialog__value">VALEUR</string>
+    <string name="view_place_call_image_text">APPELER</string>
+    <string name="view_place_like_image_text">AIMER</string>
+    <string name="view_place_webste_image_text">SITE WEB</string>
 </resources>

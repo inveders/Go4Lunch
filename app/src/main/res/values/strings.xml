@@ -100,6 +100,9 @@
     <string name="no_phone_number">No phone number for this restaurant</string>
     <string name="no_website">No website for this restaurant</string>
     <string name="notification_message_no_workmates_here">No workmates here for the moment</string>
+    <string name="view_place_call_image_text">CALL</string>
+    <string name="view_place_like_image_text">LIKE</string>
+    <string name="view_place_webste_image_text">WEBSITE</string>
     <string name="changeButtonColor_Yellow" translatable="false">#FFFF00</string>
     <string name="changeButtonColor_Orange" translatable="false">#FF5722</string>
 
@@ -135,7 +138,11 @@
     <string name="fullscreen_dialog__by_rating">Rating</string>
     <string name="fullscreen_dialog__by_opening_hours">Opening hours</string>
     <string name="fullscreen_dialog__by_opening_hours_close">Close hours</string>
-    <string name="fullscreen_dialog__by_distance_from_me">Distance</string>
+    <string name="fullscreen_dialog__by_distance_from_me">Distance from me (m) </string>
     <string name="fullscreen_dialog__by_price_level">Price level</string>
+    <string name="fullscreen_dialog__value">VALUE</string>
+    <string name="fullscreen_dialog__value_in_meter" translatable="false">%d m</string>
+    <string name="fullscreen_dialog__value_in_hours" translatable="false">%d h</string>
+
 
 </resources>
