@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'jacoco-android'
+apply plugin: 'io.fabric'
 
 jacoco {
     toolVersion = "0.8.3"
@@ -69,7 +70,7 @@ dependencies {
     //Firebase
     implementation 'com.google.firebase:firebase-core:17.2.0'
     implementation 'com.firebaseui:firebase-ui-auth:5.0.0'
-    implementation 'com.google.firebase:firebase-firestore:21.0.0'
+    implementation 'com.google.firebase:firebase-firestore:21.1.0'
 
     // FirebaseUI for Cloud Firestore
     implementation 'com.firebaseui:firebase-ui-firestore:5.0.0'
@@ -79,7 +80,7 @@ dependencies {
     //Tests
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-android:2.23.4'
-    testImplementation 'org.robolectric:robolectric:4.2.1'
+    testImplementation 'org.robolectric:robolectric:4.3'
     testImplementation 'com.squareup.okhttp3:mockwebserver:3.8.1'
 
     androidTestImplementation 'androidx.test:runner:1.2.0'
@@ -93,6 +94,10 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.9.1'
     implementation 'com.google.code.gson:gson:2.8.5'
+
+    //Crashlytic
+    implementation 'com.google.firebase:firebase-analytics:17.2.0'
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
 
     implementation 'com.squareup.picasso:picasso:2.71828'
 

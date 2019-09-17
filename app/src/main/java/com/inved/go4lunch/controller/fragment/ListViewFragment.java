@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.GooglePlaceCalls;
@@ -44,6 +45,7 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
     private Double myCurrentLat;
     private Double myCurrentLongi;
     private FloatingActionButton filterButton;
+    private String myCurrentGeolocalisation;
 
 
 
@@ -53,7 +55,7 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
         public void onReceive(Context context, Intent intent) {
             if (KEY_LOCATION_CHANGED.equals(intent.getAction())) {
                 intent.getSerializableExtra(KEY_GEOLOCALISATION);
-                String myCurrentGeolocalisation = intent.getStringExtra(KEY_GEOLOCALISATION);
+                myCurrentGeolocalisation = intent.getStringExtra(KEY_GEOLOCALISATION);
                 myCurrentLat = intent.getDoubleExtra(KEY_LATITUDE, 0.0);
                 myCurrentLongi = intent.getDoubleExtra(KEY_LONGITUDE, 0.0);
                 if (!(myCurrentGeolocalisation != null && myCurrentGeolocalisation.equals(myLastGeolocalisation))) {
@@ -88,6 +90,9 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
 
         filterButton = mView.findViewById(R.id.fragment_list_view_sort_button);
         actionOnFloatingButton();
+        initializeSharedPreferences();
+        getRestaurantNameFromAutocomplete();
+
 
         // findCurrentPlaceRequest();
         return mView;
@@ -108,27 +113,25 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
             int radius = 400;
             String keyword = "restaurant";
             String key = "AIzaSyCYRQL4UOKKcszTAi6OeN8xCvZ7CuFtp8A";//context.getText(R.string.google_maps_key).toString();
-
+            Log.d("Debago", "ListViewFragment retrofit Call ");
             GooglePlaceCalls.fetchPlaces(this, geolocalisation, radius, type, keyword, key);
         }
 
     }
 
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        Log.d("Debago", "ListViewFrqgment ondestroy ");
-        //InitializeSharedPreferences
-        ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(getContext()), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID, null);
-        ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(getContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE, 0);
-        ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(getContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE, 0);
-    }
-
     @Override
     public void onResponse(@Nullable PlaceSearch response) {
         assert response != null;
+
+        String restaurantNameFromAutocomplete = ManageAutocompleteResponse.getStringAutocomplete(Objects.requireNonNull(getContext()), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME);
+
         mRecyclerListViewAdapter.setData(response.results);
+
+        Log.d("Debago", "ListViewFragment onResponse restaurantFromAutocomplete "+restaurantNameFromAutocomplete);
+        if (restaurantNameFromAutocomplete != null) {
+            mRecyclerListViewAdapter.getFilter().filter(restaurantNameFromAutocomplete);
+        }
+
         mRecyclerListViewAdapter.setCurrentLocalisation(myCurrentLat, myCurrentLongi);
     }
 
@@ -136,6 +139,48 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
     public void onFailure() {
 
     }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("Debago", "ListViewFragment onResume ");
+        getRestaurantNameFromAutocomplete();
+
+    }
+
+    private void getRestaurantNameFromAutocomplete() {
+
+        String restaurantNameFromAutocomplete = ManageAutocompleteResponse.getStringAutocomplete(Objects.requireNonNull(getContext()), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME);
+        Log.d("Debago", "ListViewFragment getRestaurant restaurantFromAutocomplete "+restaurantNameFromAutocomplete);
+        if (restaurantNameFromAutocomplete != null) {
+            Log.d("Debago", "ListViewFragment getRestaurant in loop "+myCurrentGeolocalisation);
+            if (myCurrentGeolocalisation != null) {
+                executeHttpRequestPlaceSearchWithRetrofit(myCurrentGeolocalisation);
+                myLastGeolocalisation = myCurrentGeolocalisation;
+            }
+
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.d("Debago", "ListViewFrqgment ondestroy ");
+        //InitializeSharedPreferences
+        initializeSharedPreferences();
+}
+
+    private void initializeSharedPreferences(){
+        Log.d("Debago", "ListViewFrqgment initialize sharedpreferences ");
+        ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(getContext()), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME, null);
+        ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(getContext()), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID, null);
+        ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(getContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE, 0);
+        ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(getContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE, 0);
+
+
+    }
+
 
 
 }

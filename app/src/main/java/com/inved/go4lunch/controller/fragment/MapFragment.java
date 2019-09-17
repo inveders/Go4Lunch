@@ -71,9 +71,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         jobPlaceId = ManageJobPlaceId.getJobPlaceId(Objects.requireNonNull(getActivity()), KEY_JOB_PLACE_ID_DATA);
 
-        ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(getContext()), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID, null);
-        ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(getContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE, 0);
-        ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(getContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE, 0);
+        initializeSharedPreferences();
         findCurrentPlaceRequest();
 
 
@@ -138,10 +136,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             createRestaurantsInFirebase(sharedPreferenceRestaurantPlaceId);
 
             //InitializeSharedPreferences
-            ManageAutocompleteResponse.saveAutocompleteStringResponse(getContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID, null);
-            ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(getContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE, 0);
-            ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(getContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE, 0);
-
+            initializeSharedPreferences();
         } else {
             // Initialize Places.
             Places.initialize(getContext(), getString(R.string.google_api_key));
@@ -184,6 +179,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     }
 
+    private void initializeSharedPreferences(){
+        Log.d("Debago", "MapFragment initialize sharedpreference ");
+     //   ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(getContext()), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME, null);
+        ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(getContext()), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID, null);
+        ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(getContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE, 0);
+        ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(getContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE, 0);
+
+
+    }
 
     @SuppressLint("MissingPermission")
     @Override

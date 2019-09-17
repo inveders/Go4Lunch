@@ -7,6 +7,7 @@ public class ManageAutocompleteResponse {
 
     private static final String KEY_AUTOCOMPLETE_RESPONSE = "KEY_AUTOCOMPLETE_RESPONSE";
     public static final String KEY_AUTOCOMPLETE_PLACE_ID = "KEY_AUTOCOMPLETE_PLACE_ID";
+    public static final String KEY_AUTOCOMPLETE_PLACE_NAME = "KEY_AUTOCOMPLETE_PLACE_NAME";
     public static final String KEY_AUTOCOMPLETE_LATITUDE = "KEY_AUTOCOMPLETE_LATITUDE";
     public static final String KEY_AUTOCOMPLETE_LONGITUDE = "KEY_AUTOCOMPLETE_LONGITUDE";
 

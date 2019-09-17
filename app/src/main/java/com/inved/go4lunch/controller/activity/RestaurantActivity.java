@@ -183,22 +183,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         placesClient = Places.createClient(this);
        token = AutocompleteSessionToken.newInstance();
 
-        /*final AutocompleteSupportFragment autocompleteSupportFragment=
-                (AutocompleteSupportFragment) getSupportFragmentManager().findFragmentById(R.id.searautocomplete_fragment);
-        autocompleteSupportFragment.setPlaceFields(Arrays.asList(Place.Field.NAME));
-
-        autocompleteSupportFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-            @Override
-            public void onPlaceSelected(@NonNull Place place) {
-
-            }
-
-            @Override
-            public void onError(@NonNull Status status) {
-
-            }
-        });*/
-
         this.configureNavigationView();
         this.userInformationFromFirebase();
 
@@ -256,6 +240,9 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
                 Place place = Autocomplete.getPlaceFromIntent(data);
 
                 ManageAutocompleteResponse.saveAutocompleteStringResponse(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID, place.getId());
+                ManageAutocompleteResponse.saveAutocompleteStringResponse(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME, place.getName());
+                String restaurantNameFromAutocomplete = ManageAutocompleteResponse.getStringAutocomplete(Objects.requireNonNull(this), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME);
+                Log.d("Debago", "RestaurantActivity restaurantFromAutocomplete "+restaurantNameFromAutocomplete);
                 ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE, Objects.requireNonNull(place.getLatLng()).latitude);
                 ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE, place.getLatLng().longitude);
 
@@ -264,8 +251,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
                     case R.id.action_map:
                         break;
                     case R.id.action_list:
-                        adapter.getFilter().filter(place.getName());
-                        //  adapter.setQuery(place.getName());
+                       // adapter.getFilter().filter(place.getName());
 
                         break;
                   /*  case R.id.action_people:***;

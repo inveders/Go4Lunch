@@ -10,6 +10,7 @@ import android.widget.Button;
 import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
+import com.crashlytics.android.Crashlytics;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
@@ -93,7 +94,9 @@ public class MainActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         // this.updateUIWhenGoogleResuming();
+
     }
+
 
 
     // --------------------
