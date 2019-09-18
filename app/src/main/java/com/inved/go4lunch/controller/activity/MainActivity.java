@@ -61,7 +61,7 @@ public class MainActivity extends BaseActivity {
                         startFindMyJobAddressActivity();
                         Log.d("Debago","no result finisih inscription "+task.getResult().getDocuments().size());
                     }else{
-                        Log.d("Debago", "MainActivity : oncreate go in restaurantActivity "+task.getResult().getDocuments().get(0).getString("jobPlaceId"));
+                        //Log.d("Debago", "MainActivity : oncreate go in restaurantActivity "+task.getResult().getDocuments().get(0).getString("jobPlaceId"));
                         ManageJobPlaceId.saveJobPlaceId(this, task.getResult().getDocuments().get(0).getString("jobPlaceId"));
                         startRestaurantActivity();
                         finish();

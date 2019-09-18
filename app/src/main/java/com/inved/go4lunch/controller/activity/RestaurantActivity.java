@@ -1,7 +1,6 @@
 package com.inved.go4lunch.controller.activity;
 
 import android.annotation.SuppressLint;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
@@ -54,6 +53,7 @@ import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.notification.NotificationsActivity;
 import com.inved.go4lunch.utils.App;
 import com.inved.go4lunch.utils.ManageAutocompleteResponse;
+import com.inved.go4lunch.view.RecyclerViewListViewRestaurant;
 
 import java.util.Arrays;
 import java.util.List;
@@ -119,6 +119,34 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     private Toolbar toolbar;
     private DrawerLayout drawerLayout;
 
+
+    public FragmentRefreshListener getFragmentRefreshListener() {
+        return fragmentRefreshListener;
+    }
+
+    public void setFragmentRefreshListener(FragmentRefreshListener fragmentRefreshListener) {
+        this.fragmentRefreshListener = fragmentRefreshListener;
+    }
+
+    private FragmentRefreshListener fragmentRefreshListener;
+
+    public interface FragmentRefreshListener{
+        void onRefresh();
+    }
+
+    public MapFragmentRefreshListener getMapFragmentRefreshListener() {
+        return mapFragmentRefreshListener;
+    }
+
+    public void setMapFragmentRefreshListener(MapFragmentRefreshListener mapFragmentRefreshListener) {
+        this.mapFragmentRefreshListener = mapFragmentRefreshListener;
+    }
+
+    private MapFragmentRefreshListener mapFragmentRefreshListener;
+
+    public interface MapFragmentRefreshListener{
+        void onMapRefresh();
+    }
 
     @Override
     public int getFragmentLayout() {return R.layout.activity_restaurant;}
@@ -204,6 +232,8 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         final MenuItem searchItem = menu.findItem(R.id.action_search);
         searchItem.setOnMenuItemClickListener(menuItem -> {
             startAutocompleteWidgetShow();
+            menu.findItem(R.id.action_search).setVisible(false);
+            menu.findItem(R.id.action_clear).setVisible(true);
             return true;
         });
 
@@ -211,6 +241,9 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         clearItem.setOnMenuItemClickListener(menuItem -> {
             ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(this), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME, "");
             refreshFragment();
+
+            menu.findItem(R.id.action_search).setVisible(true);
+            menu.findItem(R.id.action_clear).setVisible(false);
 
             return true;
         });
@@ -220,10 +253,19 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         return true;
     }
 
+
+
     private void refreshFragment() {
 
-       ListViewFragment listViewFragment = new ListViewFragment();
-       listViewFragment.getRestaurantNameFromAutocomplete();
+        if(getFragmentRefreshListener()!=null){
+            getFragmentRefreshListener().onRefresh();
+        }
+
+        if(getMapFragmentRefreshListener()!=null){
+            getMapFragmentRefreshListener().onMapRefresh();
+        }
+
+
     }
 
     //PLACE AUTOCOMPLETE
@@ -256,8 +298,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
                 ManageAutocompleteResponse.saveAutocompleteStringResponse(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID, place.getId());
                 ManageAutocompleteResponse.saveAutocompleteStringResponse(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME, place.getName());
-                String restaurantNameFromAutocomplete = ManageAutocompleteResponse.getStringAutocomplete(Objects.requireNonNull(this), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME);
-                Log.d("Debago", "RestaurantActivity restaurantFromAutocomplete "+restaurantNameFromAutocomplete);
+
                 ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE, Objects.requireNonNull(place.getLatLng()).latitude);
                 ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE, place.getLatLng().longitude);
 
@@ -281,6 +322,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
                 Status status = Autocomplete.getStatusFromIntent(data);
                 //Log.i(TAG, status.getStatusMessage());
             } else if (resultCode == RESULT_CANCELED) {
+
                 Log.i(TAG, "User canceled the operation");
             }
         }
@@ -303,7 +345,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     @Override
     public void onResume() {
         super.onResume();
-        Log.d("Debago", "We are in onResume from RestaurantZctivity ");
         userInformationFromFirebase();
     }
 
@@ -613,16 +654,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         }
     }
 
-
-    private void initializeSharedPreferences(){
-        Log.d("Debago", "RestaurantActivity initialize sharedpreferences ");
-        ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(this), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME, null);
-        ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(this), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID, null);
-      //  ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE, 0);
-      //  ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE, 0);
-
-
-    }
 
 
 

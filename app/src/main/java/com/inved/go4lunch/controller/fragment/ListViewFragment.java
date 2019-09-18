@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -21,15 +20,18 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.GooglePlaceCalls;
-import com.inved.go4lunch.controller.activity.RecyclerViewListViewRestaurant;
+import com.inved.go4lunch.model.placesearch.Result;
+import com.inved.go4lunch.view.RecyclerViewListViewRestaurant;
+import com.inved.go4lunch.controller.activity.RestaurantActivity;
 import com.inved.go4lunch.model.placesearch.PlaceSearch;
 import com.inved.go4lunch.utils.App;
 import com.inved.go4lunch.utils.ManageAutocompleteResponse;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Objects;
 
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_GEOLOCALISATION;
@@ -61,7 +63,7 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
                 myCurrentGeolocalisation = intent.getStringExtra(KEY_GEOLOCALISATION);
                 myCurrentLat = intent.getDoubleExtra(KEY_LATITUDE, 0.0);
                 myCurrentLongi = intent.getDoubleExtra(KEY_LONGITUDE, 0.0);
-                Log.d("Debago", "ListViewFragment broadcast currentlocalisation "+myCurrentGeolocalisation);
+
                 if (!(myCurrentGeolocalisation != null && myCurrentGeolocalisation.equals(myLastGeolocalisation))) {
                     executeHttpRequestPlaceSearchWithRetrofit(myCurrentGeolocalisation);
                     myLastGeolocalisation = myCurrentGeolocalisation;
@@ -95,44 +97,48 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
         filterButton = mView.findViewById(R.id.fragment_list_view_sort_button);
         actionOnFloatingButton();
 
+        ((RestaurantActivity) Objects.requireNonNull(getActivity())).setFragmentRefreshListener(this::getRestaurantNameFromAutocomplete);
+
         return mView;
     }
 
     private void actionOnFloatingButton() {
         filterButton.setOnClickListener(view -> {
             FullScreenDialog dialog = new FullScreenDialog();
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
-            dialog.show(ft, FullScreenDialog.TAG);
+            if(getFragmentManager()!=null){
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                dialog.show(ft, FullScreenDialog.TAG);
+            }
         });
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        Log.d("Debago", "ListViewFragment onResume ");
+
         getRestaurantNameFromAutocomplete();
 
     }
 
-    public void getRestaurantNameFromAutocomplete() {
+    private void getRestaurantNameFromAutocomplete() {
 
         String restaurantNameFromAutocomplete = ManageAutocompleteResponse.getStringAutocomplete((App.getInstance().getApplicationContext()), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME);
-        Log.d("Debago", "ListViewFragment getRestaurant restaurantFromAutocomplete "+restaurantNameFromAutocomplete);
+
         if (restaurantNameFromAutocomplete != null) {
 
             double latitude = ManageAutocompleteResponse.getDoubleAutocomplete(App.getInstance().getApplicationContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE);
-            Log.d("Debago", "ListViewFragment getRestaurant latitude "+latitude);
+
             double longitude = ManageAutocompleteResponse.getDoubleAutocomplete(App.getInstance().getApplicationContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE);
             String lat = String.valueOf(latitude);
             String longi=String.valueOf(longitude);
             myCurrentGeolocalisation=""+lat+","+longi+"";
-            Log.d("Debago", "ListViewFragment getRestaurant in loop "+myCurrentGeolocalisation);
-            if (myCurrentGeolocalisation != null) {
-                executeHttpRequestPlaceSearchWithRetrofit(myCurrentGeolocalisation);
-            }
+
+            executeHttpRequestPlaceSearchWithRetrofit(myCurrentGeolocalisation);
 
         }
     }
+
+
 
     private void executeHttpRequestPlaceSearchWithRetrofit(String geolocalisation) {
 
@@ -141,7 +147,7 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
             int radius = 400;
             String keyword = "restaurant";
             String key = "AIzaSyCYRQL4UOKKcszTAi6OeN8xCvZ7CuFtp8A";//context.getText(R.string.google_maps_key).toString();
-            Log.d("Debago", "ListViewFragment retrofit Call ");
+
             GooglePlaceCalls.fetchPlaces(this, geolocalisation, radius, type, keyword, key);
         }
 
@@ -151,22 +157,44 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
     public void onResponse(@Nullable PlaceSearch response) {
         assert response != null;
 
+
+       /* Collections.sort(response.results, (one, two) -> {
+            if(Integer.valueOf(one.getName()) > Integer.valueOf(two.getName())) {
+                return -1;
+            } else {
+                return 1;
+            }
+
+            public int compareTo(Result o){
+
+            }
+        });*/
+/** BEGINNING TO SORT MY LIST. NOW HOW TO PUT IT IN THE ADAPTER? IN WHAT CONDITION, HOW TO LINK IT WITH THE FULLSCREEN DIALOG?
+        Collections.sort(response.results, Comparator.comparing(Result::getRating)
+                .thenComparing(Result::getOpeningHours)
+                .thenComparing(Result::getOpeningHours)
+                .thenComparing(Result::getGeometry)
+                .thenComparing(Result::getPriceLevel));
+*/
+
+
         String restaurantNameFromAutocomplete = ManageAutocompleteResponse.getStringAutocomplete((App.getInstance().getApplicationContext()), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME);
 
-        Log.d("Debago", "ListViewFragment onResponse result "+response.results);
+
         mRecyclerListViewAdapter.setData(response.results);
 
-        Log.d("Debago", "ListViewFragment onResponse restaurantFromAutocomplete "+restaurantNameFromAutocomplete);
+
+        Log.d(TAG,"ListViewFragment restaurantName "+restaurantNameFromAutocomplete);
         if (restaurantNameFromAutocomplete != null) {
             mRecyclerListViewAdapter.getFilter().filter(restaurantNameFromAutocomplete);
         }else{
-            Log.d(TAG, "ListViewFragment " + "On envoie un getFilter null");
+
             mRecyclerListViewAdapter.getFilter().filter("");
         }
 
         mRecyclerListViewAdapter.setCurrentLocalisation(myCurrentLat, myCurrentLongi);
 
-        Log.d(TAG, "ListViewFragment " + "On initialise les sharedpreferences après avoir filtrer la recyclerView");
+
         initializeSharedPreferences();
     }
 
@@ -183,16 +211,13 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
     @Override
     public void onDetach() {
         super.onDetach();
-        Log.d("Debago", "ListViewFragment ondestroy ");
+
         initializeSharedPreferences();
 }
 
     private void initializeSharedPreferences(){
-        Log.d("Debago", "ListViewFrqgment initialize sharedpreferences ");
+
         ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(getContext()), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME, null);
-        ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(getContext()), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID, null);
-       // ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(getContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE, 0);
-       // ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(getContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE, 0);
 
 
     }

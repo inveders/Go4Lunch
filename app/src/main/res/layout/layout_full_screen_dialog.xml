@@ -98,9 +98,11 @@
                 android:id="@+id/dialog_rating"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+
                 android:numStars="5"
                 android:stepSize="1.0"
                 app:layout_constraintTop_toBottomOf="@id/dialog_rating_text"
+                app:layout_constraintLeft_toLeftOf="@id/dialog_rating_text"
                 />
 
             <!-- CLOSE HOURS -->
@@ -133,7 +135,7 @@
                 app:layout_constraintTop_toBottomOf="@id/dialog_opening_hours_close_text"
                 app:layout_constraintLeft_toLeftOf="@id/dialog_rating_text"
                 android:max="24"
-                android:progress="0"
+                android:progress="24"
                 android:indeterminate="false"
 
                 />
@@ -169,7 +171,7 @@
                 app:layout_constraintTop_toBottomOf="@id/dialog_opening_hours_open_text"
                 app:layout_constraintLeft_toLeftOf="@id/dialog_rating_text"
                 android:max="24"
-                android:progress="0"
+                android:progress="10"
                 android:indeterminate="false"/>
 
 

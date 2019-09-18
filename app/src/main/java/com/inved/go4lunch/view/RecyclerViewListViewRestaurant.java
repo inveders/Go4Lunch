@@ -1,4 +1,4 @@
-package com.inved.go4lunch.controller.activity;
+package com.inved.go4lunch.view;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -28,6 +28,7 @@ import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.PlaceDetailsData;
+import com.inved.go4lunch.controller.activity.ViewPlaceActivity;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.model.placesearch.Result;
 import com.inved.go4lunch.utils.App;
@@ -112,8 +113,6 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
             String name = mData.get(position).getName();
             holder.mRestaurantName.setText(name);
 
-        }else{
-            Log.d("Debago", "RecyclerViewRestaurant onBindViewHolder au début, ECHEC mData est null mon pote");
         }
 
 
@@ -122,8 +121,6 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
         if (mData != null) {
             holder.mRestaurantAdress.setText(mData.get(position).getVicinity());
             placeId = mData.get(position).getPlaceId();
-        }else{
-            Log.d("Debago", "RecyclerViewRestaurant onBindViewHolder dans la boucle MDATA EST NUL");
         }
 
         //NUMBER WORKMATES IN RESTAURANT
@@ -311,7 +308,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
 
     public void setData(List<Result> mData) {
-        Log.d("Debago", "RecyclerViewRestaurant SETDATA : mDATA est " + mData);
+
         this.mData = mData;
         this.mDataFiltered = mData;
         //Fill the Recycler View
@@ -373,32 +370,34 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
                 String charString = charSequence.toString().toLowerCase();
 
-              //  Log.d("Debago", "RecyclerViewRestaurant GETfILTER : charString " + charString);
+
                 if (charString.isEmpty()) {
                     mDataFiltered = mData;
-                    Log.d("Debago", "RecyclerViewRestaurant GETfILTER : charString is empty " + mDataFiltered);
+
                 } else {
                     //   Log.d("Debago", "RecyclerViewRestaurant GETfILTER : charString is not empty result "+   mData.get(0).getName()+" contains charString "+ charString);
                     List<Result> filteredList = new ArrayList<>();
-                    Log.d("Debago", "RecyclerViewRestaurant GETfILTER : filteredList mData est " + mData);
 
-               //     if (mData != null) {
+
+                    if (mData != null) {
                         for (Result result : mData) {
-                            Log.d("Debago", "RecyclerViewRestaurant GETfILTER : charString is not empty result " + result.getName() + " contains charString " + charString);
+
                             if (result.getName().toLowerCase().contains(charString)) {
                                 filteredList.add(result);
+                                Log.d("Debago","RecyclerListView result.getName "+result.getName());
+                                Log.d("Debago","RecyclerListView charString "+result.getName());
                             }
                         }
-                   // }
+                    }
 
                     mDataFiltered = filteredList;
-                    Log.d("Debago", "RecyclerViewRestaurant GETfILTER : charString is not empty mDataFilteredList " + mDataFiltered);
+
+
                 }
 
                 FilterResults filterResults = new FilterResults();
-                Log.d("Debago", "RecyclerViewRestaurant GETfILTER : filteredResult " + mDataFiltered);
+
                 filterResults.values = mDataFiltered;
-               // filterResults.count = mDataFiltered.size(); //A VOIR
                 return filterResults;
 
             }
@@ -406,7 +405,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
             @Override
             protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
                 mDataFiltered = (List<Result>) filterResults.values;
-                Log.d("Debago", "RecyclerViewRestaurant GETfILTER : publishResukt mDatafilteredlist " + mDataFiltered);
+                Log.d("Debago","RecyclerListView on veut snack ender "+mDataFiltered.get(0).getName());
                // RecyclerViewListViewRestaurant.this.setData(mDataFiltered);
                 notifyDataSetChanged();
             }

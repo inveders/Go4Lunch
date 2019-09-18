@@ -1,4 +1,4 @@
-package com.inved.go4lunch.controller.activity;
+package com.inved.go4lunch.view;
 
 import android.content.Intent;
 import android.graphics.Color;

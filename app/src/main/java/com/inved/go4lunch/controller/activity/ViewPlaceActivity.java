@@ -45,6 +45,7 @@ import com.inved.go4lunch.firebase.UserFavoriteRestaurantHelper;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.utils.App;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
+import com.inved.go4lunch.view.WorkmatesAdapter;
 
 import java.util.Collections;
 import java.util.List;

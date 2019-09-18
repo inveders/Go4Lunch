@@ -1,4 +1,4 @@
-package com.inved.go4lunch.controller.activity;
+package com.inved.go4lunch.view;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -10,6 +10,8 @@ import com.bumptech.glide.RequestManager;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.inved.go4lunch.R;
+import com.inved.go4lunch.controller.activity.RestaurantActivity;
+import com.inved.go4lunch.controller.activity.ViewPlaceActivity;
 import com.inved.go4lunch.firebase.User;
 
 public class WorkmatesAdapter extends FirestoreRecyclerAdapter<User, WorkmatesViewHolder>  {

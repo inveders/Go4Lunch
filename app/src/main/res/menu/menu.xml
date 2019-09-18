@@ -9,7 +9,8 @@
         android:id="@+id/action_clear"
         android:icon="@drawable/ic_clear_white_24dp"
         android:title="@string/clear_hint"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="ifRoom"
+        android:visible="false"/>
 
     <item
         android:id="@+id/action_search"

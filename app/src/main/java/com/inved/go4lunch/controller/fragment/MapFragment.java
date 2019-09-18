@@ -38,8 +38,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.PlaceDetailsData;
+import com.inved.go4lunch.controller.activity.RestaurantActivity;
 import com.inved.go4lunch.controller.activity.ViewPlaceActivity;
 import com.inved.go4lunch.firebase.RestaurantHelper;
+import com.inved.go4lunch.utils.App;
 import com.inved.go4lunch.utils.ManageAutocompleteResponse;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
 
@@ -71,7 +73,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         jobPlaceId = ManageJobPlaceId.getJobPlaceId(Objects.requireNonNull(getActivity()), KEY_JOB_PLACE_ID_DATA);
 
-        Log.d(TAG, "Mapfragment " + "On initialise les sharedpreferences dans le onCreate de MapFragment");
         initializeSharedPreferences();
         findCurrentPlaceRequest();
 
@@ -88,10 +89,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mapGeolocalisationButton = mView.findViewById(R.id.fragment_map_gps_geolocalisation_button);
 
         actionOnFloatingButton();
+
+        ((RestaurantActivity) Objects.requireNonNull(getActivity())).setMapFragmentRefreshListener(this::findCurrentPlaceRequest);
+
         return mView;
     }
 
-    private void actionOnFloatingButton() {
+    public void actionOnFloatingButton() {
         mapGeolocalisationButton.setOnClickListener(view -> findCurrentPlaceRequest());
     }
 
@@ -113,6 +117,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onResume() {
         super.onResume();
+
         findCurrentPlaceRequest();
 
     }
@@ -124,15 +129,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     @SuppressLint("MissingPermission")
-    private void findCurrentPlaceRequest() {
+    public void findCurrentPlaceRequest() {
 
-        String sharedPreferenceRestaurantPlaceId = ManageAutocompleteResponse.getStringAutocomplete(Objects.requireNonNull(getContext()), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID);
-        //   Log.d(TAG, "Mapfragment " + "Avant la recherche placedId "+sharedPreferenceRestaurantPlaceId);
+        String sharedPreferenceRestaurantPlaceId = ManageAutocompleteResponse.getStringAutocomplete((App.getInstance().getApplicationContext()), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID);
+
         if (sharedPreferenceRestaurantPlaceId != null) {
-            double latitude = ManageAutocompleteResponse.getDoubleAutocomplete(getContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE);
-            double longitude = ManageAutocompleteResponse.getDoubleAutocomplete(getContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE);
+            double latitude = ManageAutocompleteResponse.getDoubleAutocomplete(App.getInstance().getApplicationContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE);
+            double longitude = ManageAutocompleteResponse.getDoubleAutocomplete(App.getInstance().getApplicationContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE);
             LatLng latLngSharedPreferences = new LatLng(latitude, longitude);
-            //       Log.d(TAG, "Mapfragment " + "LatLng de la recherche " +latLngSharedPreferences+" et placedId "+sharedPreferenceRestaurantPlaceId);
             customizeMarker(sharedPreferenceRestaurantPlaceId, latLngSharedPreferences);
             createRestaurantsInFirebase(sharedPreferenceRestaurantPlaceId);
 
@@ -142,7 +146,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             // Initialize Places.
             Places.initialize(getContext(), getString(R.string.google_api_key));
             // Create a new Places client instance.
-            PlacesClient placesClient = Places.createClient(getContext());
+            PlacesClient placesClient = Places.createClient(App.getInstance().getApplicationContext());
 
             // Use fields to define the data types to return.
             List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME, Place.Field.ID, Place.Field.LAT_LNG, Place.Field.TYPES);
@@ -181,12 +185,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void initializeSharedPreferences(){
-        Log.d("Debago", "MapFragment initialize sharedpreference ");
-     //   ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(getContext()), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME, null);
-        ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(getContext()), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID, null);
-     //   ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(getContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE, 0);
-     //   ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(getContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE, 0);
 
+        ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(App.getInstance().getApplicationContext()), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID, null);
 
     }
 
