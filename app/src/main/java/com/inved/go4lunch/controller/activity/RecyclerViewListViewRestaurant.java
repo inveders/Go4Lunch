@@ -111,7 +111,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
         if(mData!=null){
             String name = mData.get(position).getName();
             holder.mRestaurantName.setText(name);
-            Log.d("Debago", "RecyclerViewRestaurant onBindViewHolder au début, name" + name);
+
         }else{
             Log.d("Debago", "RecyclerViewRestaurant onBindViewHolder au début, ECHEC mData est null mon pote");
         }

@@ -121,6 +121,7 @@
     <!-- SEARCHVIEW-->
     <string name="search_hint">Search…</string>
     <string name="par_defaut">Default</string>
+    <string name="clear_hint">Clear</string>
 
     <!-- BOTTOM NAVIGATION VIEW -->
     <string name="bottom_navigation_menu_map">Map View</string>

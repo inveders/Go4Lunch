@@ -102,4 +102,5 @@
     <string name="view_place_call_image_text">APPELER</string>
     <string name="view_place_like_image_text">AIMER</string>
     <string name="view_place_webste_image_text">SITE WEB</string>
+    <string name="clear_hint">Effacer</string>
 </resources>
