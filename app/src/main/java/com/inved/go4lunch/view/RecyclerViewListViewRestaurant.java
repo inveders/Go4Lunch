@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,12 +24,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.RequestManager;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.PhotoMetadata;
 import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.FetchPhotoRequest;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.PlaceDetailsData;
 import com.inved.go4lunch.controller.activity.ViewPlaceActivity;
+import com.inved.go4lunch.firebase.RestaurantHelper;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.model.placesearch.Result;
 import com.inved.go4lunch.utils.App;
@@ -40,40 +44,30 @@ import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LATITUDE;
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LOCATION_CHANGED;
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LONGITUDE;
+import static com.inved.go4lunch.controller.fragment.MapFragment.RESTAURANT_PLACE_ID;
 import static com.inved.go4lunch.utils.ManageJobPlaceId.KEY_JOB_PLACE_ID_DATA;
 
 public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<RecyclerViewListViewRestaurant.ViewHolder> implements Filterable {
 
-    private Double myCurrentLat;
-    private Double myCurrentLongi;
+
     private String jobPlaceId;
 
     private PlacesClient placesClient;
 
-    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (KEY_LOCATION_CHANGED.equals(intent.getAction())) {
-                myCurrentLat = intent.getDoubleExtra(KEY_LATITUDE, 0.0);
-                myCurrentLongi = intent.getDoubleExtra(KEY_LONGITUDE, 0.0);
 
-            }
-
-
-        }
-    };
 
     @Nullable
     private List<Result> mData;
     private List<Result> mDataFiltered;
 
-    private UnitConversion unitConversion = new UnitConversion();
+
     private String placeId;
     private final RequestManager glide;
     private PlaceDetailsData placeDetailsData = new PlaceDetailsData();
@@ -89,7 +83,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
     public RecyclerViewListViewRestaurant.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_listview_item, parent, false);
-        LocalBroadcastManager.getInstance(parent.getContext()).registerReceiver(broadcastReceiver, new IntentFilter(KEY_LOCATION_CHANGED));
+
 
         jobPlaceId = ManageJobPlaceId.getJobPlaceId(parent.getContext(), KEY_JOB_PLACE_ID_DATA);
 
@@ -112,15 +106,19 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
         if(mData!=null){
             String name = mData.get(position).getName();
             holder.mRestaurantName.setText(name);
+            Log.d("Debago","restaurantName in bindview holder is "+name);
+            placeId = mData.get(position).getPlaceId();
+
+
+
 
         }
 
-
-      //  Log.d("Debago", "RecyclerViewRestaurant onBindViewHolder au début, mDataFiltered" + mDataFiltered.get(position).getPlaceId());
+      //  holder.mDistance.setText(App.getResourses().getString(R.string.distance_text, distance));
 
         if (mData != null) {
             holder.mRestaurantAdress.setText(mData.get(position).getVicinity());
-            placeId = mData.get(position).getPlaceId();
+
         }
 
         //NUMBER WORKMATES IN RESTAURANT
@@ -135,134 +133,61 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
         });
 
         //PHOTO
-        if(mData.get(position).getPhotos().get(0).getPhotoReference()!=null){
-            String url = "https://maps.googleapis.com/maps/api/place/photo" + "?maxwidth=" + 400 +
-                    "&photoreference=" +
-                    mData.get(position).getPhotos().get(0).getPhotoReference() +
-                    "&key=" +
-                    App.getResourses().getString(R.string.google_api_key);
-            glide.load(url)
-                    .placeholder(R.drawable.ic_android_blue_24dp)
-                    .error(R.drawable.ic_error_red_24dp)
-                    .into(holder.mRestaurantImage);
-        }else{
-            String url = "https://images.unsplash.com/photo-1498837167922-ddd27525d352?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80";
-            glide.load(url)
-                    .placeholder(R.drawable.ic_android_blue_24dp)
-                    .error(R.drawable.ic_error_red_24dp)
-                    .into(holder.mRestaurantImage);
+        if(mData!=null){
+            if(mData.get(position).getPhotos().get(0).getPhotoReference()!=null){
+                String url = "https://maps.googleapis.com/maps/api/place/photo" + "?maxwidth=" + 400 +
+                        "&photoreference=" +
+                        mData.get(position).getPhotos().get(0).getPhotoReference() +
+                        "&key=" +
+                        App.getResourses().getString(R.string.google_api_key);
+                glide.load(url)
+                        .placeholder(R.drawable.ic_android_blue_24dp)
+                        .error(R.drawable.ic_error_red_24dp)
+                        .into(holder.mRestaurantImage);
+            }else{
+                String url = "https://images.unsplash.com/photo-1498837167922-ddd27525d352?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80";
+                glide.load(url)
+                        .placeholder(R.drawable.ic_android_blue_24dp)
+                        .error(R.drawable.ic_error_red_24dp)
+                        .into(holder.mRestaurantImage);
+            }
         }
 
 
 
-        //DISTANCE
-        double latitudeRestaurant = unitConversion.convertRad(mData.get(position).getGeometry().getLocation().getLat());
-        Double longitudeRestaurant = unitConversion.convertRad(mData.get(position).getGeometry().getLocation().getLng());
-        double latCurrent = unitConversion.convertRad(myCurrentLat);
-        Double longiCurrent = unitConversion.convertRad(myCurrentLongi);
-
-        DecimalFormat df = new DecimalFormat("#");
-        df.setRoundingMode(RoundingMode.HALF_UP);
-
-        Double distanceDouble = Math.acos(Math.sin(latCurrent) * Math.sin(latitudeRestaurant) + Math.cos(latCurrent) * Math.cos(latitudeRestaurant) * Math.cos(longitudeRestaurant - longiCurrent)) * 6371 * 1000;
-        String distance = df.format(distanceDouble);
-        holder.mDistance.setText(App.getResourses().getString(R.string.distance_text, distance));
 
 
-        //OPENING HOURS
-        //If it open
-        if (mData.get(position).getOpeningHours() != null) {
-            LocalDateTime currentTime = LocalDateTime.now();
-            int current_day = currentTime.getDayOfWeek().getValue();
-            if (mData.get(position).getOpeningHours().getOpenNow()) {
 
 
-                // Define a Place ID.
-                // String placeId = "INSERT_PLACE_ID_HERE";
 
-                // Specify the fields to return.
-                List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.OPENING_HOURS);
 
-                // Construct a request object, passing the place ID and fields array.
-                FetchPlaceRequest request = FetchPlaceRequest.builder(placeId, placeFields)
-                        .build();
+        //openinh hours
 
-                // Add a listener to handle the response.
-                placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
-                    Place place = response.getPlace();
-                    if (place.getOpeningHours() != null) {
+        //  Log.d("Debago", "RecyclerViewRestaurant OPENINGHOURS 2 " + place.getOpeningHours().getPeriods().get(0));
+     /*   holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.open_hours_text, opening_hours_open));
 
-                        if (place.getOpeningHours().getPeriods().get(current_day).getClose() != null) {
-                            int opening_hours_close = Objects.requireNonNull(place.getOpeningHours().getPeriods().get(current_day).getClose()).getTime().getHours();
-                            //PK MON GETTIME peut être bnul ici?
-
-                            //  Log.d("Debago", "RecyclerViewRestaurant OPENINGHOURS 2 " + place.getOpeningHours().getPeriods().get(0));
-                            if (opening_hours_close == 0) {
-                                holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.opening_hours_midnight));
-                            } else {
-                                holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.open_hours_until, opening_hours_close));
-
-                            }
-                        }
-
-                    }
-                    //   Log.i("Debago", "Place found close hours: " + opening_hours_close + " current day " + current_day);
-                }).addOnFailureListener((exception) -> {
-                    if (exception instanceof ApiException) {
-
-                        // Handle error with given status code.
-                        Log.e("Debago", "Place not found: " + exception.getMessage());
-                    }
-                });
-
-            }
-            //if it close
-            else {
-                // Define a Place ID.
-                // String placeId = "INSERT_PLACE_ID_HERE";
-
-                // Specify the fields to return.
-                List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.OPENING_HOURS);
-
-                // Construct a request object, passing the place ID and fields array.
-                FetchPlaceRequest request = FetchPlaceRequest.builder(placeId, placeFields)
-                        .build();
-
-                // Add a listener to handle the response.
-                placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
-                    Place place = response.getPlace();
-                    if (place.getOpeningHours() != null) {
-
-                        if (place.getOpeningHours().getPeriods().get(current_day).getOpen() != null) {
-                            int opening_hours_open = Objects.requireNonNull(place.getOpeningHours().getPeriods().get(current_day).getOpen()).getTime().getHours();
-
-                            //  Log.d("Debago", "RecyclerViewRestaurant OPENINGHOURS 2 " + place.getOpeningHours().getPeriods().get(0));
-                            holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.open_hours_text, opening_hours_open));
-
-                        }
-                    }
-
-                }).addOnFailureListener((exception) -> {
-                    if (exception instanceof ApiException) {
-
-                        // Handle error with given status code.
-                        Log.e("Debago", "Place not found: " + exception.getMessage());
-                    }
-                });
-
-            }
-
+        if(opening_hours_close<15){
+            RestaurantHelper.updateRestaurantOpenForLunch(true,placeId,jobPlaceId);
         }
+
+        //  Log.d("Debago", "RecyclerViewRestaurant OPENINGHOURS 2 " + place.getOpeningHours().getPeriods().get(0));
+        if (opening_hours_close == 0) {
+            holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.opening_hours_midnight));
+        } else {
+            holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.open_hours_until, opening_hours_close));
+
+        }*/
+
 
         //CLICK ON A RESTAURANT
         holder.mConstraintLayoutItem.setOnClickListener(view -> {
 
             if(mData.get(position).getPlaceId()!=null){
                 placeId = mData.get(position).getPlaceId();
-                placeDetailsData.setPlaceId(placeId);
 
                 // Launch View Place Activity
                 Intent intent = new Intent(view.getContext(), ViewPlaceActivity.class);
+                intent.putExtra(RESTAURANT_PLACE_ID,placeId);
                 view.getContext().startActivity(intent);
             }
             else{
@@ -278,19 +203,67 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
             holder.mStarFirst.setVisibility(View.VISIBLE);
             holder.mStarSecond.setVisibility(View.INVISIBLE);
             holder.mStarThird.setVisibility(View.INVISIBLE);
+            RestaurantHelper.updateRestaurantRatingApp(1,placeId,jobPlaceId);
         } else if (ratingValue >= 1.665 && ratingValue < 3.33) {
             holder.mStarFirst.setVisibility(View.VISIBLE);
             holder.mStarSecond.setVisibility(View.VISIBLE);
             holder.mStarThird.setVisibility(View.INVISIBLE);
+            RestaurantHelper.updateRestaurantRatingApp(2,placeId,jobPlaceId);
         } else if (ratingValue >= 3.33 && ratingValue <= 5) {
             holder.mStarFirst.setVisibility(View.VISIBLE);
             holder.mStarSecond.setVisibility(View.VISIBLE);
             holder.mStarThird.setVisibility(View.VISIBLE);
+            RestaurantHelper.updateRestaurantRatingApp(3,placeId,jobPlaceId);
         } else if (ratingValue <= 0 || ratingValue > 5) {
             holder.mStarFirst.setVisibility(View.INVISIBLE);
             holder.mStarSecond.setVisibility(View.INVISIBLE);
             holder.mStarThird.setVisibility(View.INVISIBLE);
+            RestaurantHelper.updateRestaurantRatingApp(0,placeId,jobPlaceId);
         }
+
+        //PHOTO
+        // Initialize Places.
+        Places.initialize(App.getInstance().getApplicationContext(), App.getResourses().getString(R.string.google_api_key));
+
+        // Create a new Places client instance.
+        PlacesClient placesClient = Places.createClient(App.getInstance().getApplicationContext());
+
+        // Specify the fields to return.
+        List<Place.Field> fields = Collections.singletonList(Place.Field.PHOTO_METADATAS);
+
+        FetchPlaceRequest placeRequest = FetchPlaceRequest.builder(placeId, fields).build();
+
+        placesClient.fetchPlace(placeRequest).addOnSuccessListener((response) -> {
+            Place place = response.getPlace();
+
+            // Get the photo metadata.
+            PhotoMetadata photoMetadata;
+
+            if (place.getPhotoMetadatas() != null) {
+                photoMetadata = place.getPhotoMetadatas().get(0);
+            } else {
+                photoMetadata = null;
+            }
+
+            // Get the attribution text.
+            String attributions = photoMetadata.getAttributions();
+            holder.mRestaurantImage.setContentDescription(attributions);
+            // Create a FetchPhotoRequest.
+            FetchPhotoRequest photoRequest = FetchPhotoRequest.builder(photoMetadata)
+                    .setMaxWidth(500) // Optional.
+                    .setMaxHeight(300) // Optional.
+                    .build();
+            placesClient.fetchPhoto(photoRequest).addOnSuccessListener((fetchPhotoResponse) -> {
+                Bitmap bitmap = fetchPhotoResponse.getBitmap();
+                holder.mRestaurantImage.setImageBitmap(bitmap);
+            }).addOnFailureListener((exception) -> {
+                if (exception instanceof ApiException) {
+
+                    // Handle error with given status code.
+                    Log.e("debago", "Place not found: " + exception.getMessage());
+                }
+            });
+        });
 
     }
 
@@ -299,6 +272,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
     public int getItemCount() {
 
         if (mDataFiltered != null) {
+
            return mDataFiltered.size();
         }else{
             return 0;
@@ -309,6 +283,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
     public void setData(List<Result> mData) {
 
+        Log.d("Debago","mData dans le setData "+mData);
         this.mData = mData;
         this.mDataFiltered = mData;
         //Fill the Recycler View
@@ -319,8 +294,8 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
     public void setCurrentLocalisation(Double lat, Double longi) {
 
-        myCurrentLat = lat;
-        myCurrentLongi = longi;
+        //myCurrentLat = lat;
+       // myCurrentLongi = longi;
         //Fill the Recycler View
         //  notifyDataSetChanged();
 
@@ -384,8 +359,6 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
                             if (result.getName().toLowerCase().contains(charString)) {
                                 filteredList.add(result);
-                                Log.d("Debago","RecyclerListView result.getName "+result.getName());
-                                Log.d("Debago","RecyclerListView charString "+result.getName());
                             }
                         }
                     }
@@ -398,6 +371,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
                 FilterResults filterResults = new FilterResults();
 
                 filterResults.values = mDataFiltered;
+                Log.d("Debago","filteredresult after loop "+filterResults);
                 return filterResults;
 
             }
@@ -405,7 +379,6 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
             @Override
             protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
                 mDataFiltered = (List<Result>) filterResults.values;
-                Log.d("Debago","RecyclerListView on veut snack ender "+mDataFiltered.get(0).getName());
                // RecyclerViewListViewRestaurant.this.setData(mDataFiltered);
                 notifyDataSetChanged();
             }

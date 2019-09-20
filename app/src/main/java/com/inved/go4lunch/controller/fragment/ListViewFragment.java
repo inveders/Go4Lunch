@@ -23,15 +23,13 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.GooglePlaceCalls;
-import com.inved.go4lunch.model.placesearch.Result;
-import com.inved.go4lunch.view.RecyclerViewListViewRestaurant;
 import com.inved.go4lunch.controller.activity.RestaurantActivity;
+import com.inved.go4lunch.firebase.RestaurantHelper;
 import com.inved.go4lunch.model.placesearch.PlaceSearch;
 import com.inved.go4lunch.utils.App;
 import com.inved.go4lunch.utils.ManageAutocompleteResponse;
+import com.inved.go4lunch.view.RecyclerViewListViewRestaurant;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Objects;
 
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_GEOLOCALISATION;
@@ -104,11 +102,12 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
 
     private void actionOnFloatingButton() {
         filterButton.setOnClickListener(view -> {
-            FullScreenDialog dialog = new FullScreenDialog();
+          /*  FullScreenDialog dialog = new FullScreenDialog();
             if(getFragmentManager()!=null){
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
                 dialog.show(ft, FullScreenDialog.TAG);
-            }
+            }*/
+          mRecyclerListViewAdapter.getFilter().filter("Snack ender");
         });
     }
 
@@ -124,17 +123,13 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
 
         String restaurantNameFromAutocomplete = ManageAutocompleteResponse.getStringAutocomplete((App.getInstance().getApplicationContext()), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME);
 
+        Log.d(TAG,"ListViewFragment restaurantName "+restaurantNameFromAutocomplete);
         if (restaurantNameFromAutocomplete != null) {
+            mRecyclerListViewAdapter.getFilter().filter(restaurantNameFromAutocomplete);
+            initializeSharedPreferences();
+        }else{
 
-            double latitude = ManageAutocompleteResponse.getDoubleAutocomplete(App.getInstance().getApplicationContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE);
-
-            double longitude = ManageAutocompleteResponse.getDoubleAutocomplete(App.getInstance().getApplicationContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE);
-            String lat = String.valueOf(latitude);
-            String longi=String.valueOf(longitude);
-            myCurrentGeolocalisation=""+lat+","+longi+"";
-
-            executeHttpRequestPlaceSearchWithRetrofit(myCurrentGeolocalisation);
-
+            mRecyclerListViewAdapter.getFilter().filter("");
         }
     }
 
@@ -169,33 +164,16 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
 
             }
         });*/
-/** BEGINNING TO SORT MY LIST. NOW HOW TO PUT IT IN THE ADAPTER? IN WHAT CONDITION, HOW TO LINK IT WITH THE FULLSCREEN DIALOG?
-        Collections.sort(response.results, Comparator.comparing(Result::getRating)
-                .thenComparing(Result::getOpeningHours)
-                .thenComparing(Result::getOpeningHours)
-                .thenComparing(Result::getGeometry)
-                .thenComparing(Result::getPriceLevel));
+       /* RestaurantHelper.sortRestaurant()
+        String jobPlaceId, int ratingApp,boolean openForLunch,int restaurantCustomers,Double distance
 */
 
-
-        String restaurantNameFromAutocomplete = ManageAutocompleteResponse.getStringAutocomplete((App.getInstance().getApplicationContext()), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME);
-
-
         mRecyclerListViewAdapter.setData(response.results);
-
-
-        Log.d(TAG,"ListViewFragment restaurantName "+restaurantNameFromAutocomplete);
-        if (restaurantNameFromAutocomplete != null) {
-            mRecyclerListViewAdapter.getFilter().filter(restaurantNameFromAutocomplete);
-        }else{
-
-            mRecyclerListViewAdapter.getFilter().filter("");
-        }
 
         mRecyclerListViewAdapter.setCurrentLocalisation(myCurrentLat, myCurrentLongi);
 
 
-        initializeSharedPreferences();
+
     }
 
     @Override

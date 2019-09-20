@@ -79,8 +79,8 @@
     <string name="opening_hours_midnight">Open until midnight</string>
     <string name="Closed_restaurant">Closed</string>
     <string name="workmates_in_restaurant" translatable="false">( %d )</string>
-    <string name="open_hours_text">Opening to %d</string>
-    <string name="open_hours_until">Open until %d</string>
+    <string name="open_hours_text">Opening to %d h</string>
+    <string name="open_hours_until">Open until %d h</string>
     <string name="distance_text" translatable="false">%1$s m</string>
 
 
@@ -137,13 +137,16 @@
     <string name="fullscreen_dialog_sort_out_text">SORT OUT</string>
     <string name="fullscreen_dialog_page_title">Find YOUR restaurant !</string>
     <string name="fullscreen_dialog__by_rating">Rating</string>
-    <string name="fullscreen_dialog__by_opening_hours">Opening hours</string>
+    <string name="fullscreen_dialog__by_open_for_lunch">Open for lunch today ?</string>
     <string name="fullscreen_dialog__by_opening_hours_close">Close hours</string>
     <string name="fullscreen_dialog__by_distance_from_me">Distance from me (m) </string>
-    <string name="fullscreen_dialog__by_price_level">Price level</string>
+    <string name="fullscreen_dialog__by_workmates_in">Number of workmates in</string>
     <string name="fullscreen_dialog__value">VALUE</string>
     <string name="fullscreen_dialog__value_in_meter" translatable="false">%d m</string>
     <string name="fullscreen_dialog__value_in_hours" translatable="false">%d h</string>
+    <string name="fullscreen_dialog__value_workmate_in" translatable="false">%d</string>
+    <string name="fullscreen_dialog_sort_name">SORT</string>
+    <string name="image_content_description">Image description</string>
 
 
 </resources>

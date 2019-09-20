@@ -89,10 +89,9 @@
     <string name="Profile_Activity_Title">Paramètres</string>
     <string name="toolbar_title_people_fragment">Collègues disponibles</string>
     <string name="opening_hours_midnight">Ouvert jusqu\'à minuit</string>
-    <string name="open_hours_text">Ouvre à %d</string>
-    <string name="open_hours_until">Ouvert jusqu\'à %d</string>
+    <string name="open_hours_text">Ouvre à %d h</string>
+    <string name="open_hours_until">Ouvert jusqu\'à %d h</string>
     <string name="fullscreen_dialog__by_distance_from_me">Distance</string>
-    <string name="fullscreen_dialog__by_opening_hours">Heures d\'ouvertures</string>
     <string name="fullscreen_dialog__by_price_level">Prix</string>
     <string name="fullscreen_dialog__by_rating">Note</string>
     <string name="fullscreen_dialog_page_title">Trouvez VOTRE restaurant !</string>
@@ -103,4 +102,8 @@
     <string name="view_place_like_image_text">AIMER</string>
     <string name="view_place_webste_image_text">SITE WEB</string>
     <string name="clear_hint">Effacer</string>
+    <string name="fullscreen_dialog_sort_name">TRIER</string>
+    <string name="image_content_description">Description de l\'image</string>
+    <string name="fullscreen_dialog__by_open_for_lunch">Ouvert pour le midi ?</string>
+    <string name="fullscreen_dialog__by_workmates_in">Nombre de collègues partants</string>
 </resources>

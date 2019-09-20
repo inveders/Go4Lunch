@@ -1,13 +1,11 @@
 package com.inved.go4lunch.controller.fragment;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +15,6 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -28,40 +25,32 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.model.PlaceLikelihood;
-import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest;
-import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.inved.go4lunch.R;
-import com.inved.go4lunch.api.PlaceDetailsData;
 import com.inved.go4lunch.controller.activity.RestaurantActivity;
 import com.inved.go4lunch.controller.activity.ViewPlaceActivity;
+import com.inved.go4lunch.firebase.Restaurant;
 import com.inved.go4lunch.firebase.RestaurantHelper;
 import com.inved.go4lunch.utils.App;
 import com.inved.go4lunch.utils.ManageAutocompleteResponse;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
-import static com.inved.go4lunch.controller.activity.RestaurantActivity.TAG;
 import static com.inved.go4lunch.utils.ManageJobPlaceId.KEY_JOB_PLACE_ID_DATA;
 
-public class MapFragment extends Fragment implements OnMapReadyCallback {
+public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
+    public static final String RESTAURANT_PLACE_ID = "PLACE_ID";
     private GoogleMap mGoogleMap;
     private View mView;
-    protected Marker mMarker;
+    private Marker mMarker;
     private String jobPlaceId;
 
     private FloatingActionButton mapGeolocalisationButton;
 
-    private PlaceDetailsData placeDetailsData = new PlaceDetailsData();
 
     public MapFragment() {
         //Required empty public constructor
@@ -74,7 +63,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         jobPlaceId = ManageJobPlaceId.getJobPlaceId(Objects.requireNonNull(getActivity()), KEY_JOB_PLACE_ID_DATA);
 
         initializeSharedPreferences();
-        findCurrentPlaceRequest();
+        initializeMap();
 
 
     }
@@ -90,13 +79,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         actionOnFloatingButton();
 
-        ((RestaurantActivity) Objects.requireNonNull(getActivity())).setMapFragmentRefreshListener(this::findCurrentPlaceRequest);
+        ((RestaurantActivity) Objects.requireNonNull(getActivity())).setMapFragmentRefreshListener(this::initializeMap);
 
         return mView;
     }
 
-    public void actionOnFloatingButton() {
-        mapGeolocalisationButton.setOnClickListener(view -> findCurrentPlaceRequest());
+    private void actionOnFloatingButton() {
+        mapGeolocalisationButton.setOnClickListener(view -> initializeMap());
     }
 
     @Override
@@ -105,11 +94,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         MapView mMapView = mView.findViewById(R.id.mapfrag);
 
+
         if (mMapView != null) {
             mMapView.onCreate(null);
             mMapView.onResume();
 
+
             mMapView.getMapAsync(this);
+
+
+
         }
     }
 
@@ -118,7 +112,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onResume() {
         super.onResume();
 
-        findCurrentPlaceRequest();
+        initializeMap();
 
     }
 
@@ -128,124 +122,70 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     }
 
-    @SuppressLint("MissingPermission")
-    public void findCurrentPlaceRequest() {
+
+    private void initializeMap() {
 
         String sharedPreferenceRestaurantPlaceId = ManageAutocompleteResponse.getStringAutocomplete((App.getInstance().getApplicationContext()), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID);
 
         if (sharedPreferenceRestaurantPlaceId != null) {
             double latitude = ManageAutocompleteResponse.getDoubleAutocomplete(App.getInstance().getApplicationContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE);
             double longitude = ManageAutocompleteResponse.getDoubleAutocomplete(App.getInstance().getApplicationContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE);
-            LatLng latLngSharedPreferences = new LatLng(latitude, longitude);
-            customizeMarker(sharedPreferenceRestaurantPlaceId, latLngSharedPreferences);
-            createRestaurantsInFirebase(sharedPreferenceRestaurantPlaceId);
-
-            //InitializeSharedPreferences
+            //   LatLng latLngSharedPreferences = new LatLng(latitude, longitude);
+            customizeMarker(sharedPreferenceRestaurantPlaceId, latitude, longitude);
             initializeSharedPreferences();
+
+
         } else {
-            // Initialize Places.
-            Places.initialize(getContext(), getString(R.string.google_api_key));
-            // Create a new Places client instance.
-            PlacesClient placesClient = Places.createClient(App.getInstance().getApplicationContext());
 
-            // Use fields to define the data types to return.
-            List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME, Place.Field.ID, Place.Field.LAT_LNG, Place.Field.TYPES);
+            RestaurantHelper.getAllRestaurants(jobPlaceId).get().addOnSuccessListener(queryDocumentSnapshots -> {
 
-            // Use the builder to create a FindCurrentPlaceRequest.
-            FindCurrentPlaceRequest request = FindCurrentPlaceRequest.builder(placeFields).build();
+                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                    Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
 
-            placesClient.findCurrentPlace(request).addOnSuccessListener(((response) -> {
-                for (PlaceLikelihood placeLikelihood : response.getPlaceLikelihoods()) {
+                    String restaurantPlaceId = restaurant.getRestaurantPlaceId();
+                    double latitude = restaurant.getLatitude();
+                    double longitude = restaurant.getLongitude();
 
-                    List typesList = placeLikelihood.getPlace().getTypes();
-
-                    assert typesList != null;
-                    for (int i = 0; i < typesList.size(); i++) {
-                        if ("RESTAURANT".equals(typesList.get(i).toString())) {
-                            String restaurantPlaceId = placeLikelihood.getPlace().getId();
-                            LatLng latLng = placeLikelihood.getPlace().getLatLng();
-
-                            customizeMarker(restaurantPlaceId, latLng);
-                            createRestaurantsInFirebase(restaurantPlaceId);
-                        }
-
-                    }
-
-
+                    customizeMarker(restaurantPlaceId, latitude, longitude);
                 }
-            })).addOnFailureListener((exception) -> {
-                if (exception instanceof ApiException) {
-                    ApiException apiException = (ApiException) exception;
-                    Log.e(TAG, "Place not found: " + apiException.getStatusCode());
-                }
+
+            }).addOnFailureListener(e -> {
+
             });
         }
 
 
     }
 
-    private void initializeSharedPreferences(){
+    private void initializeSharedPreferences() {
 
         ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(App.getInstance().getApplicationContext()), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID, null);
 
     }
 
-    @SuppressLint("MissingPermission")
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-
-        // MapsInitializer.initialize(getContext());
-        mGoogleMap = googleMap;
-        //    mGoogleMap.setMyLocationEnabled(true);
-        //   mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
-        mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        //    mGoogleMap.moveCamera(CameraUpdateFactory.zoomBy(11));
-
-
-    }
-
 
     // Launch View Place Activity
-    private void startViewPlaceActivity() {
+    private void startViewPlaceActivity(String placeId) {
         Intent intent = new Intent(getContext(), ViewPlaceActivity.class);
+        intent.putExtra(RESTAURANT_PLACE_ID, placeId);
         startActivity(intent);
     }
 
 
-    private OnFailureListener onFailureListener() {
-        return e -> {
-            //  Toast.makeText(getApplicationContext(), getString(R.string.error_unknown_error), Toast.LENGTH_LONG).show();
-            Log.d(TAG, "On failure creation restaurant ");
-        };
-    }
+    private void customizeMarker(String restaurantPlaceId, double lat, double longi) {
 
-    private void createRestaurantsInFirebase(String restaurantPlaceId) {
-        //Create restaurant in firebase if it doesn't exist
+        if(mGoogleMap!=null){
+            mGoogleMap.clear();
+        }
 
-        RestaurantHelper.getRestaurant(restaurantPlaceId, jobPlaceId).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                DocumentSnapshot document = task.getResult();
-                assert document != null;
-                if (!document.exists()) {
-
-                    RestaurantHelper.createRestaurant(restaurantPlaceId, restaurantPlaceId, 0, 0, jobPlaceId).addOnFailureListener(onFailureListener());
-                }
-            }
-        });
-
-
-    }
-
-
-    private void customizeMarker(String restaurantPlaceId, LatLng latLng) {
-
-        mGoogleMap.clear();
         int mZoom = 18;
         int mBearing = 0;
         int mTilt = 45;
         if (mMarker != null) {
             mMarker.remove();
         }
+
+        LatLng latLng = new LatLng(lat, longi);
 
 
         MarkerOptions markerOptions = new MarkerOptions();
@@ -254,47 +194,61 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         RestaurantHelper.getRestaurant(restaurantPlaceId, jobPlaceId).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
-                assert document != null;
-                if (document.exists()) {
+                if (document != null) {
+                    Restaurant restaurant = document.toObject(Restaurant.class);
 
-                    markerOptions.position(latLng);
+                    if (restaurant != null) {
+                        if (document.exists()) {
 
-                    //creating and getting restaurant information
-                    int numberCustomers = Integer.parseInt(Objects.requireNonNull(document.get("restaurantCustomers")).toString());
-                    if (numberCustomers > 0) {
-                        markerOptions.icon(bitmapDescriptorFromVectorSelected(getContext()));
-                        mGoogleMap.addMarker(markerOptions);
+                            markerOptions.position(latLng);
 
-                    } else {
-                        markerOptions.icon(bitmapDescriptorFromVectorNotSelected(getContext()));
-                        mGoogleMap.addMarker(markerOptions);
+                            //creating and getting restaurant information
+                            int numberCustomers = restaurant.getRestaurantCustomers();
+                            if (numberCustomers > 0) {
+                                markerOptions.icon(bitmapDescriptorFromVectorSelected(getContext()));
+                                mGoogleMap.addMarker(markerOptions);
 
+                            } else {
+                                markerOptions.icon(bitmapDescriptorFromVectorNotSelected(getContext()));
+                                mGoogleMap.addMarker(markerOptions);
+
+                            }
+
+                            CameraPosition Liberty = CameraPosition.builder().target(latLng).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
+                            mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
+                            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                        }
                     }
-
-                    CameraPosition Liberty = CameraPosition.builder().target(latLng).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
-                    mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
-                    mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                 }
-            }
-        });
-
-
-        //Configure action on marker click
-        mGoogleMap.setOnMarkerClickListener(marker -> {
-
-            if (marker.getSnippet() != null) {
-
-                placeDetailsData.setPlaceId(marker.getSnippet());
-
-                startViewPlaceActivity();
 
 
             }
-            return true;
         });
 
+        if(mGoogleMap!=null){
+            //Configure action on marker click
+            mGoogleMap.setOnMarkerClickListener(marker -> {
+
+                if (marker.getSnippet() != null) {
+
+                    startViewPlaceActivity(marker.getSnippet());
+
+                }
+                return true;
+            });
+        }
 
     }
+
+    public boolean onMarkerClick(Marker marker) {
+        if (marker.getSnippet() != null) {
+
+            startViewPlaceActivity(marker.getSnippet());
+
+        }
+        return true;
+    }
+
 
 
     private BitmapDescriptor bitmapDescriptorFromVectorSelected(Context context) {
@@ -306,22 +260,48 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         Bitmap bitmap = Bitmap.createBitmap(background.getIntrinsicWidth(), background.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         background.draw(canvas);
-        vectorDrawable.draw(canvas);
+        if (vectorDrawable != null) {
+            vectorDrawable.draw(canvas);
+        }
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
     private BitmapDescriptor bitmapDescriptorFromVectorNotSelected(Context context) {
         Drawable background = ContextCompat.getDrawable(context, R.drawable.ic_location_not_selected_24dp);
-        background.setBounds(0, 0, background.getIntrinsicWidth(), background.getIntrinsicHeight());
+        if (background != null) {
+            background.setBounds(0, 0, background.getIntrinsicWidth(), background.getIntrinsicHeight());
+        }
         Drawable vectorDrawable = ContextCompat.getDrawable(context, R.drawable.ic_location_not_selected_24dp);
 
-        Bitmap bitmap = Bitmap.createBitmap(background.getIntrinsicWidth(), background.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        background.draw(canvas);
+        Bitmap bitmap = null;
+        if (background != null) {
+            bitmap = Bitmap.createBitmap(background.getIntrinsicWidth(), background.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        }
+        Canvas canvas = null;
+        if (bitmap != null) {
+            canvas = new Canvas(bitmap);
+        }
+        if (background != null) {
+            if (canvas != null) {
+                background.draw(canvas);
+            }
+        }
         assert vectorDrawable != null;
-        vectorDrawable.draw(canvas);
+        if (canvas != null) {
+            vectorDrawable.draw(canvas);
+        }
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
 
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+
+        mGoogleMap = googleMap;
+        mGoogleMap.setOnMarkerClickListener(marker -> false);
+        //    mGoogleMap.setMyLocationEnabled(true);
+        //   mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
+        mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        //    mGoogleMap.moveCamera(CameraUpdateFactory.zoomBy(11));
+    }
 }

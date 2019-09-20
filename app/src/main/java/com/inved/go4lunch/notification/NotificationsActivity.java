@@ -28,6 +28,8 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 
+import static com.inved.go4lunch.controller.fragment.MapFragment.RESTAURANT_PLACE_ID;
+
 public class NotificationsActivity extends BaseActivity {
 
     public static final String NOTIFICATION_RESTAURANT_NAME = "RESTAURANT_NAME";
@@ -144,9 +146,8 @@ public class NotificationsActivity extends BaseActivity {
             btnSeeRestaurantChoosen.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    placeDetailsData.setPlaceId(placeId);
 
-                    startViewPlaceActivity();
+                    startViewPlaceActivity(placeId);
                 }
             });
         }
@@ -173,8 +174,9 @@ public class NotificationsActivity extends BaseActivity {
     }
 
     // Launch View Place Activity
-    private void startViewPlaceActivity() {
+    private void startViewPlaceActivity(String placeId) {
         Intent intent = new Intent(this, ViewPlaceActivity.class);
+        intent.putExtra(RESTAURANT_PLACE_ID,placeId);
         startActivity(intent);
     }
 

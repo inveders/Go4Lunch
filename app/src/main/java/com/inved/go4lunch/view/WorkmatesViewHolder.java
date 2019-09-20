@@ -19,6 +19,8 @@ import com.inved.go4lunch.controller.activity.ViewPlaceActivity;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.utils.App;
 
+import static com.inved.go4lunch.controller.fragment.MapFragment.RESTAURANT_PLACE_ID;
+
 class WorkmatesViewHolder extends RecyclerView.ViewHolder {
 
     private ImageView mWorkmatesImage;
@@ -51,10 +53,10 @@ class WorkmatesViewHolder extends RecyclerView.ViewHolder {
 
             mConstraintLayoutItem.setOnClickListener(view -> {
 
-                placeDetailsData.setPlaceId(restaurantPlaceId);
 
                 // Launch View Place Activity
                 Intent intent = new Intent(view.getContext(), ViewPlaceActivity.class);
+                intent.putExtra(RESTAURANT_PLACE_ID,restaurantPlaceId);
                 view.getContext().startActivity(intent);
 
             });

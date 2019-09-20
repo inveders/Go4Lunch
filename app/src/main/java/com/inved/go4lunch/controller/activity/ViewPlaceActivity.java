@@ -1,11 +1,10 @@
 package com.inved.go4lunch.controller.activity;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,7 +18,6 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.browser.customtabs.CustomTabsIntent;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -27,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.PhotoMetadata;
 import com.google.android.libraries.places.api.model.Place;
@@ -39,6 +38,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.base.BaseActivity;
+import com.inved.go4lunch.firebase.Restaurant;
 import com.inved.go4lunch.firebase.RestaurantHelper;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserFavoriteRestaurantHelper;
@@ -53,14 +53,7 @@ import java.util.Objects;
 
 import butterknife.BindView;
 
-import static com.inved.go4lunch.controller.activity.RestaurantActivity.PLACE_DATA_ADDRESS;
-import static com.inved.go4lunch.controller.activity.RestaurantActivity.PLACE_DATA_NAME;
-import static com.inved.go4lunch.controller.activity.RestaurantActivity.PLACE_DATA_PHONE_NUMBER;
-import static com.inved.go4lunch.controller.activity.RestaurantActivity.PLACE_DATA_PLACE_ID;
-import static com.inved.go4lunch.controller.activity.RestaurantActivity.PLACE_DATA_RATING;
-import static com.inved.go4lunch.controller.activity.RestaurantActivity.PLACE_DATA_WEBSITE;
-import static com.inved.go4lunch.controller.activity.RestaurantActivity.PLACE_DETAIL_DATA;
-import static com.inved.go4lunch.controller.activity.RestaurantActivity.PLACE_SEARCH_DATA;
+import static com.inved.go4lunch.controller.fragment.MapFragment.RESTAURANT_PLACE_ID;
 import static com.inved.go4lunch.utils.ManageJobPlaceId.KEY_JOB_PLACE_ID_DATA;
 
 public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.Listener {
@@ -93,6 +86,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
     @BindView(R.id.activity_view_place_like_start_third)
     ImageView likeStarThird;
 
+    //FOR DATA
     private String restaurantName;
     private String restaurantAddress;
     private String phoneNumber;
@@ -104,34 +98,6 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
     private WorkmatesAdapter mRecyclerWorkmatesAdapter;
     private RecyclerView mRecyclerWorkmates;
 
-    //FOR DATA
-
-    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (PLACE_DETAIL_DATA.equals(intent.getAction())) {
-                phoneNumber = intent.getStringExtra(PLACE_DATA_PHONE_NUMBER);
-                restaurantName = intent.getStringExtra(PLACE_DATA_NAME);
-                restaurantAddress = intent.getStringExtra(PLACE_DATA_ADDRESS);
-                currentPlaceId = intent.getStringExtra(PLACE_DATA_PLACE_ID);
-                website = intent.getStringExtra(PLACE_DATA_WEBSITE);
-                rating = intent.getDoubleExtra(PLACE_DATA_RATING, 0.0);
-
-            }
-
-            initializationChoosenRestaurants(currentPlaceId, restaurantName, restaurantAddress);
-            updateViewPlaceActivity(restaurantName, restaurantAddress);
-            updatePhotoViewPlace(currentPlaceId);
-            displayAllWorkmatesJoining(currentPlaceId);
-            actionOnButton(phoneNumber, website);
-            initializationLikedRestaurants(currentPlaceId);
-            actionOnLikeButton(currentPlaceId);
-            showingLikeStars(rating);
-
-
-        }
-    };
-
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -139,11 +105,33 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
         context = this;
 
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter(PLACE_DETAIL_DATA));
-        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter(PLACE_SEARCH_DATA));
-
         jobPlaceId = ManageJobPlaceId.getJobPlaceId(this, KEY_JOB_PLACE_ID_DATA);
+        currentPlaceId = getIntent().getStringExtra(RESTAURANT_PLACE_ID);
+
+        RestaurantHelper.getRestaurant(currentPlaceId, jobPlaceId).addOnSuccessListener(documentSnapshot -> {
+            Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
+
+            if (restaurant != null) {
+
+                restaurantName = restaurant.getRestaurantName();
+                restaurantAddress = restaurant.getRestaurantAddress();
+                phoneNumber = restaurant.getPhoneNumber();
+                website = restaurant.getWebsite();
+                rating = restaurant.getRatingApp();
+                Log.d("Debago", "View Place restaurant name " + restaurantName);
+                initializationChoosenRestaurants(currentPlaceId, restaurantName, restaurantAddress);
+                updateViewPlaceActivity(restaurantName, restaurantAddress);
+                updatePhotoViewPlace(currentPlaceId);
+                displayAllWorkmatesJoining(currentPlaceId);
+                actionOnButton(phoneNumber, website);
+                initializationLikedRestaurants(currentPlaceId);
+                actionOnLikeButton(currentPlaceId);
+                showingLikeStars(rating);
+            }
+
+
+        });
+
 
         //RecyclerView initialization
         mRecyclerWorkmates = findViewById(R.id.activity_view_place_recycler_view);
@@ -326,7 +314,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     private void changeButtonColor(String newColor) {
 
-       // isChoosenRestaurantImage.setColorFilter(Color.parseColor(newColor));
+        // isChoosenRestaurantImage.setColorFilter(Color.parseColor(newColor));
         isChoosenRestaurantImage.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(newColor)));
 
     }
@@ -501,26 +489,48 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
             Place place = response.getPlace();
 
             // Get the photo metadata.
-            PhotoMetadata photoMetadata = Objects.requireNonNull(place.getPhotoMetadatas()).get(0);
+            PhotoMetadata photoMetadata;
+
+            if (place.getPhotoMetadatas() != null) {
+                photoMetadata = place.getPhotoMetadatas().get(0);
+            } else {
+                photoMetadata = null;
+            }
 
             // Get the attribution text.
-            String attributions = photoMetadata.getAttributions();
+            String attributions;
+            if (photoMetadata != null) {
+                attributions = photoMetadata.getAttributions();
+            } else {
+                attributions = getString(R.string.image_content_description);
+            }
             viewPlacePhoto.setContentDescription(attributions);
-            // Create a FetchPhotoRequest.
-            FetchPhotoRequest photoRequest = FetchPhotoRequest.builder(photoMetadata)
-                    .setMaxWidth(500) // Optional.
-                    .setMaxHeight(300) // Optional.
-                    .build();
-            placesClient.fetchPhoto(photoRequest).addOnSuccessListener((fetchPhotoResponse) -> {
-                Bitmap bitmap = fetchPhotoResponse.getBitmap();
-                viewPlacePhoto.setImageBitmap(bitmap);
-            }).addOnFailureListener((exception) -> {
-                if (exception instanceof ApiException) {
 
-                    // Handle error with given status code.
-                    Log.e("debago", "Place not found: " + exception.getMessage());
-                }
-            });
+            if (photoMetadata != null) {
+                // Create a FetchPhotoRequest.
+                FetchPhotoRequest photoRequest = FetchPhotoRequest.builder(photoMetadata)
+                        .setMaxWidth(500) // Optional.
+                        .setMaxHeight(300) // Optional.
+                        .build();
+                placesClient.fetchPhoto(photoRequest).addOnSuccessListener((fetchPhotoResponse) -> {
+                    Bitmap bitmap = fetchPhotoResponse.getBitmap();
+                    viewPlacePhoto.setImageBitmap(bitmap);
+                }).addOnFailureListener((exception) -> {
+                    if (exception instanceof ApiException) {
+
+                        // Handle error with given status code.
+                        Log.e("debago", "Place not found: " + exception.getMessage());
+                    }
+                });
+            } else {
+               /* int w = 500, h = 300;
+
+                Bitmap.Config conf = Bitmap.Config.ARGB_8888; // see other conf types
+                Bitmap bitmap = Bitmap.createBitmap(w, h, conf); // this creates a MUTABLE bitmap*/
+
+                Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_android_blue_24dp);
+                viewPlacePhoto.setImageBitmap(bitmap);
+            }
         });
     }
 
@@ -533,7 +543,6 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
     @Override
     public void onDestroy() {
         super.onDestroy();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
     }
 
 

@@ -51,9 +51,8 @@ import com.inved.go4lunch.controller.fragment.PeopleFragment;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.notification.NotificationsActivity;
-import com.inved.go4lunch.utils.App;
+import com.inved.go4lunch.repository.NearbyRestaurantsRepository;
 import com.inved.go4lunch.utils.ManageAutocompleteResponse;
-import com.inved.go4lunch.view.RecyclerViewListViewRestaurant;
 
 import java.util.Arrays;
 import java.util.List;
@@ -88,8 +87,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     //AUTOCOMPLETE
     AutocompleteSessionToken token;
-
-    RecyclerViewListViewRestaurant adapter = new RecyclerViewListViewRestaurant(Glide.with(App.getInstance().getApplicationContext()));
 
     List<Place.Field> fields;
 
@@ -155,6 +152,9 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        NearbyRestaurantsRepository nearbyRestaurantsRepository = new NearbyRestaurantsRepository();
+        nearbyRestaurantsRepository.setNearbyRestaurantsInFirebase();
 
         this.configureToolBar();
         //Bottom Navigation View
@@ -320,7 +320,9 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
                 // TODO: Handle the error.
                 assert data != null;
                 Status status = Autocomplete.getStatusFromIntent(data);
-                //Log.i(TAG, status.getStatusMessage());
+                if (status.getStatusMessage() != null) {
+                    Log.i(TAG, status.getStatusMessage());
+                }
             } else if (resultCode == RESULT_CANCELED) {
 
                 Log.i(TAG, "User canceled the operation");
@@ -330,7 +332,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
 
 
-    private int getSelectedItem(BottomNavigationView bottomNavigationView) {
+  /*  private int getSelectedItem(BottomNavigationView bottomNavigationView) {
         Menu menu = bottomNavigationView.getMenu();
         for (int i = 0; i < bottomNavigationView.getMenu().size(); i++) {
             MenuItem menuItem = menu.getItem(i);
@@ -339,7 +341,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
             }
         }
         return 0;
-    }
+    }*/
 
 
     @Override

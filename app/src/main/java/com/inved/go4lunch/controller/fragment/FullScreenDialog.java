@@ -2,13 +2,13 @@ package com.inved.go4lunch.controller.fragment;
 
 import android.app.Dialog;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.RatingBar;
 import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,19 +17,23 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.inved.go4lunch.R;
-
-import butterknife.BindView;
+import com.inved.go4lunch.auth.ProfileActivity;
 
 public class FullScreenDialog extends DialogFragment implements View.OnClickListener {
 
 
-    SeekBar distanceSeekbar;
-    SeekBar closeHoursSeekbar;
-    SeekBar openHoursSeekbar;
-    RatingBar ratingBar;
-    TextView distanceValue;
-    TextView closeHoursValue;
-    TextView openHoursValue;
+    private SeekBar distanceSeekbar;
+    private SeekBar workmatesInSeekbar;
+    private Switch openForLunch;
+    private RatingBar ratingBar;
+    private TextView distanceValue;
+    private TextView restaurantCustomerValue;
+
+    private boolean openForLunchChoice;
+    private int ratingChoice;
+    private Double distanceChoice;
+    private int restaurantCustomersChoice;
+
 
     public static final String TAG = "CREATE_DIALOG";
     private Callback callback;
@@ -58,14 +62,17 @@ public class FullScreenDialog extends DialogFragment implements View.OnClickList
         ImageButton close = mView.findViewById(R.id.fullscreen_dialog_close);
         TextView action = mView.findViewById(R.id.fullscreen_dialog_action);
         distanceSeekbar = mView.findViewById(R.id.dialog_seekbar_distance);
-        openHoursSeekbar = mView.findViewById(R.id.dialog_seekbar_open_hours);
-        closeHoursSeekbar = mView.findViewById(R.id.dialog_seekbar_close_hours);
+        openForLunch = mView.findViewById(R.id.dialog_switch_open_for_lunch);
+        workmatesInSeekbar = mView.findViewById(R.id.dialog_seekbar_workmates_in);
+        restaurantCustomerValue= mView.findViewById(R.id.dialog_workmates_in_value);
+
         distanceValue = mView.findViewById(R.id.dialog_distance_value);
-        openHoursValue = mView.findViewById(R.id.dialog_opening_hours_open_value);
-        closeHoursValue = mView.findViewById(R.id.dialog_opening_hours_close_value);
+
         ratingBar = mView.findViewById(R.id.dialog_rating);
 
-        seekbarInit();
+        actionButton();
+
+
 
         close.setOnClickListener(this);
         action.setOnClickListener(this);
@@ -73,11 +80,11 @@ public class FullScreenDialog extends DialogFragment implements View.OnClickList
         return mView;
     }
 
-    private void seekbarInit() {
+    private void actionButton() {
         this.distanceValue.setText(getString(R.string.fullscreen_dialog__value_in_meter,distanceSeekbar.getProgress()));
-        this.openHoursValue.setText(getString(R.string.fullscreen_dialog__value_in_hours,openHoursSeekbar.getProgress()));
-        this.closeHoursValue.setText(getString(R.string.fullscreen_dialog__value_in_hours,closeHoursSeekbar.getProgress()));
-        //
+        this.restaurantCustomerValue.setText(getString(R.string.fullscreen_dialog__value_workmate_in,workmatesInSeekbar.getProgress()));
+
+
         this.distanceSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             int progress = 0;
 
@@ -96,18 +103,19 @@ public class FullScreenDialog extends DialogFragment implements View.OnClickList
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 distanceValue.setText(getString(R.string.fullscreen_dialog__value_in_meter,progress));
+                distanceChoice= (double) progress;
 
             }
         });
 
-        this.openHoursSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        this.workmatesInSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             int progress = 0;
 
             // When Progress value changed.
             @Override
             public void onProgressChanged(SeekBar seekBar, int progressValue, boolean fromUser) {
                 progress = progressValue;
-                openHoursValue.setText(getString(R.string.fullscreen_dialog__value_in_hours,progress));
+                restaurantCustomerValue.setText(getString(R.string.fullscreen_dialog__value_workmate_in,progress));
             }
 
             @Override
@@ -117,32 +125,17 @@ public class FullScreenDialog extends DialogFragment implements View.OnClickList
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                openHoursValue.setText(getString(R.string.fullscreen_dialog__value_in_hours,progress));
+                restaurantCustomerValue.setText(getString(R.string.fullscreen_dialog__value_workmate_in,progress));
+                restaurantCustomersChoice=progress;
 
             }
         });
 
-        this.closeHoursSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            int progress = 0;
-
-            // When Progress value changed.
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progressValue, boolean fromUser) {
-                progress = progressValue;
-                closeHoursValue.setText(getString(R.string.fullscreen_dialog__value_in_hours,progress));
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                closeHoursValue.setText(getString(R.string.fullscreen_dialog__value_in_hours,progress));
-
-            }
+        openForLunch.setOnCheckedChangeListener((compoundButton, bChecked) ->{
+            openForLunchChoice = bChecked;
         });
+
+        ratingChoice = this.ratingBar.getNumStars();
 
     }
 

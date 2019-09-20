@@ -8,7 +8,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 class APIClientGoogleSearch {
 
 
-
     static Retrofit getClient() {
 
         OkHttpClient client = new OkHttpClient.Builder()
