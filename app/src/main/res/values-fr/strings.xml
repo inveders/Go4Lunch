@@ -89,8 +89,8 @@
     <string name="Profile_Activity_Title">Paramètres</string>
     <string name="toolbar_title_people_fragment">Collègues disponibles</string>
     <string name="opening_hours_midnight">Ouvert jusqu\'à minuit</string>
-    <string name="open_hours_text">Ouvre à %d h</string>
-    <string name="open_hours_until">Ouvert jusqu\'à %d h</string>
+    <string name="open_hours_text">Ouvre à %1dh%2d</string>
+    <string name="open_hours_until">Ouvert jusqu\'à %dh%2d</string>
     <string name="fullscreen_dialog__by_distance_from_me">Distance</string>
     <string name="fullscreen_dialog__by_price_level">Prix</string>
     <string name="fullscreen_dialog__by_rating">Note</string>
@@ -106,4 +106,7 @@
     <string name="image_content_description">Description de l\'image</string>
     <string name="fullscreen_dialog__by_open_for_lunch">Ouvert pour le midi ?</string>
     <string name="fullscreen_dialog__by_workmates_in">Nombre de collègues partants</string>
+    <string name="no_opened_hours">Aucun horaire renseigné pour ce jour !</string>
+    <string name="open_hours_text_no_minutes">Ouvre à %dh</string>
+    <string name="open_hours_until_no_minutes">Ouvert jusqu\'à %dh</string>
 </resources>

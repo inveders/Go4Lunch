@@ -54,6 +54,8 @@ public class NearbyRestaurantsRepository {
     private Double myCurrentLongi;
     private int openHours;
     private int closeHours;
+    private int openMinutes;
+    private int closeMinutes;
     private boolean openForLunch;
     private boolean isOpen;
     private UnitConversion unitConversion = new UnitConversion();
@@ -154,7 +156,7 @@ public class NearbyRestaurantsRepository {
                 assert document != null;
                 if (!document.exists()) {
 
-                    RestaurantHelper.createRestaurant(restaurantPlaceId, 0, 0, jobPlaceId, restaurantName, rating, false, distance, 0, 0, restaurantAddress, latitude, longitude, null, null);
+                    RestaurantHelper.createRestaurant(restaurantPlaceId, 0, 0, jobPlaceId, restaurantName, rating, false, distance, 0, 0, restaurantAddress, latitude, longitude, null, null,0,0);
 
                 }
             }
@@ -199,7 +201,7 @@ public class NearbyRestaurantsRepository {
     private int openHoursCalcul(OpeningHours openingHours) {
 
         LocalDateTime currentTime = LocalDateTime.now();
-        int current_day = currentTime.getDayOfWeek().getValue();
+        int current_day = currentTime.getDayOfWeek().getValue()-1;
 
         if (openingHours != null) {
 
@@ -216,15 +218,52 @@ public class NearbyRestaurantsRepository {
 
     }
 
+    private int openMinutesCalcul(OpeningHours openingHours) {
+
+        LocalDateTime currentTime = LocalDateTime.now();
+        int current_day = currentTime.getDayOfWeek().getValue()-1;
+
+        if (openingHours != null) {
+
+            if (openingHours.getPeriods().get(current_day).getOpen() != null) {
+
+
+                return Objects.requireNonNull(openingHours.getPeriods().get(current_day).getOpen()).getTime().getMinutes();
+
+            }
+        }
+
+
+        return -1;
+
+    }
+
     private int closeHoursCalcul(OpeningHours openingHours) {
 
         LocalDateTime currentTime = LocalDateTime.now();
-        int current_day = currentTime.getDayOfWeek().getValue();
+        int current_day = currentTime.getDayOfWeek().getValue()-1;
 
         if (openingHours != null) {
             if (openingHours.getPeriods().get(current_day).getClose() != null) {
 
                 return Objects.requireNonNull(openingHours.getPeriods().get(current_day).getClose()).getTime().getHours();
+
+            }
+        }
+
+        return -1;
+
+    }
+
+    private int closeMinutesCalcul(OpeningHours openingHours) {
+
+        LocalDateTime currentTime = LocalDateTime.now();
+        int current_day = currentTime.getDayOfWeek().getValue()-1;
+
+        if (openingHours != null) {
+            if (openingHours.getPeriods().get(current_day).getClose() != null) {
+
+                return Objects.requireNonNull(openingHours.getPeriods().get(current_day).getClose()).getTime().getMinutes();
 
             }
         }
@@ -266,6 +305,8 @@ public class NearbyRestaurantsRepository {
 
 
             openHours = openHoursCalcul(place.getOpeningHours());
+            openMinutes = openMinutesCalcul(place.getOpeningHours());
+            closeMinutes = closeMinutesCalcul(place.getOpeningHours());
             closeHours = closeHoursCalcul(place.getOpeningHours());
 
             if(place.isOpen()==null){
@@ -281,6 +322,8 @@ public class NearbyRestaurantsRepository {
             RestaurantHelper.updateRestaurantOpenHours(openHours, currentPlaceId, jobPlaceId);
             RestaurantHelper.updateRestaurantCloseHours(closeHours, currentPlaceId, jobPlaceId);
             RestaurantHelper.updateRestaurantOpenForLunch(openForLunch, currentPlaceId, jobPlaceId);
+            RestaurantHelper.updateRestaurantOpenMinutes(openMinutes, currentPlaceId, jobPlaceId);
+            RestaurantHelper.updateRestaurantCloseMinutes(closeMinutes, currentPlaceId, jobPlaceId);
 
         }).addOnFailureListener((exception) -> {
             if (exception instanceof ApiException) {

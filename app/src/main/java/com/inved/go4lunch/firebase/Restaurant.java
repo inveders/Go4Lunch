@@ -19,6 +19,8 @@ public class Restaurant {
     private double longitude;
     private String website;
     private String phoneNumber;
+    private int openMinutes;
+    private int closeMinutes;
 
     public Restaurant(){
 
@@ -39,7 +41,9 @@ public class Restaurant {
                       double latitude,
                       double longitude,
                       String website,
-                      String phoneNumber) {
+                      String phoneNumber,
+                      int openMinutes,
+                      int closeMinutes) {
 
         this.restaurantPlaceId = restaurantPlaceId;
         this.restaurantCustomers = restaurantCustomers;
@@ -56,6 +60,8 @@ public class Restaurant {
         this.longitude = longitude;
         this.website = website;
         this.phoneNumber = phoneNumber;
+        this.openMinutes = openMinutes;
+        this.closeMinutes = closeMinutes;
 
     }
 
@@ -123,6 +129,14 @@ public class Restaurant {
         return phoneNumber;
     }
 
+    public int getOpenMinutes() {
+        return openMinutes;
+    }
+
+    public int getCloseMinutes() {
+        return closeMinutes;
+    }
+
     // --- SETTERS ---
     public void setRestaurantPlaceId(String restaurantPlaceId) {
         this.restaurantPlaceId = restaurantPlaceId;
@@ -184,5 +198,13 @@ public class Restaurant {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public void setOpenMinutes(int openMinutes) {
+        this.openMinutes = openMinutes;
+    }
+
+    public void setCloseMinutes(int closeMinutes) {
+        this.closeMinutes = closeMinutes;
     }
 }

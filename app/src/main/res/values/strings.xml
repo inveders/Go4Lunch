@@ -79,9 +79,12 @@
     <string name="opening_hours_midnight">Open until midnight</string>
     <string name="Closed_restaurant">Closed</string>
     <string name="workmates_in_restaurant" translatable="false">( %d )</string>
-    <string name="open_hours_text">Opening to %d h</string>
-    <string name="open_hours_until">Open until %d h</string>
+    <string name="open_hours_text">Opening to %1dh%2d</string>
+    <string name="open_hours_until">Open until %1dh%2d</string>
+    <string name="open_hours_text_no_minutes">Opening to %dh</string>
+    <string name="open_hours_until_no_minutes">Open until %dh</string>
     <string name="distance_text" translatable="false">%1$s m</string>
+    <string name="no_opened_hours">No schedule for this day !</string>
 
 
     <!-- FRAGMENT RESTAURANT PEOPLE -->

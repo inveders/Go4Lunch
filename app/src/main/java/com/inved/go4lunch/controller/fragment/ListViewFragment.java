@@ -67,6 +67,8 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
     private int rating;
     private int openHours;
     private int closeHours;
+    private int openMinutes;
+    private int closeMinutes;
     private boolean isOpenForLunch;
     private String distance;
     private ArrayList<Restaurant> restaurantArrayList;
@@ -155,10 +157,13 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
                         openHours = restaurant.getOpenHours();
                         closeHours = restaurant.getCloseHours();
                         restaurantAddress = restaurant.getRestaurantAddress();
+                        openMinutes = restaurant.getOpenMinutes();
+                        closeMinutes = restaurant.getCloseMinutes();
+
 
                         Restaurant restaurantObject = new Restaurant(restaurantPlaceId, restaurantCustomers, 0, jobPlaceId,
                                 restaurantName, rating, isOpenForLunch, distance, openHours, closeHours, restaurantAddress, 0.0, 0.0,
-                                null, null);
+                                null, null,openMinutes,closeMinutes);
 
                         restaurantArrayList.add(restaurantObject);
                     }
@@ -171,7 +176,53 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
             mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(Glide.with(App.getInstance().getApplicationContext()),restaurantArrayList);
             mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
             mRecyclerListViewAdapter.setData(restaurantArrayList);
-        }).addOnFailureListener(e -> Log.e("debago","Problem lors du load data"));
+        }).addOnFailureListener(e -> Log.e("debago","Problem during the load data"));
+    }
+
+
+    private void loadDataFromFirebaseFilter(String mQuery) {
+
+        Log.d(TAG,"ListViewFragment restaurantName "+mQuery);
+        if(restaurantArrayList.size()>0){
+            restaurantArrayList.clear();
+        }
+
+        RestaurantHelper.getFilterRestaurant(jobPlaceId,mQuery).get().addOnCompleteListener(task -> {
+
+            if(task.getResult()!=null) {
+                for (DocumentSnapshot querySnapshot : task.getResult()) {
+                    Restaurant restaurant = querySnapshot.toObject(Restaurant.class);
+
+                    if (restaurant != null) {
+                        restaurantPlaceId = restaurant.getRestaurantPlaceId();
+                        restaurantCustomers = restaurant.getRestaurantCustomers();
+                        restaurantName = restaurant.getRestaurantName();
+                        rating = restaurant.getRatingApp();
+                        isOpenForLunch = restaurant.getOpenForLunch();
+                        distance = restaurant.getDistance();
+                        openHours = restaurant.getOpenHours();
+                        closeHours = restaurant.getCloseHours();
+                        restaurantAddress = restaurant.getRestaurantAddress();
+                        openMinutes = restaurant.getOpenMinutes();
+                        closeMinutes = restaurant.getCloseMinutes();
+
+
+                        Restaurant restaurantObject = new Restaurant(restaurantPlaceId, restaurantCustomers, 0, jobPlaceId,
+                                restaurantName, rating, isOpenForLunch, distance, openHours, closeHours, restaurantAddress, 0.0, 0.0,
+                                null, null,openMinutes,closeMinutes);
+
+                        restaurantArrayList.add(restaurantObject);
+                    }
+
+                }
+
+            }
+
+
+            mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(Glide.with(App.getInstance().getApplicationContext()),restaurantArrayList);
+            mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
+            mRecyclerListViewAdapter.setData(restaurantArrayList);
+        }).addOnFailureListener(e -> Log.e("debago","Problem during the filter"));
     }
 
 
@@ -199,11 +250,9 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
 
         Log.d(TAG,"ListViewFragment restaurantName "+restaurantNameFromAutocomplete);
         if (restaurantNameFromAutocomplete != null) {
-            mRecyclerListViewAdapter.getFilter().filter(restaurantNameFromAutocomplete);
+           // mRecyclerListViewAdapter.getFilter().filter(restaurantNameFromAutocomplete);
+            loadDataFromFirebaseFilter(restaurantNameFromAutocomplete);
             initializeSharedPreferences();
-        }else{
-
-            loadDataFromFirebase();
         }
     }
 
