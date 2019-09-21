@@ -182,7 +182,7 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
 
     private void loadDataFromFirebaseFilter(String mQuery) {
 
-        Log.d(TAG,"ListViewFragment restaurantName "+mQuery);
+        Log.d(TAG,"ListViewFragment restaurant size filter "+restaurantArrayList.size());
         if(restaurantArrayList.size()>0){
             restaurantArrayList.clear();
         }
@@ -248,11 +248,17 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
 
         String restaurantNameFromAutocomplete = ManageAutocompleteResponse.getStringAutocomplete((App.getInstance().getApplicationContext()), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME);
 
-        Log.d(TAG,"ListViewFragment restaurantName "+restaurantNameFromAutocomplete);
+        Log.d(TAG,"ListViewFragment restaurantName getRestaurantNameFrom "+restaurantNameFromAutocomplete);
         if (restaurantNameFromAutocomplete != null) {
-           // mRecyclerListViewAdapter.getFilter().filter(restaurantNameFromAutocomplete);
-            loadDataFromFirebaseFilter(restaurantNameFromAutocomplete);
-            initializeSharedPreferences();
+
+            if(restaurantNameFromAutocomplete.isEmpty()){
+                Log.d(TAG,"ListViewFragment restaurantName getRestaurantNameFrom est vide ");
+                loadDataFromFirebase();
+            }else {
+                Log.d(TAG,"ListViewFragment restaurantName getRestaurantNameFrom on fait le filtre");
+                loadDataFromFirebaseFilter(restaurantNameFromAutocomplete);
+                initializeSharedPreferences();
+            }
         }
     }
 
