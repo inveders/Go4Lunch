@@ -60,7 +60,6 @@ public class NearbyRestaurantsRepository {
 
 
     public NearbyRestaurantsRepository() {
-        Log.d("debaga", "on est dans NearbyRestaurantRepository constructor");
         BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -75,8 +74,6 @@ public class NearbyRestaurantsRepository {
     }
 
     public void setNearbyRestaurantsInFirebase() {
-
-        Log.d("debaga", "on est dans setrestaurantInFirebase");
 
         // Initialize Places.
         Places.initialize(context, App.getResourses().getString(R.string.google_api_key));
@@ -186,7 +183,6 @@ public class NearbyRestaurantsRepository {
         //DISTANCE
         double latitudeRestaurant = unitConversion.convertRad(latitude);
         Double longitudeRestaurant = unitConversion.convertRad(longitude);
-        Log.d("debago","NearbyRestaurantRepository latCurrent est "+myCurrentLat);
         double latCurrent = unitConversion.convertRad(myCurrentLat);
         Double longiCurrent = unitConversion.convertRad(myCurrentLongi);
 
@@ -239,8 +235,6 @@ public class NearbyRestaurantsRepository {
 
     private void fetchPlaceDetailRequest(String currentPlaceId) {
 
-
-        Log.d("debaga", "on est dans fetchPlaceDetailRequest");
         // Initialize Places.
         Places.initialize(App.getInstance().getApplicationContext(), App.getResourses().getString(R.string.google_api_key));
 

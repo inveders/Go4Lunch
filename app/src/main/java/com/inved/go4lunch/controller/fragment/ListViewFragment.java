@@ -20,16 +20,26 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.api.GooglePlaceCalls;
 import com.inved.go4lunch.controller.activity.RestaurantActivity;
+import com.inved.go4lunch.firebase.Restaurant;
 import com.inved.go4lunch.firebase.RestaurantHelper;
 import com.inved.go4lunch.model.placesearch.PlaceSearch;
 import com.inved.go4lunch.utils.App;
 import com.inved.go4lunch.utils.ManageAutocompleteResponse;
+import com.inved.go4lunch.utils.ManageJobPlaceId;
 import com.inved.go4lunch.view.RecyclerViewListViewRestaurant;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_GEOLOCALISATION;
@@ -38,16 +48,30 @@ import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LOCA
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LONGITUDE;
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.PLACE_SEARCH_DATA;
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.TAG;
+import static com.inved.go4lunch.utils.ManageJobPlaceId.KEY_JOB_PLACE_ID_DATA;
 
 public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callbacks {
 
     private RecyclerViewListViewRestaurant mRecyclerListViewAdapter;
+    private RecyclerView mRecyclerListView;
 
     private String myLastGeolocalisation = null;
     private Double myCurrentLat;
     private Double myCurrentLongi;
     private FloatingActionButton filterButton;
     private String myCurrentGeolocalisation;
+    private String restaurantName;
+    private String restaurantAddress;
+    private String restaurantPlaceId;
+    private int restaurantCustomers;
+    private int rating;
+    private int openHours;
+    private int closeHours;
+    private boolean isOpenForLunch;
+    private String distance;
+    private ArrayList<Restaurant> restaurantArrayList;
+
+    private String jobPlaceId;
 
 
 
@@ -74,17 +98,22 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
     };
 
 
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View mView = inflater.inflate(R.layout.fragment_listview, container, false);
 
+        jobPlaceId = ManageJobPlaceId.getJobPlaceId(App.getInstance().getApplicationContext(), KEY_JOB_PLACE_ID_DATA);
+
+        restaurantArrayList = new ArrayList<>();
 
         //RecyclerView initialization
-        RecyclerView mRecyclerListView = mView.findViewById(R.id.fragment_listview_recycler_view);
-        mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(Glide.with(this));
-        mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
+        mRecyclerListView = mView.findViewById(R.id.fragment_listview_recycler_view);
+        mRecyclerListView.setHasFixedSize(true);
+      //  mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(Glide.with(this));
+      //  mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
 
         //Choose how to display the list in the RecyclerView (vertical or horizontal)
         mRecyclerListView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
@@ -97,17 +126,62 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
 
         ((RestaurantActivity) Objects.requireNonNull(getActivity())).setFragmentRefreshListener(this::getRestaurantNameFromAutocomplete);
 
+        loadDataFromFirebase();
+
         return mView;
     }
 
+
+    private void loadDataFromFirebase() {
+
+        Log.d("debago","restaurant size is "+restaurantArrayList.size());
+        if(restaurantArrayList.size()>0){
+            restaurantArrayList.clear();
+        }
+
+        RestaurantHelper.getAllRestaurants(jobPlaceId).get().addOnCompleteListener(task -> {
+
+            if(task.getResult()!=null) {
+                for (DocumentSnapshot querySnapshot : task.getResult()) {
+                    Restaurant restaurant = querySnapshot.toObject(Restaurant.class);
+
+                    if (restaurant != null) {
+                        restaurantPlaceId = restaurant.getRestaurantPlaceId();
+                        restaurantCustomers = restaurant.getRestaurantCustomers();
+                        restaurantName = restaurant.getRestaurantName();
+                        rating = restaurant.getRatingApp();
+                        isOpenForLunch = restaurant.getOpenForLunch();
+                        distance = restaurant.getDistance();
+                        openHours = restaurant.getOpenHours();
+                        closeHours = restaurant.getCloseHours();
+                        restaurantAddress = restaurant.getRestaurantAddress();
+
+                        Restaurant restaurantObject = new Restaurant(restaurantPlaceId, restaurantCustomers, 0, jobPlaceId,
+                                restaurantName, rating, isOpenForLunch, distance, openHours, closeHours, restaurantAddress, 0.0, 0.0,
+                                null, null);
+
+                        restaurantArrayList.add(restaurantObject);
+                    }
+
+                }
+
+            }
+
+
+            mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(Glide.with(App.getInstance().getApplicationContext()),restaurantArrayList);
+            mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
+            mRecyclerListViewAdapter.setData(restaurantArrayList);
+        }).addOnFailureListener(e -> Log.e("debago","Problem lors du load data"));
+    }
+
+
     private void actionOnFloatingButton() {
         filterButton.setOnClickListener(view -> {
-          /*  FullScreenDialog dialog = new FullScreenDialog();
+            FullScreenDialog dialog = new FullScreenDialog();
             if(getFragmentManager()!=null){
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
                 dialog.show(ft, FullScreenDialog.TAG);
-            }*/
-          mRecyclerListViewAdapter.getFilter().filter("Snack ender");
+            }
         });
     }
 
@@ -129,7 +203,7 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
             initializeSharedPreferences();
         }else{
 
-            mRecyclerListViewAdapter.getFilter().filter("");
+            loadDataFromFirebase();
         }
     }
 
@@ -168,9 +242,9 @@ public class ListViewFragment extends Fragment implements GooglePlaceCalls.Callb
         String jobPlaceId, int ratingApp,boolean openForLunch,int restaurantCustomers,Double distance
 */
 
-        mRecyclerListViewAdapter.setData(response.results);
+   //     mRecyclerListViewAdapter.setData(response.results);
 
-        mRecyclerListViewAdapter.setCurrentLocalisation(myCurrentLat, myCurrentLongi);
+     //   mRecyclerListViewAdapter.setCurrentLocalisation(myCurrentLat, myCurrentLongi);
 
 
 

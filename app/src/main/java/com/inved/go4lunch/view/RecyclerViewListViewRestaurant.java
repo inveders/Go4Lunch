@@ -1,10 +1,8 @@
 package com.inved.go4lunch.view;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +16,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.RequestManager;
@@ -30,27 +27,15 @@ import com.google.android.libraries.places.api.net.FetchPhotoRequest;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.inved.go4lunch.R;
-import com.inved.go4lunch.api.PlaceDetailsData;
 import com.inved.go4lunch.controller.activity.ViewPlaceActivity;
-import com.inved.go4lunch.firebase.RestaurantHelper;
-import com.inved.go4lunch.firebase.UserHelper;
-import com.inved.go4lunch.model.placesearch.Result;
+import com.inved.go4lunch.firebase.Restaurant;
 import com.inved.go4lunch.utils.App;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
-import com.inved.go4lunch.utils.UnitConversion;
 
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
-import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LATITUDE;
-import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LOCATION_CHANGED;
-import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LONGITUDE;
 import static com.inved.go4lunch.controller.fragment.MapFragment.RESTAURANT_PLACE_ID;
 import static com.inved.go4lunch.utils.ManageJobPlaceId.KEY_JOB_PLACE_ID_DATA;
 
@@ -64,17 +49,17 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
 
     @Nullable
-    private List<Result> mData;
-    private List<Result> mDataFiltered;
-
+    private ArrayList<Restaurant> restaurantArrayList;
+    private ArrayList<Restaurant> restaurantArrayListFiltered;
 
     private String placeId;
     private final RequestManager glide;
-    private PlaceDetailsData placeDetailsData = new PlaceDetailsData();
 
-    public RecyclerViewListViewRestaurant(RequestManager glide) {
+    public RecyclerViewListViewRestaurant(RequestManager glide,@Nullable ArrayList<Restaurant> restaurantArrayList) {
 
         this.glide = glide;
+        this.restaurantArrayList = restaurantArrayList;
+
     }
 
 
@@ -99,42 +84,27 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
     @Override
     public void onBindViewHolder(@NonNull RecyclerViewListViewRestaurant.ViewHolder holder, final int position) {
 
-        //Query wich serve filter
-     /*   Result result = mDataFiltered.get(position);
-
-        holder.mRestaurantName.setText(result.getName());*/
-        if(mData!=null){
-            String name = mData.get(position).getName();
+        if(restaurantArrayList!=null){
+            String name = restaurantArrayList.get(position).getRestaurantName();
             holder.mRestaurantName.setText(name);
-            Log.d("Debago","restaurantName in bindview holder is "+name);
-            placeId = mData.get(position).getPlaceId();
-
-
-
+            placeId = restaurantArrayList.get(position).getRestaurantPlaceId();
 
         }
 
       //  holder.mDistance.setText(App.getResourses().getString(R.string.distance_text, distance));
 
-        if (mData != null) {
-            holder.mRestaurantAdress.setText(mData.get(position).getVicinity());
+        if (restaurantArrayList != null) {
+            holder.mRestaurantAdress.setText(restaurantArrayList.get(position).getRestaurantAddress());
+            holder.mNumberRates.setText(String.valueOf(restaurantArrayList.get(position).getRestaurantCustomers()));
+            int numberWorkmatesInRestaurant = restaurantArrayList.get(position).getRestaurantCustomers();
+            holder.mNumberRates.setText(App.getResourses().getString(R.string.workmates_in_restaurant, numberWorkmatesInRestaurant));
 
         }
 
-        //NUMBER WORKMATES IN RESTAURANT
-        UserHelper.getAllWorkmatesJoining(placeId, jobPlaceId).get().addOnCompleteListener(task -> {
-
-            if (task.getResult() != null) {
-                int numberWorkmatesInRestaurant = task.getResult().size();
-                holder.mNumberRates.setText(App.getResourses().getString(R.string.workmates_in_restaurant, numberWorkmatesInRestaurant));
-            }
-
-
-        });
-
         //PHOTO
-        if(mData!=null){
-            if(mData.get(position).getPhotos().get(0).getPhotoReference()!=null){
+        /**REVOIR CELA*/
+        /*if(restaurantArrayList!=null){
+            if(restaurantArrayList.get(position).getPhotos().get(0).getPhotoReference()!=null){
                 String url = "https://maps.googleapis.com/maps/api/place/photo" + "?maxwidth=" + 400 +
                         "&photoreference=" +
                         mData.get(position).getPhotos().get(0).getPhotoReference() +
@@ -151,7 +121,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
                         .error(R.drawable.ic_error_red_24dp)
                         .into(holder.mRestaurantImage);
             }
-        }
+        }*/
 
 
 
@@ -182,8 +152,8 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
         //CLICK ON A RESTAURANT
         holder.mConstraintLayoutItem.setOnClickListener(view -> {
 
-            if(mData.get(position).getPlaceId()!=null){
-                placeId = mData.get(position).getPlaceId();
+            if(restaurantArrayList.get(position).getRestaurantPlaceId()!=null){
+                placeId = restaurantArrayList.get(position).getRestaurantPlaceId();
 
                 // Launch View Place Activity
                 Intent intent = new Intent(view.getContext(), ViewPlaceActivity.class);
@@ -197,28 +167,29 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
         });
 
         //RATING
-        double ratingValue = mData.get(position).getRating();
+        int ratingValue = restaurantArrayList.get(position).getRatingApp();
 
-        if (ratingValue > 0 && ratingValue < 1.665) {
-            holder.mStarFirst.setVisibility(View.VISIBLE);
-            holder.mStarSecond.setVisibility(View.INVISIBLE);
-            holder.mStarThird.setVisibility(View.INVISIBLE);
-            RestaurantHelper.updateRestaurantRatingApp(1,placeId,jobPlaceId);
-        } else if (ratingValue >= 1.665 && ratingValue < 3.33) {
-            holder.mStarFirst.setVisibility(View.VISIBLE);
-            holder.mStarSecond.setVisibility(View.VISIBLE);
-            holder.mStarThird.setVisibility(View.INVISIBLE);
-            RestaurantHelper.updateRestaurantRatingApp(2,placeId,jobPlaceId);
-        } else if (ratingValue >= 3.33 && ratingValue <= 5) {
-            holder.mStarFirst.setVisibility(View.VISIBLE);
-            holder.mStarSecond.setVisibility(View.VISIBLE);
-            holder.mStarThird.setVisibility(View.VISIBLE);
-            RestaurantHelper.updateRestaurantRatingApp(3,placeId,jobPlaceId);
-        } else if (ratingValue <= 0 || ratingValue > 5) {
-            holder.mStarFirst.setVisibility(View.INVISIBLE);
-            holder.mStarSecond.setVisibility(View.INVISIBLE);
-            holder.mStarThird.setVisibility(View.INVISIBLE);
-            RestaurantHelper.updateRestaurantRatingApp(0,placeId,jobPlaceId);
+        switch (ratingValue)
+        {
+            case 1:
+                holder.mStarFirst.setVisibility(View.VISIBLE);
+                holder.mStarSecond.setVisibility(View.INVISIBLE);
+                holder.mStarThird.setVisibility(View.INVISIBLE);
+                break;
+            case 2:
+                holder.mStarFirst.setVisibility(View.VISIBLE);
+                holder.mStarSecond.setVisibility(View.VISIBLE);
+                holder.mStarThird.setVisibility(View.INVISIBLE);
+                break;
+            case 3:
+                holder.mStarFirst.setVisibility(View.VISIBLE);
+                holder.mStarSecond.setVisibility(View.VISIBLE);
+                holder.mStarThird.setVisibility(View.VISIBLE);
+                break;
+            default:
+                holder.mStarFirst.setVisibility(View.INVISIBLE);
+                holder.mStarSecond.setVisibility(View.INVISIBLE);
+                holder.mStarThird.setVisibility(View.INVISIBLE);
         }
 
         //PHOTO
@@ -246,23 +217,35 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
             }
 
             // Get the attribution text.
-            String attributions = photoMetadata.getAttributions();
+
+            String attributions;
+            if (photoMetadata != null) {
+                attributions = photoMetadata.getAttributions();
+            } else {
+                attributions =App.getResourses().getString(R.string.image_content_description);
+            }
             holder.mRestaurantImage.setContentDescription(attributions);
             // Create a FetchPhotoRequest.
-            FetchPhotoRequest photoRequest = FetchPhotoRequest.builder(photoMetadata)
-                    .setMaxWidth(500) // Optional.
-                    .setMaxHeight(300) // Optional.
-                    .build();
-            placesClient.fetchPhoto(photoRequest).addOnSuccessListener((fetchPhotoResponse) -> {
-                Bitmap bitmap = fetchPhotoResponse.getBitmap();
-                holder.mRestaurantImage.setImageBitmap(bitmap);
-            }).addOnFailureListener((exception) -> {
-                if (exception instanceof ApiException) {
 
-                    // Handle error with given status code.
-                    Log.e("debago", "Place not found: " + exception.getMessage());
-                }
-            });
+            if (photoMetadata != null) {
+                FetchPhotoRequest photoRequest = FetchPhotoRequest.builder(photoMetadata)
+                        .setMaxWidth(500) // Optional.
+                        .setMaxHeight(300) // Optional.
+                        .build();
+                placesClient.fetchPhoto(photoRequest).addOnSuccessListener((fetchPhotoResponse) -> {
+                    Bitmap bitmap = fetchPhotoResponse.getBitmap();
+                    holder.mRestaurantImage.setImageBitmap(bitmap);
+                }).addOnFailureListener((exception) -> {
+                    if (exception instanceof ApiException) {
+
+                        // Handle error with given status code.
+                        Log.e("debago", "Place not found: " + exception.getMessage());
+                    }
+                });
+            }else{
+                Bitmap bitmap = BitmapFactory.decodeResource(App.getResourses(), R.drawable.background_connexion_activity_flou_ok);
+                holder.mRestaurantImage.setImageBitmap(bitmap);
+            }
         });
 
     }
@@ -271,9 +254,9 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
     @Override
     public int getItemCount() {
 
-        if (mDataFiltered != null) {
+        if (restaurantArrayListFiltered != null) {
 
-           return mDataFiltered.size();
+           return restaurantArrayListFiltered.size();
         }else{
             return 0;
         }
@@ -281,23 +264,13 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
     }
 
 
-    public void setData(List<Result> mData) {
+    public void setData(ArrayList<Restaurant> restaurantArrayList) {
 
-        Log.d("Debago","mData dans le setData "+mData);
-        this.mData = mData;
-        this.mDataFiltered = mData;
+        Log.d("Debago","mData dans le setData "+restaurantArrayList);
+        this.restaurantArrayList = restaurantArrayList;
+        this.restaurantArrayListFiltered = restaurantArrayList;
         //Fill the Recycler View
         notifyDataSetChanged();
-
-    }
-
-
-    public void setCurrentLocalisation(Double lat, Double longi) {
-
-        //myCurrentLat = lat;
-       // myCurrentLongi = longi;
-        //Fill the Recycler View
-        //  notifyDataSetChanged();
 
     }
 
@@ -347,30 +320,30 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
 
                 if (charString.isEmpty()) {
-                    mDataFiltered = mData;
+                    restaurantArrayListFiltered = restaurantArrayList;
 
                 } else {
                     //   Log.d("Debago", "RecyclerViewRestaurant GETfILTER : charString is not empty result "+   mData.get(0).getName()+" contains charString "+ charString);
-                    List<Result> filteredList = new ArrayList<>();
+                    ArrayList<Restaurant> filteredList = new ArrayList<>();
 
 
-                    if (mData != null) {
-                        for (Result result : mData) {
+                    if (restaurantArrayList != null) {
+                        for (Restaurant restaurant : restaurantArrayList) {
 
-                            if (result.getName().toLowerCase().contains(charString)) {
-                                filteredList.add(result);
+                            if (restaurant.getRestaurantName().toLowerCase().contains(charString)) {
+                                filteredList.add(restaurant);
                             }
                         }
                     }
 
-                    mDataFiltered = filteredList;
+                    restaurantArrayListFiltered = filteredList;
 
 
                 }
 
                 FilterResults filterResults = new FilterResults();
 
-                filterResults.values = mDataFiltered;
+                filterResults.values = restaurantArrayListFiltered;
                 Log.d("Debago","filteredresult after loop "+filterResults);
                 return filterResults;
 
@@ -378,7 +351,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
             @Override
             protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-                mDataFiltered = (List<Result>) filterResults.values;
+                restaurantArrayListFiltered = (ArrayList<Restaurant>) filterResults.values;
                // RecyclerViewListViewRestaurant.this.setData(mDataFiltered);
                 notifyDataSetChanged();
             }

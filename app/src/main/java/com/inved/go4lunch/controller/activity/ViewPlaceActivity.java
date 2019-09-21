@@ -92,7 +92,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
     private String phoneNumber;
     private String currentPlaceId;
     private String website;
-    private double rating;
+    private int rating;
     private String jobPlaceId;
 
     private WorkmatesAdapter mRecyclerWorkmatesAdapter;
@@ -118,7 +118,6 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                 phoneNumber = restaurant.getPhoneNumber();
                 website = restaurant.getWebsite();
                 rating = restaurant.getRatingApp();
-                Log.d("Debago", "View Place restaurant name " + restaurantName);
                 initializationChoosenRestaurants(currentPlaceId, restaurantName, restaurantAddress);
                 updateViewPlaceActivity(restaurantName, restaurantAddress);
                 updatePhotoViewPlace(currentPlaceId);
@@ -139,25 +138,29 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     }
 
-    public void showingLikeStars(double ratingValue) {
+    public void showingLikeStars(int ratingValue) {
 
-        Log.d("TAG", "View Place Activity Rating Value is " + ratingValue);
-        if (ratingValue > 0 && ratingValue < 1.665) {
-            likeStarFirst.setVisibility(View.VISIBLE);
-            likeStarSecond.setVisibility(View.INVISIBLE);
-            likeStarThird.setVisibility(View.INVISIBLE);
-        } else if (ratingValue >= 1.665 && ratingValue < 3.33) {
-            likeStarFirst.setVisibility(View.VISIBLE);
-            likeStarSecond.setVisibility(View.VISIBLE);
-            likeStarThird.setVisibility(View.INVISIBLE);
-        } else if (ratingValue >= 3.33 && ratingValue <= 5) {
-            likeStarFirst.setVisibility(View.VISIBLE);
-            likeStarSecond.setVisibility(View.VISIBLE);
-            likeStarThird.setVisibility(View.VISIBLE);
-        } else if (ratingValue <= 0 || ratingValue > 5) {
-            likeStarFirst.setVisibility(View.INVISIBLE);
-            likeStarSecond.setVisibility(View.INVISIBLE);
-            likeStarThird.setVisibility(View.INVISIBLE);
+        switch (ratingValue)
+        {
+            case 1:
+                likeStarFirst.setVisibility(View.VISIBLE);
+                likeStarSecond.setVisibility(View.INVISIBLE);
+                likeStarThird.setVisibility(View.INVISIBLE);
+                break;
+            case 2:
+                likeStarFirst.setVisibility(View.VISIBLE);
+                likeStarSecond.setVisibility(View.VISIBLE);
+                likeStarThird.setVisibility(View.INVISIBLE);
+                break;
+            case 3:
+                likeStarFirst.setVisibility(View.VISIBLE);
+                likeStarSecond.setVisibility(View.VISIBLE);
+                likeStarThird.setVisibility(View.VISIBLE);
+                break;
+            default:
+                likeStarFirst.setVisibility(View.INVISIBLE);
+                likeStarSecond.setVisibility(View.INVISIBLE);
+                likeStarThird.setVisibility(View.INVISIBLE);
         }
 
 
@@ -528,7 +531,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                 Bitmap.Config conf = Bitmap.Config.ARGB_8888; // see other conf types
                 Bitmap bitmap = Bitmap.createBitmap(w, h, conf); // this creates a MUTABLE bitmap*/
 
-                Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_android_blue_24dp);
+                Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.background_connexion_activity_flou_ok);
                 viewPlacePhoto.setImageBitmap(bitmap);
             }
         });
