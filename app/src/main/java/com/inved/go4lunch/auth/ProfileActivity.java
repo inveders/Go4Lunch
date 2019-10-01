@@ -19,12 +19,14 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.controller.activity.MainActivity;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
+import com.inved.go4lunch.utils.ManagedNotificationEnabled;
 
 import java.util.Objects;
 
@@ -66,13 +68,18 @@ public class ProfileActivity extends BaseActivity {
         this.configureToolBar();
         this.updateUIWhenCreating();
 
+
+        notificationSwitch.setChecked(ManagedNotificationEnabled.getNotificationStatus(this));
+
         notificationSwitch.setOnCheckedChangeListener((compoundButton, bChecked) -> {
             if (bChecked) {
                 Toast.makeText(ProfileActivity.this, "Notifications actives", Toast.LENGTH_SHORT).show();
-               // notificationActionIfEnabled();
+                FirebaseMessaging.getInstance().subscribeToTopic("go4lunchFrench");
+                ManagedNotificationEnabled.saveNotificationEnabled(this,true);
             } else {
                 Toast.makeText(ProfileActivity.this, "Désactivation des notifications", Toast.LENGTH_SHORT).show();
-             //   notificationActionIfIsNotEnabled();
+                FirebaseMessaging.getInstance().unsubscribeFromTopic("go4lunchFrench");
+                ManagedNotificationEnabled.saveNotificationEnabled(this,false);
             }
         });
 
