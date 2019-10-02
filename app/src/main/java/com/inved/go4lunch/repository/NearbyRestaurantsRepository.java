@@ -113,7 +113,7 @@ public class NearbyRestaurantsRepository {
                             if (placeLikelihood.getPlace().getLatLng() != null) {
                                 latitude = placeLikelihood.getPlace().getLatLng().latitude;
                                 longitude = placeLikelihood.getPlace().getLatLng().longitude;
-                                distance = distanceCalcul(latitude, longitude);
+                               /** distance = distanceCalcul(latitude, longitude);*/
                             } else {
                                 latitude = 0.0;
                                 longitude = 0.0;
@@ -156,7 +156,7 @@ public class NearbyRestaurantsRepository {
                 assert document != null;
                 if (!document.exists()) {
 
-                    RestaurantHelper.createRestaurant(restaurantPlaceId, 0, 0, jobPlaceId, restaurantName, rating, false, distance, 0, 0, restaurantAddress, latitude, longitude, null, null,0,0);
+                    RestaurantHelper.createRestaurant(restaurantPlaceId, 0, 0, jobPlaceId, restaurantName, rating, false, distance, 0, 0, restaurantAddress, latitude, longitude, null, null, 0, 0);
 
                 }
             }
@@ -183,25 +183,35 @@ public class NearbyRestaurantsRepository {
     private String distanceCalcul(double latitude, double longitude) {
 
         //DISTANCE
-        double latitudeRestaurant = unitConversion.convertRad(latitude);
-        Double longitudeRestaurant = unitConversion.convertRad(longitude);
-        double latCurrent = unitConversion.convertRad(myCurrentLat);
-        Double longiCurrent = unitConversion.convertRad(myCurrentLongi);
+        if (latitude != 0 || longitude != 0) {
+            double latitudeRestaurant = unitConversion.convertRad(latitude);
+            Double longitudeRestaurant = unitConversion.convertRad(longitude);
+            double latCurrent = unitConversion.convertRad(myCurrentLat);
+            Double longiCurrent = unitConversion.convertRad(myCurrentLongi);
 
-        DecimalFormat df = new DecimalFormat("#");
-        df.setRoundingMode(RoundingMode.HALF_UP);
+            DecimalFormat df = new DecimalFormat("#");
+            df.setRoundingMode(RoundingMode.HALF_UP);
 
-        double distanceDouble = Math.acos(Math.sin(latCurrent) * Math.sin(latitudeRestaurant) + Math.cos(latCurrent) * Math.cos(latitudeRestaurant) * Math.cos(longitudeRestaurant - longiCurrent)) * 6371 * 1000;
+            double distanceDouble = Math.acos(Math.sin(latCurrent) * Math.sin(latitudeRestaurant) + Math.cos(latCurrent) * Math.cos(latitudeRestaurant) * Math.cos(longitudeRestaurant - longiCurrent)) * 6371 * 1000;
 
-        return df.format(distanceDouble);
+            return df.format(distanceDouble);
+        }
+
+        return null;
 
 
     }
 
     private int openHoursCalcul(OpeningHours openingHours) {
 
-        LocalDateTime currentTime = LocalDateTime.now();
-        int current_day = currentTime.getDayOfWeek().getValue()-1;
+        LocalDateTime currentTime = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            currentTime = LocalDateTime.now();
+        }
+        int current_day = 0;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            current_day = currentTime.getDayOfWeek().getValue() - 1;
+        }
 
         if (openingHours != null) {
 
@@ -220,8 +230,14 @@ public class NearbyRestaurantsRepository {
 
     private int openMinutesCalcul(OpeningHours openingHours) {
 
-        LocalDateTime currentTime = LocalDateTime.now();
-        int current_day = currentTime.getDayOfWeek().getValue()-1;
+        LocalDateTime currentTime = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            currentTime = LocalDateTime.now();
+        }
+        int current_day = 0;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            current_day = currentTime.getDayOfWeek().getValue() - 1;
+        }
 
         if (openingHours != null) {
 
@@ -240,8 +256,14 @@ public class NearbyRestaurantsRepository {
 
     private int closeHoursCalcul(OpeningHours openingHours) {
 
-        LocalDateTime currentTime = LocalDateTime.now();
-        int current_day = currentTime.getDayOfWeek().getValue()-1;
+        LocalDateTime currentTime = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            currentTime = LocalDateTime.now();
+        }
+        int current_day = 0;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            current_day = currentTime.getDayOfWeek().getValue() - 1;
+        }
 
         if (openingHours != null) {
             if (openingHours.getPeriods().get(current_day).getClose() != null) {
@@ -257,8 +279,14 @@ public class NearbyRestaurantsRepository {
 
     private int closeMinutesCalcul(OpeningHours openingHours) {
 
-        LocalDateTime currentTime = LocalDateTime.now();
-        int current_day = currentTime.getDayOfWeek().getValue()-1;
+        LocalDateTime currentTime = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            currentTime = LocalDateTime.now();
+        }
+        int current_day = 0;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            current_day = currentTime.getDayOfWeek().getValue() - 1;
+        }
 
         if (openingHours != null) {
             if (openingHours.getPeriods().get(current_day).getClose() != null) {
@@ -309,9 +337,9 @@ public class NearbyRestaurantsRepository {
             closeMinutes = closeMinutesCalcul(place.getOpeningHours());
             closeHours = closeHoursCalcul(place.getOpeningHours());
 
-            if(place.isOpen()==null){
+            if (place.isOpen() == null) {
                 openForLunch = false;
-            }else{
+            } else {
                 isOpen = place.isOpen();
                 openForLunch = isOpen && closeHours < 15;
             }
