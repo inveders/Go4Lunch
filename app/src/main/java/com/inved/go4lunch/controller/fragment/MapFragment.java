@@ -41,6 +41,7 @@ import java.util.Objects;
 
 import static com.inved.go4lunch.utils.ManageJobPlaceId.KEY_JOB_PLACE_ID_DATA;
 
+
 public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     public static final String RESTAURANT_PLACE_ID = "PLACE_ID";
@@ -48,7 +49,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     private View mView;
     private Marker mMarker;
     private String jobPlaceId;
-
     private FloatingActionButton mapGeolocalisationButton;
 
 
@@ -63,7 +63,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         jobPlaceId = ManageJobPlaceId.getJobPlaceId(Objects.requireNonNull(getActivity()), KEY_JOB_PLACE_ID_DATA);
 
         initializeSharedPreferences();
+
         initializeMap();
+
 
 
     }
@@ -85,7 +87,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     }
 
     private void actionOnFloatingButton() {
-        mapGeolocalisationButton.setOnClickListener(view -> initializeMap());
+        mapGeolocalisationButton.setOnClickListener(view ->
+
+        initializeMap());
     }
 
     @Override
@@ -101,7 +105,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
 
             mMapView.getMapAsync(this);
-
 
 
         }
@@ -121,6 +124,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         super.onDestroy();
 
     }
+
 
 
     private void initializeMap() {
@@ -174,7 +178,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
     private void customizeMarker(String restaurantPlaceId, double lat, double longi) {
 
-        if(mGoogleMap!=null){
+        if (mGoogleMap != null) {
             mGoogleMap.clear();
         }
 
@@ -182,6 +186,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         int mBearing = 0;
         int mTilt = 45;
         if (mMarker != null) {
+            //Mettre un log.d
             mMarker.remove();
         }
 
@@ -225,7 +230,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
             }
         });
 
-        if(mGoogleMap!=null){
+        if (mGoogleMap != null) {
             //Configure action on marker click
             mGoogleMap.setOnMarkerClickListener(marker -> {
 
@@ -248,7 +253,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         }
         return true;
     }
-
 
 
     private BitmapDescriptor bitmapDescriptorFromVectorSelected(Context context) {
@@ -303,5 +307,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         //   mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         //    mGoogleMap.moveCamera(CameraUpdateFactory.zoomBy(11));
+
+        LatLng initialPosition = new LatLng(0, 0);
+
+        mMarker = mGoogleMap.addMarker(new MarkerOptions()
+                .position(initialPosition));
     }
+
+
 }

@@ -1,8 +1,12 @@
 package com.inved.go4lunch.firebase;
 
+import androidx.annotation.NonNull;
+
 import com.google.android.gms.maps.model.LatLng;
 
-public class Restaurant {
+import java.util.Comparator;
+
+public class Restaurant implements Comparable<Restaurant> {
 
     private String restaurantPlaceId;
     private int restaurantCustomers;
@@ -64,6 +68,7 @@ public class Restaurant {
         this.closeMinutes = closeMinutes;
 
     }
+
 
     // --- GETTERS ---
 
@@ -207,4 +212,16 @@ public class Restaurant {
     public void setCloseMinutes(int closeMinutes) {
         this.closeMinutes = closeMinutes;
     }
+
+
+    @Override
+    public int compareTo(@NonNull Restaurant o) {
+        return Comparator.comparing(Restaurant::getRatingApp)
+                .thenComparing(Restaurant::getOpenForLunch)
+                .thenComparing(Restaurant::getRestaurantCustomers)
+                .thenComparing(Restaurant::getDistance)
+                .reversed()
+                .compare(this, o);
+    }
+
 }

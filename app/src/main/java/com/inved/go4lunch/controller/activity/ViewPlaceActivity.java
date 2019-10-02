@@ -25,7 +25,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.PhotoMetadata;
 import com.google.android.libraries.places.api.model.Place;
@@ -49,7 +48,6 @@ import com.inved.go4lunch.view.WorkmatesAdapter;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 import butterknife.BindView;
 
@@ -73,10 +71,14 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     @BindView(R.id.activity_view_place_call_image)
     ImageView viewPlaceCallImage;
+    @BindView(R.id.activity_view_place_call_image_text)
+    TextView viewPlaceCallImageText;
     @BindView(R.id.activity_view_place_like_image)
     ImageView viewPlaceLikeImage;
     @BindView(R.id.activity_view_place_website_image)
     ImageView viewPlaceWebsiteImage;
+    @BindView(R.id.activity_view_place_website_image_text)
+    TextView viewPlaceWebsiteImageText;
     @BindView(R.id.activity_view_place_floating_button)
     FloatingActionButton isChoosenRestaurantImage;
     @BindView(R.id.activity_view_place_like_start_first)
@@ -107,7 +109,16 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
         jobPlaceId = ManageJobPlaceId.getJobPlaceId(this, KEY_JOB_PLACE_ID_DATA);
         currentPlaceId = getIntent().getStringExtra(RESTAURANT_PLACE_ID);
+        initializeViewPlace();
 
+
+        //RecyclerView initialization
+        mRecyclerWorkmates = findViewById(R.id.activity_view_place_recycler_view);
+
+
+    }
+
+    private void initializeViewPlace() {
         RestaurantHelper.getRestaurant(currentPlaceId, jobPlaceId).addOnSuccessListener(documentSnapshot -> {
             Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
 
@@ -130,18 +141,11 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
 
         });
-
-
-        //RecyclerView initialization
-        mRecyclerWorkmates = findViewById(R.id.activity_view_place_recycler_view);
-
-
     }
 
     public void showingLikeStars(int ratingValue) {
 
-        switch (ratingValue)
-        {
+        switch (ratingValue) {
             case 1:
                 likeStarFirst.setVisibility(View.VISIBLE);
                 likeStarSecond.setVisibility(View.INVISIBLE);
@@ -169,34 +173,39 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     private void initializationChoosenRestaurants(String mCurrentPlaceId, String myRestaurantName, String myRestaurantVicinity) {
 
-        UserHelper.getUserWhateverLocation(Objects.requireNonNull(getCurrentUser()).getUid()).get().addOnCompleteListener(task -> {
+        if (getCurrentUser() != null) {
+            UserHelper.getUserWhateverLocation(getCurrentUser().getUid()).get().addOnCompleteListener(task -> {
 
-            QuerySnapshot document = task.getResult();
-            assert document != null;
+                QuerySnapshot document = task.getResult();
+                if (document != null) {
+                    String restaurantPlaceIdInFirebase = document.getDocuments().get(0).getString("restaurantPlaceId");
 
-            String restaurantPlaceIdInFirebase = document.getDocuments().get(0).getString("restaurantPlaceId");
+                    //  Log.d("Debago", "ViewPlaceActivity initialization: restaurantqInFirebase " + restaurantPlaceIdInFirebase + " et mCurrentPLace " + mCurrentPlaceId);
 
-            //  Log.d("Debago", "ViewPlaceActivity initialization: restaurantqInFirebase " + restaurantPlaceIdInFirebase + " et mCurrentPLace " + mCurrentPlaceId);
-            assert restaurantPlaceIdInFirebase != null;
-            if (TextUtils.isEmpty(restaurantPlaceIdInFirebase) || !restaurantPlaceIdInFirebase.equals(mCurrentPlaceId)) {
-                //      Log.d("Debagoo", "ViewPlaceActivity initialization: couleur rouge");
-                isChoosenRestaurantImage.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#B70400")));//red color
+                    if (TextUtils.isEmpty(restaurantPlaceIdInFirebase) || !restaurantPlaceIdInFirebase.equals(mCurrentPlaceId)) {
+                        //      Log.d("Debagoo", "ViewPlaceActivity initialization: couleur rouge");
+                        isChoosenRestaurantImage.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#B70400")));//red color
 
-            } else {
-                //    Log.d("Debagoo", "ViewPlaceActivity initialization: couleur verte");
-                isChoosenRestaurantImage.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#4CAF50")));//green color
+                    } else {
+                        //    Log.d("Debagoo", "ViewPlaceActivity initialization: couleur verte");
+                        isChoosenRestaurantImage.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#4CAF50")));//green color
 
-            }
+                    }
+                }
 
-        });
+
+            });
+        }
+
 
         isChoosenRestaurantImage.setOnClickListener(view -> UserHelper.getUserWhateverLocation(getCurrentUser().getUid()).get().addOnCompleteListener(task -> {
 
             QuerySnapshot document = task.getResult();
-            assert document != null;
 
-            String restaurantPlaceIdInFirebase = document.getDocuments().get(0).getString("restaurantPlaceId");
-            clickOnButton(currentPlaceId, restaurantPlaceIdInFirebase, myRestaurantName, myRestaurantVicinity);
+            if (document != null) {
+                String restaurantPlaceIdInFirebase = document.getDocuments().get(0).getString("restaurantPlaceId");
+                clickOnButton(currentPlaceId, restaurantPlaceIdInFirebase, myRestaurantName, myRestaurantVicinity);
+            }
 
 
         }));
@@ -212,16 +221,26 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
             //We retrieve the new restaurant to increment customers's number
             RestaurantHelper.getRestaurant(mCurrentPlaceId, jobPlaceId).addOnCompleteListener(task -> {
                 DocumentSnapshot document = task.getResult();
-                assert document != null;
+                if (document != null) {
+                    Restaurant restaurant = document.toObject(Restaurant.class);
 
-                int currentNewRestaurantCustomersFirebase = Objects.requireNonNull(document.getLong("restaurantCustomers")).intValue();
+                    if (restaurant != null) {
 
-                //update new restaurant
-                int updateCustomersNewRestaurant = currentNewRestaurantCustomersFirebase + 1;
-                RestaurantHelper.updateRestaurantCustomers(updateCustomersNewRestaurant, mCurrentPlaceId, jobPlaceId);
-                UserHelper.updateRestaurantPlaceId(mCurrentPlaceId, Objects.requireNonNull(getCurrentUser()).getUid(), jobPlaceId);
-                UserHelper.updateRestaurantName(myRestaurantName, Objects.requireNonNull(getCurrentUser()).getUid(), jobPlaceId);
-                UserHelper.updateRestaurantVicinity(myRestaurantVicinity, Objects.requireNonNull(getCurrentUser()).getUid(), jobPlaceId);
+                        int currentNewRestaurantCustomersFirebase = restaurant.getRestaurantCustomers();
+
+                        //update new restaurant
+                        int updateCustomersNewRestaurant = currentNewRestaurantCustomersFirebase + 1;
+                        RestaurantHelper.updateRestaurantCustomers(updateCustomersNewRestaurant, mCurrentPlaceId, jobPlaceId);
+                        if (getCurrentUser() != null) {
+                            UserHelper.updateRestaurantPlaceId(mCurrentPlaceId, getCurrentUser().getUid(), jobPlaceId);
+                            UserHelper.updateRestaurantName(myRestaurantName, getCurrentUser().getUid(), jobPlaceId);
+                            UserHelper.updateRestaurantVicinity(myRestaurantVicinity, getCurrentUser().getUid(), jobPlaceId);
+                        }
+
+                    }
+
+                }
+
 
             });
 
@@ -240,33 +259,47 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                         //  Log.d("Debagoo", "ViewPlaceActivity click button retrieve, restaurantInFirebase :" + restaurantPlaceIdInFirebase);
                         RestaurantHelper.getRestaurant(restaurantPlaceIdInFirebase, jobPlaceId).addOnCompleteListener(task -> {
                             DocumentSnapshot document = task.getResult();
-                            assert document != null;
 
-                            int currentCustomersFirebase = Objects.requireNonNull(document.getLong("restaurantCustomers")).intValue();
+                            if (document != null) {
+                                Restaurant restaurant = document.toObject(Restaurant.class);
 
-                            int updateCustomersOldRestaurant;
-                            //update Old restaurant
-                            if (currentCustomersFirebase != 0) {
-                                updateCustomersOldRestaurant = currentCustomersFirebase - 1;
-                                RestaurantHelper.updateRestaurantCustomers(updateCustomersOldRestaurant, restaurantPlaceIdInFirebase, jobPlaceId);
+                                if (restaurant != null) {
+
+                                    int currentCustomersFirebase = restaurant.getRestaurantCustomers();
+
+                                    int updateCustomersOldRestaurant;
+                                    //update Old restaurant
+                                    if (currentCustomersFirebase != 0) {
+                                        updateCustomersOldRestaurant = currentCustomersFirebase - 1;
+                                        RestaurantHelper.updateRestaurantCustomers(updateCustomersOldRestaurant, restaurantPlaceIdInFirebase, jobPlaceId);
+                                    }
+                                }
                             }
-
 
                         });
 
                         //We retrieve the new restaurant customers's to increase customers's number
                         RestaurantHelper.getRestaurant(mCurrentPlaceId, jobPlaceId).addOnCompleteListener(task -> {
                             DocumentSnapshot document = task.getResult();
-                            assert document != null;
+                            if (document != null) {
+                                Restaurant restaurant = document.toObject(Restaurant.class);
 
-                            int currentNewRestaurantCustomersFirebase = Objects.requireNonNull(document.getLong("restaurantCustomers")).intValue();
+                                if (restaurant != null) {
 
-                            //update new restaurant
-                            int updateCustomersNewRestaurant = currentNewRestaurantCustomersFirebase + 1;
-                            RestaurantHelper.updateRestaurantCustomers(updateCustomersNewRestaurant, mCurrentPlaceId, jobPlaceId);
-                            UserHelper.updateRestaurantPlaceId(mCurrentPlaceId, Objects.requireNonNull(getCurrentUser()).getUid(), jobPlaceId);
-                            UserHelper.updateRestaurantName(myRestaurantName, Objects.requireNonNull(getCurrentUser()).getUid(), jobPlaceId);
-                            UserHelper.updateRestaurantVicinity(myRestaurantVicinity, Objects.requireNonNull(getCurrentUser()).getUid(), jobPlaceId);
+                                    int currentNewRestaurantCustomersFirebase = restaurant.getRestaurantCustomers();
+                                    //update new restaurant
+                                    int updateCustomersNewRestaurant = currentNewRestaurantCustomersFirebase + 1;
+                                    RestaurantHelper.updateRestaurantCustomers(updateCustomersNewRestaurant, mCurrentPlaceId, jobPlaceId);
+                                    if (getCurrentUser() != null) {
+                                        UserHelper.updateRestaurantPlaceId(mCurrentPlaceId, getCurrentUser().getUid(), jobPlaceId);
+                                        UserHelper.updateRestaurantName(myRestaurantName, getCurrentUser().getUid(), jobPlaceId);
+                                        UserHelper.updateRestaurantVicinity(myRestaurantVicinity, getCurrentUser().getUid(), jobPlaceId);
+                                    }
+
+                                }
+
+                            }
+
                         });
 
                         changeButtonColor("#4CAF50");//green color
@@ -286,20 +319,27 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                         //We retrieve the old restaurant customers's number
                         RestaurantHelper.getRestaurant(restaurantPlaceIdInFirebase, jobPlaceId).addOnCompleteListener(task -> {
                             DocumentSnapshot document = task.getResult();
-                            assert document != null;
+                            if (document != null) {
+                                Restaurant restaurant = document.toObject(Restaurant.class);
 
-                            int currentCustomersFirebase = Objects.requireNonNull(document.getLong("restaurantCustomers")).intValue();
-                            int updateCustomersOldRestaurant;
-                            //update Old restaurant
-                            if (currentCustomersFirebase != 0) {
-                                updateCustomersOldRestaurant = currentCustomersFirebase - 1;
-                                RestaurantHelper.updateRestaurantCustomers(updateCustomersOldRestaurant, restaurantPlaceIdInFirebase, jobPlaceId);
-                                UserHelper.updateRestaurantPlaceId(null, Objects.requireNonNull(getCurrentUser()).getUid(), jobPlaceId);
-                                UserHelper.updateRestaurantName(null, Objects.requireNonNull(getCurrentUser()).getUid(), jobPlaceId);
-                                UserHelper.updateRestaurantVicinity(myRestaurantVicinity, Objects.requireNonNull(getCurrentUser()).getUid(), jobPlaceId);
+                                if (restaurant != null) {
+
+                                    int currentCustomersFirebase = restaurant.getRestaurantCustomers();
+                                    int updateCustomersOldRestaurant;
+                                    //update Old restaurant
+                                    if (currentCustomersFirebase != 0) {
+                                        updateCustomersOldRestaurant = currentCustomersFirebase - 1;
+                                        RestaurantHelper.updateRestaurantCustomers(updateCustomersOldRestaurant, restaurantPlaceIdInFirebase, jobPlaceId);
+                                        if (getCurrentUser() != null) {
+                                            UserHelper.updateRestaurantPlaceId(null, getCurrentUser().getUid(), jobPlaceId);
+                                            UserHelper.updateRestaurantName(null, getCurrentUser().getUid(), jobPlaceId);
+                                            UserHelper.updateRestaurantVicinity(myRestaurantVicinity, getCurrentUser().getUid(), jobPlaceId);
+                                        }
+
+                                    }
+
+                                }
                             }
-
-
                         });
 
 
@@ -324,30 +364,36 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     private void initializationLikedRestaurants(String currentPlaceId) {
 
-        UserFavoriteRestaurantHelper.getCurrentRestaurantPlaceId(Objects.requireNonNull(getCurrentUser()).getUid(), currentPlaceId, jobPlaceId).get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
+        if (getCurrentUser() != null) {
+            UserFavoriteRestaurantHelper.getCurrentRestaurantPlaceId(getCurrentUser().getUid(), currentPlaceId, jobPlaceId).get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
 
-                if (!Objects.requireNonNull(task.getResult()).getDocuments().isEmpty()) {
+                    if (task.getResult() != null) {
+                        if (!task.getResult().getDocuments().isEmpty()) {
+
+                            Boolean isRestaurantLiked = task.getResult().getDocuments().get(0).getBoolean("isLiked");
+
+                            if (isRestaurantLiked != null) {
+                                if (isRestaurantLiked) {
+                                    changeLikeButtonColor(getString(R.string.changeButtonColor_Yellow));
+                                } else {
+                                    changeLikeButtonColor(getString(R.string.changeButtonColor_Orange));
+                                }
+                            }
 
 
-                    Boolean isRestaurantLiked = task.getResult().getDocuments().get(0).getBoolean("liked");
-                    if (isRestaurantLiked) {
-                        changeLikeButtonColor(getString(R.string.changeButtonColor_Yellow));
-                    } else {
-                        changeLikeButtonColor(getString(R.string.changeButtonColor_Orange));
+                        } else {
 
+                            changeLikeButtonColor(getString(R.string.changeButtonColor_Orange));
+                        }
                     }
 
 
-                } else {
-
-                    changeLikeButtonColor(getString(R.string.changeButtonColor_Orange));
                 }
 
-            }
 
-
-        });
+            });
+        }
 
 
     }
@@ -356,57 +402,75 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
         viewPlaceLikeImage.setOnClickListener(view -> RestaurantHelper.getRestaurant(currentPlaceId, jobPlaceId).addOnCompleteListener(task -> {
             DocumentSnapshot document = task.getResult();
-            assert document != null;
+            if (document != null) {
+                Restaurant restaurant = document.toObject(Restaurant.class);
 
-            int currentRestaurantLike = Objects.requireNonNull(document.getLong("restaurantLike")).intValue();
-            Log.d("Debago", "ViewPlaceActivity onLikeButton currentRestaurantLike: " + currentRestaurantLike);
-            UserFavoriteRestaurantHelper.getCurrentRestaurantPlaceId(Objects.requireNonNull(getCurrentUser()).getUid(), currentPlaceId, jobPlaceId).get().addOnCompleteListener(task1 -> {
-                if (task1.isSuccessful()) {
-                    Log.d("Debago", "View Place task successful");
-                    if (!Objects.requireNonNull(task1.getResult()).getDocuments().isEmpty()) {
+                if (restaurant != null) {
+                    int currentRestaurantLike = restaurant.getRestaurantLike();
 
-                        int newRestaurantLike;
+                    Log.d("Debago", "ViewPlaceActivity onLikeButton currentRestaurantLike: " + currentRestaurantLike);
+
+                    if (getCurrentUser() != null) {
+                        UserFavoriteRestaurantHelper.getCurrentRestaurantPlaceId(getCurrentUser().getUid(), currentPlaceId, jobPlaceId).get().addOnCompleteListener(task1 -> {
 
 
-                        Boolean isRestaurantLiked = task1.getResult().getDocuments().get(0).getBoolean("liked");
-                        Log.d("Debago", "ViewPlaceActivity onLikeButton isRestaurantLiked " + isRestaurantLiked);
-                        //We want to decrement
-                        if (isRestaurantLiked) {
-                            changeLikeButtonColor(getString(R.string.changeButtonColor_Orange));
-                            newRestaurantLike = currentRestaurantLike - 1;
-                            Log.d("Debago", "ViewPlaceActivity onLikeButton : we decrement");
-                            UserFavoriteRestaurantHelper.updateFavoriteRestaurantLiked(Objects.requireNonNull(getCurrentUser()).getUid(), currentPlaceId, false, jobPlaceId);
+                            if (task1.isSuccessful()) {
 
-                        }
-                        //We want to increment
-                        else {
-                            changeLikeButtonColor(getString(R.string.changeButtonColor_Yellow));
-                            newRestaurantLike = currentRestaurantLike + 1;
-                            Log.d("Debago", "ViewPlaceActivity onLikeButton : we increment");
-                            UserFavoriteRestaurantHelper.updateFavoriteRestaurantLiked(Objects.requireNonNull(getCurrentUser()).getUid(), currentPlaceId, true, jobPlaceId);
-                        }
+                                if (task1.getResult() != null) {
 
-                        RestaurantHelper.updateRestaurantLike(newRestaurantLike, currentPlaceId, jobPlaceId);
+                                    if (!task1.getResult().getDocuments().isEmpty()) {
 
-                        actionOnLikeButton(currentPlaceId);
+                                        int newRestaurantLike;
 
+                                        Boolean isRestaurantLiked = task1.getResult().getDocuments().get(0).getBoolean("isLiked");
+                                        Log.d("Debago", "ViewPlaceActivity onLikeButton isRestaurantLiked " + isRestaurantLiked);
+                                        //We want to decrement
+                                        if (isRestaurantLiked != null) {
+                                            if (isRestaurantLiked) {
+                                                changeLikeButtonColor(getString(R.string.changeButtonColor_Orange));
+                                                newRestaurantLike = currentRestaurantLike - 1;
+                                                Log.d("Debago", "ViewPlaceActivity onLikeButton : we decrement");
+                                                UserFavoriteRestaurantHelper.updateFavoriteRestaurantLiked((getCurrentUser()).getUid(), currentPlaceId, false, jobPlaceId);
+
+                                            }
+                                            //We want to increment
+                                            else {
+                                                changeLikeButtonColor(getString(R.string.changeButtonColor_Yellow));
+                                                newRestaurantLike = currentRestaurantLike + 1;
+                                                Log.d("Debago", "ViewPlaceActivity onLikeButton : we increment");
+                                                UserFavoriteRestaurantHelper.updateFavoriteRestaurantLiked(getCurrentUser().getUid(), currentPlaceId, true, jobPlaceId);
+                                            }
+
+                                            RestaurantHelper.updateRestaurantLike(newRestaurantLike, currentPlaceId, jobPlaceId);
+
+                                            actionOnLikeButton(currentPlaceId);
+                                        }
+
+
+
+
+                                    }
+                                    //First time we have select this restaurant to favorite, we create it in the database
+                                    else {
+
+                                        UserFavoriteRestaurantHelper.createUserFavoriteRestaurants(getCurrentUser().getUid(), currentPlaceId, true, jobPlaceId);
+                                        Log.d("Debago", "ViewPlaceActivity onLikeButton : we create favorite restaurant in Database");
+                                        changeLikeButtonColor(getString(R.string.changeButtonColor_Yellow));
+                                        RestaurantHelper.updateRestaurantLike(1, currentPlaceId, jobPlaceId);
+                                        actionOnLikeButton(currentPlaceId);
+                                    }
+                                }
+
+                            } else {
+                                Log.d("Debago", "View Place task is not successful");
+                            }
+
+                        });
                     }
-                    //First time we have select this restaurant to favorite, we create it in the database
-                    else {
 
-                        UserFavoriteRestaurantHelper.createUserFavoriteRestaurants(getCurrentUser().getUid(), currentPlaceId, true, jobPlaceId);
-                        Log.d("Debago", "ViewPlaceActivity onLikeButton : we create favorite restaurant in Database");
-                        changeLikeButtonColor(getString(R.string.changeButtonColor_Yellow));
-                        RestaurantHelper.updateRestaurantLike(1, currentPlaceId, jobPlaceId);
-                        actionOnLikeButton(currentPlaceId);
-                    }
-
-                } else {
-                    Log.d("Debago", "View Place task is not successful");
                 }
 
-
-            });
+            }
 
 
         }));
@@ -428,7 +492,37 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
         });
 
+        viewPlaceCallImageText.setOnClickListener(view -> {
+
+            //Launch the call
+            if (!TextUtils.isEmpty(phoneNumber)) {
+
+                Intent appel = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phoneNumber));
+                startActivity(appel);
+
+            } else {
+                Toast.makeText(getApplicationContext(), getString(R.string.no_phone_number), Toast.LENGTH_SHORT).show();
+            }
+
+        });
+
+
+
         viewPlaceWebsiteImage.setOnClickListener(view -> {
+
+            //Creation of the Chrome Custom Tabs
+            if (!TextUtils.isEmpty(website)) {
+                CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+                CustomTabsIntent intent = builder.build();
+                intent.launchUrl(context, Uri.parse(website));
+            } else {
+                Toast.makeText(getApplicationContext(), getString(R.string.no_website), Toast.LENGTH_SHORT).show();
+            }
+
+
+        });
+
+        viewPlaceWebsiteImageText.setOnClickListener(view -> {
 
             //Creation of the Chrome Custom Tabs
             if (!TextUtils.isEmpty(website)) {

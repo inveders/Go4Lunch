@@ -19,6 +19,7 @@
     <string name="notification_message_text">For lunch, you eat at the restaurant %1$s located %2$s.</string>
     <string name="notification_message_workmates">Here is the list of workmates who will be eating with you: %1$s %2$s</string>
     <string name="notification_message_no_workmates_with_you">No workmates are coming to lunch with you at the moment</string>
+    <string name="notification_message_text_app">For lunch, you eat at the restaurant %1$s located %2$s with %3$s</string>
 
 
     <string name="notification_message_short">Find the details of the information concerning your lunch</string>
@@ -151,5 +152,12 @@
     <string name="fullscreen_dialog_sort_name">SORT</string>
     <string name="image_content_description">Image description</string>
 
+
+    <!-- PERMISSIONS DISPATCHER -->
+    <string name="permission_acces_location_fine_rationale">We need to access your location to find restaurants near you</string>
+    <string name="permission_acces_location_fine_never_ask_again">You asked that your location no longer be accessed. The application cannot function properly without it.</string>
+    <string name="permission_acces_location_fine_denied">You have decided not to allow access to your location. Restaurants cannot be found at this time.</string>
+    <string name="permission_button_allow">ALLOW</string>
+    <string name="permission_button_deny">DENY</string>
 
 </resources>

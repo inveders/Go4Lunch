@@ -1,11 +1,10 @@
 package com.inved.go4lunch.controller.activity;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
+import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -13,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -41,6 +41,7 @@ import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
+import com.google.api.LogDescriptor;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.auth.ProfileActivity;
 import com.inved.go4lunch.base.BaseActivity;
@@ -58,6 +59,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import permissions.dispatcher.NeedsPermission;
+import permissions.dispatcher.OnNeverAskAgain;
+import permissions.dispatcher.OnPermissionDenied;
+import permissions.dispatcher.OnShowRationale;
+import permissions.dispatcher.PermissionRequest;
+import permissions.dispatcher.RuntimePermissions;
+
+@RuntimePermissions
 public class RestaurantActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, LocationListener {
 
     //FOR LOCAL BROADCAST MANAGER
@@ -81,9 +90,9 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     protected PlacesClient placesClient;
     Location location; // location
     // The minimum distance to change Updates in meters
-    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 1000; // 1000 meters for tests, after come back to 10 meters
+  //  private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 1000; // 1000 meters for tests, after come back to 10 meters
     // The minimum time between updates in milliseconds
-    private static final long MIN_TIME_BW_UPDATES = 1000 * 60; // 1 minute*/
+   // private static final long MIN_TIME_BW_UPDATES = 1000 * 60; // 1 minute*/
 
     //AUTOCOMPLETE
     AutocompleteSessionToken token;
@@ -148,13 +157,15 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     @Override
     public int getFragmentLayout() {return R.layout.activity_restaurant;}
 
-    @SuppressLint("MissingPermission")
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        NearbyRestaurantsRepository nearbyRestaurantsRepository = new NearbyRestaurantsRepository();
-        nearbyRestaurantsRepository.setNearbyRestaurantsInFirebase();
+        RestaurantActivityPermissionsDispatcher.fillFirebaseWithPermissionCheck(RestaurantActivity.this);
+
+        //fillFirebase();
+
 
         this.configureToolBar();
         //Bottom Navigation View
@@ -168,7 +179,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         viewPager = findViewById(R.id.viewpager_fragment); //Init Viewpager
         setupFm(getSupportFragmentManager(), viewPager); //Setup Fragment
         viewPager.setCurrentItem(0); //Set Currrent Item When Activity Start
-        viewPager.setOnPageChangeListener(new PageChange()); //Listeners For Viewpager When Page Changed
+        viewPager.addOnPageChangeListener(new PageChange()); //Listeners For Viewpager When Page Changed
 
         //Configuration navigation view header
         NavigationView mNavigationView = findViewById(R.id.activity_restaurant_nav_view);
@@ -177,26 +188,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         navEmail = mNavigationView.getHeaderView(0).findViewById(R.id.nav_header_Email);
         navProfileImage = mNavigationView.getHeaderView(0).findViewById(R.id.nav_header_profile_image);
 
-        //Location
-        //Subscribe to providers
-        LocationManager lm = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        if (lm != null && lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-        }
-
-        if (lm != null && lm.isProviderEnabled(LocationManager.PASSIVE_PROVIDER)) {
-            lm.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-        }
-
-        if (lm != null && lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-        }
-
-
-
         //All view configuration
-
 
         this.configureDrawerLayout();
 
@@ -221,7 +213,12 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     }
 
+    @NeedsPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    public void fillFirebase() {
 
+        NearbyRestaurantsRepository nearbyRestaurantsRepository = new NearbyRestaurantsRepository();
+        nearbyRestaurantsRepository.setNearbyRestaurantsInFirebase();
+    }
 
 
     @Override
@@ -302,27 +299,16 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
                 ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE, Objects.requireNonNull(place.getLatLng()).latitude);
                 ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE, place.getLatLng().longitude);
 
-              /*  int idCurrentFragment = getSelectedItem(bottomNavigationView);
-                switch (idCurrentFragment) {
-                    case R.id.action_map:
-                        break;
-                    case R.id.action_list:
-                       // adapter.getFilter().filter(place.getName());
-
-                        break;
-                  /*  case R.id.action_people:***;
-                        break;*/
-                 /*   default:
-                        break;
-                }*/
 
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
                 // TODO: Handle the error.
-                assert data != null;
-                Status status = Autocomplete.getStatusFromIntent(data);
-                if (status.getStatusMessage() != null) {
-                    Log.i(TAG, status.getStatusMessage());
+                if(data!= null){
+                    Status status = Autocomplete.getStatusFromIntent(data);
+                    if (status.getStatusMessage() != null) {
+                        Log.i(TAG, status.getStatusMessage());
+                    }
                 }
+
             } else if (resultCode == RESULT_CANCELED) {
 
                 Log.i(TAG, "User canceled the operation");
@@ -518,10 +504,11 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     // LOCALISATION
     // -------------------
 
+
     @Override
     public void onLocationChanged(Location location) {
 
-
+        Log.e("debago","onlocation changed");
         latitude = location.getLatitude();
         longitude = location.getLongitude();
         sendLocationDataToFragments();
@@ -537,8 +524,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         intent.putExtra(KEY_GEOLOCALISATION, currentGeolocalisation);
         intent.putExtra(KEY_LATITUDE, getLatitude());
         intent.putExtra(KEY_LONGITUDE, getLongitude());
-
-
 
         LocalBroadcastManager.getInstance(RestaurantActivity.this).sendBroadcast(intent);
 
@@ -657,7 +642,42 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     }
 
 
+//PERMISSIONS
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        RestaurantActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
+    }
+
+    @OnPermissionDenied(Manifest.permission.ACCESS_FINE_LOCATION)
+    void onAccessLocationDenied() {
+        // NOTE: Deal with a denied permission, e.g. by showing specific UI
+        // or disabling certain functionality
+        Toast.makeText(this, R.string.permission_acces_location_fine_denied, Toast.LENGTH_SHORT).show();
+    }
+
+    @OnShowRationale(Manifest.permission.ACCESS_FINE_LOCATION)
+    void showRationaleForAccesLocation(PermissionRequest request) {
+        // NOTE: Show a rationale to explain why the permission is needed, e.g. with a dialog.
+        // Call proceed() or cancel() on the provided PermissionRequest to continue or abort
+        showRationaleDialog(request);
+    }
+
+    @OnNeverAskAgain(Manifest.permission.ACCESS_FINE_LOCATION)
+    void onAccesLocationNeverAskAgain() {
+        Toast.makeText(this, R.string.permission_acces_location_fine_never_ask_again, Toast.LENGTH_SHORT).show();
+    }
+
+    private void showRationaleDialog(final PermissionRequest request) {
+        new AlertDialog.Builder(this)
+                .setPositiveButton(R.string.permission_button_allow, (dialog, which) -> request.proceed())
+                .setNegativeButton(R.string.permission_button_deny, (dialog, which) -> request.cancel())
+                .setCancelable(false)
+                .setMessage(R.string.permission_acces_location_fine_rationale)
+                .show();
+    }
 
 
 }

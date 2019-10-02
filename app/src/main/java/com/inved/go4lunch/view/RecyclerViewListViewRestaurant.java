@@ -43,11 +43,6 @@ import static com.inved.go4lunch.utils.ManageJobPlaceId.KEY_JOB_PLACE_ID_DATA;
 public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<RecyclerViewListViewRestaurant.ViewHolder> implements Filterable {
 
 
-    private String jobPlaceId;
-
-    private PlacesClient placesClient;
-
-
     @Nullable
     private ArrayList<Restaurant> restaurantArrayList;
     private ArrayList<Restaurant> restaurantArrayListFiltered;
@@ -69,15 +64,6 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_listview_item, parent, false);
 
-
-        jobPlaceId = ManageJobPlaceId.getJobPlaceId(parent.getContext(), KEY_JOB_PLACE_ID_DATA);
-
-
-        // Initialize Places.
-        Places.initialize(parent.getContext(), App.getResourses().getString(R.string.google_api_key));
-
-        // Create a new Places client instance.
-        placesClient = Places.createClient(parent.getContext());
         return new ViewHolder(v);
     }
 

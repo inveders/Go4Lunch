@@ -109,4 +109,10 @@
     <string name="no_opened_hours">Aucun horaire renseigné pour ce jour !</string>
     <string name="open_hours_text_no_minutes">Ouvre à %dh</string>
     <string name="open_hours_until_no_minutes">Ouvert jusqu\'à %dh</string>
+    <string name="permission_acces_location_fine_denied">Vous avez décidé de ne pas autoriser l\'accès à votre localisation. Les restaurants ne pourront pas être trouvés pour l\'instant.</string>
+    <string name="permission_acces_location_fine_never_ask_again">"Vous avez demandé à ce qu'on n'accède plus à votre localisation. L'application ne peut pas fonctionner correctement sans elle. "</string>
+    <string name="permission_acces_location_fine_rationale">Nous avons besoin d\'accéder à votre localisation pour trouver les restaurants près de vous</string>
+    <string name="permission_button_allow">PERMETTRE</string>
+    <string name="permission_button_deny">REFUSER</string>
+    <string name="notification_message_text_app">Ce midi vous mangez au restaurant %1$s situé %2$s avec %3$s</string>
 </resources>

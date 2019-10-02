@@ -20,8 +20,6 @@ public class UserFavoriteRestaurantHelper {
     }
 
 
-
-
     // --- CREATE ---
 
     public static Task<Void> createUserFavoriteRestaurants(String uid, String restaurantPlaceId,Boolean isLiked,String jobPlaceId) {
@@ -31,9 +29,8 @@ public class UserFavoriteRestaurantHelper {
         return UserFavoriteRestaurantHelper.getUsersFavoriteRestaurantCollection(uid,jobPlaceId).document(restaurantPlaceId).set(userFavoriteRestaurantToCreate);
     }
 
+
     // --- GET ---
-
-
 
     public static Query getCurrentRestaurantPlaceId(String uid, String restaurantPlaceId,String jobPlaceId){
         return UserFavoriteRestaurantHelper.getUsersFavoriteRestaurantCollection(uid,jobPlaceId)
@@ -45,7 +42,7 @@ public class UserFavoriteRestaurantHelper {
     // --- UPDATE ---
 
     public static Task<Void> updateFavoriteRestaurantLiked(String uid, String restaurantPlaceId,Boolean isLiked,String jobPlaceId) {
-        return UserFavoriteRestaurantHelper.getUsersFavoriteRestaurantCollection(uid,jobPlaceId).document(restaurantPlaceId).update("liked", isLiked);
+        return UserFavoriteRestaurantHelper.getUsersFavoriteRestaurantCollection(uid,jobPlaceId).document(restaurantPlaceId).update("isLiked", isLiked);
     }
 
     // --- DELETE ---

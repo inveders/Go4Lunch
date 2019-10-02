@@ -1,7 +1,9 @@
 package com.inved.go4lunch.controller.fragment;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,13 +16,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.fragment.app.DialogFragment;
 
 import com.inved.go4lunch.R;
-import com.inved.go4lunch.auth.ProfileActivity;
 
 public class FullScreenDialog extends DialogFragment implements View.OnClickListener {
-
 
     private SeekBar distanceSeekbar;
     private SeekBar workmatesInSeekbar;
@@ -29,15 +30,14 @@ public class FullScreenDialog extends DialogFragment implements View.OnClickList
     private TextView distanceValue;
     private TextView restaurantCustomerValue;
 
-    private boolean openForLunchChoice;
-    private int ratingChoice;
-    private Double distanceChoice;
-    private int restaurantCustomersChoice;
+    private boolean openForLunchChoice=true;
+    private int ratingChoice=0;
+    private Double distanceChoice=400.0;
+    private int restaurantCustomersChoice=0;
 
 
-    public static final String TAG = "CREATE_DIALOG";
+    static final String TAG = "CREATE_DIALOG";
     private Callback callback;
-    private Dialog dialog;
 
     static FullScreenDialog newInstance() {
         return new FullScreenDialog();
@@ -46,6 +46,8 @@ public class FullScreenDialog extends DialogFragment implements View.OnClickList
     public void setCallback(Callback callback) {
         this.callback = callback;
     }
+
+
 
 
     @Override
@@ -135,7 +137,8 @@ public class FullScreenDialog extends DialogFragment implements View.OnClickList
             openForLunchChoice = bChecked;
         });
 
-        ratingChoice = this.ratingBar.getNumStars();
+        ratingBar.setOnRatingBarChangeListener((ratingBar, rating, fromUser) -> ratingChoice = (int) rating);
+
 
     }
 
@@ -151,8 +154,9 @@ public class FullScreenDialog extends DialogFragment implements View.OnClickList
                 break;
 
             case R.id.fullscreen_dialog_action:
-                sortAction();
-                //  callback.onActionClick("Whatever");
+                Log.d("debago","ratingChoosen: "+ratingChoice+" openForLunchChoosen: "+openForLunchChoice+" customerNumberChoosen: "+restaurantCustomersChoice+" distanceChoosen: "+distanceChoice);
+               //    listener.loadDataFromFirebaseSort(ratingChoice,openForLunchChoice,restaurantCustomersChoice,distanceChoice);
+                callback.loadDataFromFirebaseSort(ratingChoice,openForLunchChoice,restaurantCustomersChoice,distanceChoice);
                 dismiss();
                 break;
 
@@ -160,13 +164,10 @@ public class FullScreenDialog extends DialogFragment implements View.OnClickList
 
     }
 
-    private void sortAction() {
-    }
 
     public interface Callback {
 
-        void onActionClick(String name);
-
+        void loadDataFromFirebaseSort(int ratingChoosen,boolean openForLunchChoosen,int customersNumberChoosen,double distanceChoosen);
     }
 
     @Nullable

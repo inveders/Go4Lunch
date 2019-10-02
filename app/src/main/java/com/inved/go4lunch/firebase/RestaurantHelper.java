@@ -54,14 +54,27 @@ public class RestaurantHelper {
     }
 
 
-    public static Query sortRestaurant(String jobPlaceId, int ratingApp, boolean openForLunch, int restaurantCustomers, Double distance) {
+    public static Query sortRestaurantByRatingApp(String jobPlaceId, int ratingApp, boolean openForLunch) {
         return RestaurantHelper.getRestaurantsCollection(jobPlaceId)
-                .whereGreaterThanOrEqualTo("ratingApp", ratingApp)
                 .whereEqualTo("openForLunch", openForLunch)
-                .whereGreaterThanOrEqualTo("restaurantCustomers", restaurantCustomers)
-                .whereGreaterThanOrEqualTo("distance", distance)
-                //  .orderBy("restaurantName")
-                .limit(30);
+                .whereGreaterThanOrEqualTo("ratingApp", ratingApp);
+
+
+    }
+
+    public static Query sortRestaurantByRestaurantCustomers(String jobPlaceId, int restaurantCustomers) {
+        return RestaurantHelper.getRestaurantsCollection(jobPlaceId)
+
+         .whereGreaterThanOrEqualTo("restaurantCustomers", restaurantCustomers);
+
+
+
+    }
+
+    public static Query sortRestaurantByDistance(String jobPlaceId, Double distance) {
+        return RestaurantHelper.getRestaurantsCollection(jobPlaceId)
+
+         .whereGreaterThanOrEqualTo("distance", distance);
 
     }
 

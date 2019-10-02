@@ -120,8 +120,8 @@
                 android:text="@string/fullscreen_dialog__by_open_for_lunch"
                 app:layout_constraintLeft_toLeftOf="@id/dialog_rating_text"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/dialog_rating" />
-
+                app:layout_constraintTop_toBottomOf="@id/dialog_rating"
+                android:checked="true"/>
 
 
             <!-- DISTANCE -->

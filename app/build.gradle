@@ -19,11 +19,12 @@ android {
     compileSdkVersion 29
     defaultConfig {
         applicationId "com.inved.go4lunch"
-        minSdkVersion 26
+        minSdkVersion 19
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -59,12 +60,16 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'com.google.android.material:material:1.0.0'
+    implementation 'com.android.support:multidex:1.0.3'
 
     implementation 'com.jakewharton:butterknife:10.1.0'
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'com.google.android.libraries.places:places:2.0.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.1.0'
 
+    //Permission Dispatcher
+    implementation "org.permissionsdispatcher:permissionsdispatcher:4.5.0"
+    annotationProcessor "org.permissionsdispatcher:permissionsdispatcher-processor:4.5.0"
 
 
     //Firebase
