@@ -97,7 +97,7 @@ public class NotificationsActivity extends BaseActivity {
 
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                Log.d("debago", document.getId() + " => " + document.getData());
+                            //    Log.d("debago", document.getId() + " => " + document.getData());
                                 workmates.add(document.get("firstname").toString());
 
                             }
@@ -116,7 +116,7 @@ public class NotificationsActivity extends BaseActivity {
                 });
 
 
-                Log.d("debago","NotificationActivity notifidationMessage "+getString(R.string.notification_message_text,restaurantName,restaurantVicinity));
+              //  Log.d("debago","NotificationActivity notifidationMessage "+getString(R.string.notification_message_text,restaurantName,restaurantVicinity));
                 showNotificationMessageText(restaurantName,restaurantVicinity,restaurantPlaceId);
             }
         });
