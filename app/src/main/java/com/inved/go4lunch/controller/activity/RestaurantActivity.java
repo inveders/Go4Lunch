@@ -41,7 +41,6 @@ import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
-import com.google.api.LogDescriptor;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.auth.ProfileActivity;
 import com.inved.go4lunch.base.BaseActivity;
@@ -166,7 +165,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
         //fillFirebase();
 
-
         this.configureToolBar();
         //Bottom Navigation View
         bottomNavigationView = findViewById(R.id.activity_restaurant_bottom_navigation);
@@ -191,6 +189,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         //All view configuration
 
         this.configureDrawerLayout();
+        this.configureNavigationView();
 
       //  this.checkLocation();
         // Initialize Places.
@@ -204,7 +203,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         placesClient = Places.createClient(this);
        token = AutocompleteSessionToken.newInstance();
 
-        this.configureNavigationView();
+
         this.userInformationFromFirebase();
 
         //Localisation
@@ -213,9 +212,10 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     }
 
-    @NeedsPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    @NeedsPermission({Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION})
     public void fillFirebase() {
 
+        Log.d("debago","RestaurantActivity : in fillFirebase, need permission");
         NearbyRestaurantsRepository nearbyRestaurantsRepository = new NearbyRestaurantsRepository();
         nearbyRestaurantsRepository.setNearbyRestaurantsInFirebase();
     }
@@ -334,6 +334,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     public void onResume() {
         super.onResume();
         userInformationFromFirebase();
+        RestaurantActivityPermissionsDispatcher.fillFirebaseWithPermissionCheck(RestaurantActivity.this);
     }
 
     //Navigation drawer
@@ -651,21 +652,21 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         RestaurantActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
     }
 
-    @OnPermissionDenied(Manifest.permission.ACCESS_FINE_LOCATION)
+    @OnPermissionDenied({Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION})
     void onAccessLocationDenied() {
         // NOTE: Deal with a denied permission, e.g. by showing specific UI
         // or disabling certain functionality
         Toast.makeText(this, R.string.permission_acces_location_fine_denied, Toast.LENGTH_SHORT).show();
     }
 
-    @OnShowRationale(Manifest.permission.ACCESS_FINE_LOCATION)
+    @OnShowRationale({Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION})
     void showRationaleForAccesLocation(PermissionRequest request) {
         // NOTE: Show a rationale to explain why the permission is needed, e.g. with a dialog.
         // Call proceed() or cancel() on the provided PermissionRequest to continue or abort
         showRationaleDialog(request);
     }
 
-    @OnNeverAskAgain(Manifest.permission.ACCESS_FINE_LOCATION)
+    @OnNeverAskAgain({Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION})
     void onAccesLocationNeverAskAgain() {
         Toast.makeText(this, R.string.permission_acces_location_fine_never_ask_again, Toast.LENGTH_SHORT).show();
     }
