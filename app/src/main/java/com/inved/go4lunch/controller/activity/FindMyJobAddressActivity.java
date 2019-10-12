@@ -21,11 +21,16 @@ import com.google.android.libraries.places.api.model.TypeFilter;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.messaging.FirebaseMessagingService;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.controller.activity.RestaurantActivity;
 import com.inved.go4lunch.firebase.UserHelper;
+import com.inved.go4lunch.notification.NotificationService;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
 
 import java.util.Arrays;
@@ -33,12 +38,13 @@ import java.util.Objects;
 
 import butterknife.BindView;
 
+import static com.inved.go4lunch.utils.ManageJobPlaceId.KEY_JOB_PLACE_ID;
+
 public class FindMyJobAddressActivity extends BaseActivity {
     private static final String TAG = "Debago";
     String jobAddress;
     String jobPlaceId;
     String jobName;
-
     Context context;
 
 
@@ -115,26 +121,23 @@ public class FindMyJobAddressActivity extends BaseActivity {
                 } else {
 
                     String firebaseAuthUid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
-                    UserHelper.getUserWithSameUid(firebaseAuthUid, jobPlaceId).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            if (task.isSuccessful()) {
-                                //    Log.d("Debago", "task successful");
-                                if (task.getResult().getDocuments().size() != 0) {
+                    UserHelper.getUserWithSameUid(firebaseAuthUid, jobPlaceId).get().addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            //    Log.d("Debago", "task successful");
+                            if (task.getResult().getDocuments().size() != 0) {
 
-                                    Log.d("Debago", "findMyJobAddress already exist " + task.getResult().getDocuments());
-                                    ManageJobPlaceId.saveJobPlaceId(getApplicationContext(), jobPlaceId);
-                                    startRestaurantActivity();
-                                } else {
-                                    Log.d("Debago", "FindMyJobAddressActivity create user in firestore " + jobAddress + " " + jobName + " " + jobPlaceId);
-                                    createUserInFirestore(jobAddress, jobPlaceId, jobName);
-                                    startRestaurantActivity();
-                                }
-
+                                Log.d("Debago", "findMyJobAddress already exist " + task.getResult().getDocuments());
+                                ManageJobPlaceId.saveJobPlaceId(getApplicationContext(), jobPlaceId);
+                                startRestaurantActivity();
+                            } else {
+                                Log.d("Debago", "FindMyJobAddressActivity create user in firestore " + jobAddress + " " + jobName + " " + jobPlaceId);
+                                createUserInFirestore(jobAddress, jobPlaceId, jobName);
+                                startRestaurantActivity();
                             }
 
-
                         }
+
+
                     });
 
 
@@ -160,12 +163,41 @@ public class FindMyJobAddressActivity extends BaseActivity {
             String restaurantName = null;
             String restaurantType = null;
             String restaurantVicinity = null;
+            String token = null ;
+            boolean notificationEnabled = true;
             ManageJobPlaceId.saveJobPlaceId(this, jobPlaceId);
-            UserHelper.createUser(uid, firstname, lastname, urlPicture, restaurantPlaceId, restaurantType, restaurantName, restaurantVicinity, jobAddress, jobPlaceId, jobName).addOnFailureListener(this.onFailureListener());
+            UserHelper.createUser(uid, firstname, lastname, urlPicture, restaurantPlaceId, restaurantType, restaurantName, restaurantVicinity, jobAddress, jobPlaceId, jobName,token,notificationEnabled).addOnFailureListener(this.onFailureListener());
 
+
+
+            FirebaseInstanceId.getInstance().getInstanceId()
+                    .addOnCompleteListener(task -> {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "getInstanceId failed", task.getException());
+                            return;
+                        }
+
+                        // Get new Instance ID token
+                        if(task.getResult()!=null){
+                            String token1 = task.getResult().getToken();
+                            if(getCurrentUser()!=null){
+                                Log.d("debago","creating token");
+                                UserHelper.updateUserToken(token1,getCurrentUser().getUid(),ManageJobPlaceId.getJobPlaceId(getApplicationContext(),KEY_JOB_PLACE_ID));
+                                // Log and toast
+                                String msg = "my token"+ token1;
+                                Log.d(TAG, msg);
+                                Toast.makeText(FindMyJobAddressActivity.this, msg, Toast.LENGTH_SHORT).show();
+                            }
+
+                        }
+
+                    });
 
         }
     }
+
+
+
 
     private void startRestaurantActivity() {
         Intent intent = new Intent(this, RestaurantActivity.class);
