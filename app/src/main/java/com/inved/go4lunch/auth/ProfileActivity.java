@@ -19,14 +19,12 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.controller.activity.MainActivity;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
-import com.inved.go4lunch.utils.ManagedNotificationEnabled;
 
 import java.util.Objects;
 
@@ -63,23 +61,26 @@ public class ProfileActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         jobPlaceId = ManageJobPlaceId.getJobPlaceId(this,KEY_JOB_PLACE_ID_DATA);
-        Log.d("DEBAGO", "ViewPlaceActivity oncreate jobplaceid: "+jobPlaceId);
+
 
         this.configureToolBar();
         this.updateUIWhenCreating();
 
 
-        notificationSwitch.setChecked(ManagedNotificationEnabled.getNotificationStatus(this));
 
         notificationSwitch.setOnCheckedChangeListener((compoundButton, bChecked) -> {
             if (bChecked) {
-                Toast.makeText(ProfileActivity.this, "Notifications actives", Toast.LENGTH_SHORT).show();
-                FirebaseMessaging.getInstance().subscribeToTopic("go4lunchFrench");
-                ManagedNotificationEnabled.saveNotificationEnabled(this,true);
+                Toast.makeText(ProfileActivity.this, getString(R.string.notification_enabling), Toast.LENGTH_SHORT).show();
+
+                if(getCurrentUser()!=null){
+                    UserHelper.updateNotificationEnabled(true,getCurrentUser().getUid(),jobPlaceId);
+                }
+
             } else {
-                Toast.makeText(ProfileActivity.this, "Désactivation des notifications", Toast.LENGTH_SHORT).show();
-                FirebaseMessaging.getInstance().unsubscribeFromTopic("go4lunchFrench");
-                ManagedNotificationEnabled.saveNotificationEnabled(this,false);
+                Toast.makeText(ProfileActivity.this, getString(R.string.notification_desabling), Toast.LENGTH_SHORT).show();
+                if(getCurrentUser()!=null){
+                    UserHelper.updateNotificationEnabled(false,getCurrentUser().getUid(),jobPlaceId);
+                }
             }
         });
 
@@ -236,6 +237,12 @@ public class ProfileActivity extends BaseActivity {
                         }
                         else{
                             textViewJobName.setText(jobName);
+                        }
+
+                        if(currentUser.isNotificationEnabled()){
+                            notificationSwitch.setChecked(currentUser.isNotificationEnabled());
+                        }else{
+                            notificationSwitch.setChecked(currentUser.isNotificationEnabled());
                         }
 
 
