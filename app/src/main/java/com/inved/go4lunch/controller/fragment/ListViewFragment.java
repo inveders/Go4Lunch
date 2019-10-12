@@ -114,7 +114,6 @@ public class ListViewFragment extends Fragment {
 
     private void loadDataFromFirebase() {
 
-       // Log.d("debago", "ListViewFragment load data from firebase restaurant size is " + restaurantArrayList.size());
         if (restaurantArrayList.size() > 0) {
             restaurantArrayList.clear();
         }
@@ -160,7 +159,6 @@ public class ListViewFragment extends Fragment {
 
     private void loadDataFromFirebaseFilter(String mQuery) {
 
-        Log.d(TAG, "ListViewFragment restaurant size filter " + restaurantArrayList.size());
         if (restaurantArrayList.size() > 0) {
             restaurantArrayList.clear();
         }
@@ -245,9 +243,7 @@ public class ListViewFragment extends Fragment {
 
                         }
 
-                        Log.d("debago","restaurantArrayList avant le tri "+restaurantArrayList);
                         Collections.sort(restaurantArrayList, Restaurant::compareTo);
-                        Log.d("debago","restaurantArrayList une fois trié "+restaurantArrayList);
                         mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(Glide.with(App.getInstance().getApplicationContext()), restaurantArrayList);
                         mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
                         mRecyclerListViewAdapter.setData(restaurantArrayList);
@@ -279,14 +275,11 @@ public class ListViewFragment extends Fragment {
 
         String restaurantNameFromAutocomplete = ManageAutocompleteResponse.getStringAutocomplete((App.getInstance().getApplicationContext()), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME);
 
-        Log.d(TAG, "ListViewFragment restaurantName getRestaurantNameFrom " + restaurantNameFromAutocomplete);
         if (restaurantNameFromAutocomplete != null) {
 
             if (restaurantNameFromAutocomplete.isEmpty()) {
-                Log.d(TAG, "ListViewFragment restaurantName getRestaurantNameFrom est vide ");
                 loadDataFromFirebase();
             } else {
-                Log.d(TAG, "ListViewFragment restaurantName getRestaurantNameFrom on fait le filtre");
                 loadDataFromFirebaseFilter(restaurantNameFromAutocomplete);
                 initializeSharedPreferences();
             }

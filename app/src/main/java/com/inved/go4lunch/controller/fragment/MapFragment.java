@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,7 +64,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         jobPlaceId = ManageJobPlaceId.getJobPlaceId(Objects.requireNonNull(getActivity()), KEY_JOB_PLACE_ID_DATA);
 
         initializeSharedPreferences();
-
         initializeMap();
 
 
