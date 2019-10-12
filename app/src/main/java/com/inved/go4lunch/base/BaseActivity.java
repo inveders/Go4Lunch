@@ -54,5 +54,4 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     protected Boolean isCurrentUserLogged(){ return (this.getCurrentUser() != null); }
 
-
 }

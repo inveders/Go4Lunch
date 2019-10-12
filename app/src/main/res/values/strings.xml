@@ -15,7 +15,7 @@
     <!-- NOTIFICATION SERVICE -->
     <string name="Notification_activity_Title">Your Lunch</string>
     <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
-    <string name="notification_title">You have received a notification</string>
+    <string name="notification_title">Your lunchtime</string>
     <string name="notification_message_text">For lunch, you eat at the restaurant %1$s located %2$s.</string>
     <string name="notification_message_workmates">Here is the list of workmates who will be eating with you: %1$s %2$s</string>
     <string name="notification_message_no_workmates_with_you">No workmates are coming to lunch with you at the moment</string>
@@ -30,6 +30,9 @@
     <string name="notification_btn_see_choice">SEE MY CHOICE</string>
     <string name="notifications_settings">NOTIFICATIONS SETTINGS</string>
     <string name="votre_repas_ce_midi">YOUR LUNCH</string>
+
+    <string name="notification_enabling">Notifications enabling</string>
+    <string name="notification_desabling">Notification desabling</string>
 
     <!-- MAIN ACTIVITY -->
     <string name="error_authentication_canceled">Authentication cancelled&#8230;</string>
@@ -113,7 +116,7 @@
     <!-- PERMISSION ACTIVITY-->
     <string name="toolbar_name_permission_activity">Permission granted</string>
     <string name="grant_permission">Grant Permission</string>
-    <string name="granted_text">Go4Lunch needs permission to acces device location to provide required services. Please allow the permission</string>
+    <string name="granted_text">Go4Lunch needs permission to access device location to provide required services. Please allow the permission</string>
     <string name="granted_title">Permission Request</string>
     <string name="toolbar_title_permission_activity">Permissions</string>
 

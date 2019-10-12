@@ -115,22 +115,9 @@ public class NotificationsActivity extends BaseActivity {
                     }
                 });
 
-
-              //  Log.d("debago","NotificationActivity notifidationMessage "+getString(R.string.notification_message_text,restaurantName,restaurantVicinity));
                 showNotificationMessageText(restaurantName,restaurantVicinity,restaurantPlaceId);
             }
         });
-
-    }
-
-    private void sendDataInService(String restaurantName, String restaurantVicinity) {
-
-        Intent mIntent = new Intent(this, NotificationService.class);
-        Bundle extras = mIntent.getExtras();
-        if (extras != null) {
-            extras.putString(NOTIFICATION_RESTAURANT_NAME, restaurantName);
-            extras.putString(NOTIFICATION_RESTAURANT_ADDRESS, restaurantVicinity);
-        }
 
     }
 
@@ -143,13 +130,7 @@ public class NotificationsActivity extends BaseActivity {
         else{
             notificationMessageText.setText(getString(R.string.notification_message_text,restaurantName,restaurantVicinity));
             btnSeeRestaurantChoosen.setVisibility(View.VISIBLE);
-            btnSeeRestaurantChoosen.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-                    startViewPlaceActivity(placeId);
-                }
-            });
+            btnSeeRestaurantChoosen.setOnClickListener(view -> startViewPlaceActivity(placeId));
         }
 
 

@@ -77,6 +77,7 @@ public class NearbyRestaurantsRepository {
 
     public void setNearbyRestaurantsInFirebase() {
 
+        Log.d("debago","in nearby firebase");
         // Initialize Places.
         Places.initialize(context, App.getResourses().getString(R.string.google_api_key));
         // Create a new Places client instance.

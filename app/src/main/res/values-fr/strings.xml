@@ -41,7 +41,7 @@
     <string name="notification_message_short">Retrouvez le détail des informations concernant votre repas de ce midi</string>
     <string name="notification_message_text">Pour ce midi, vous mangez au restaurant %1$s situé %2$s.</string>
     <string name="notification_message_workmates">Voici la liste des collègues qui mangeront avec vous : %1$s %2$s</string>
-    <string name="notification_title">Vous avez reçu une notification</string>
+    <string name="notification_title">Votre repas ce midi</string>
     <string name="par_defaut">PAR DEFAUT</string>
     <string name="popup_message_choice_no">Non</string>
     <string name="popup_message_choice_yes">Oui</string>
@@ -115,4 +115,6 @@
     <string name="permission_button_allow">PERMETTRE</string>
     <string name="permission_button_deny">REFUSER</string>
     <string name="notification_message_text_app">Ce midi vous mangez au restaurant %1$s situé %2$s avec %3$s</string>
+    <string name="notification_desabling">Activation des notifications</string>
+    <string name="notification_enabling">Désactivation des notifications</string>
 </resources>

@@ -246,7 +246,6 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
     public void setData(ArrayList<Restaurant> restaurantArrayList) {
 
-        Log.d("Debago", "mData dans le setData " + restaurantArrayList);
         this.restaurantArrayList = restaurantArrayList;
         this.restaurantArrayListFiltered = restaurantArrayList;
         //Fill the Recycler View
