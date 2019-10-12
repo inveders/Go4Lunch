@@ -17,9 +17,11 @@ public class User {
     private String jobAddress;
     private String jobPlaceId;
     private String jobName;
+    private String token;
+    private boolean notificationEnabled;
     public User() { }
 
-    public User(String uid, String firstname, String lastname, String urlPicture, String restaurantPlaceId, String restaurantType,String restaurantName,String restaurantVicinity,String jobAddress,String jobPlaceId,String jobName) {
+    public User(String uid, String firstname, String lastname, String urlPicture, String restaurantPlaceId, String restaurantType,String restaurantName,String restaurantVicinity,String jobAddress,String jobPlaceId,String jobName,String token,boolean notificationEnabled) {
         this.uid = uid;
         this.firstname = firstname;
         this.lastname = lastname;
@@ -31,6 +33,8 @@ public class User {
         this.jobAddress=jobAddress;
         this.jobPlaceId=jobPlaceId;
         this.jobName=jobName;
+        this.token=token;
+        this.notificationEnabled=notificationEnabled;
     }
 
     // --- GETTERS ---
@@ -45,6 +49,9 @@ public class User {
     public String getJobAddress() { return jobAddress; }
     public String getJobPlaceId() { return jobPlaceId; }
     public String getJobName() { return jobName; }
+    public String getToken() { return token; }
+
+    public boolean isNotificationEnabled() {return notificationEnabled;}
 
     // --- SETTERS ---
     public void setFirstname(String firstname) { this.firstname = firstname; }
@@ -58,4 +65,8 @@ public class User {
     public void setJobAddress(String jobAddress) { this.jobAddress = jobAddress; }
     public void setJobPlaceId(String jobPlaceId) { this.jobPlaceId = jobPlaceId; }
     public void setJobName(String jobName) { this.jobName = jobName; }
+
+    public void setToken(String token) {this.token = token;}
+
+    public void setNotificationEnabled(boolean notificationEnabled) {this.notificationEnabled = notificationEnabled;}
 }

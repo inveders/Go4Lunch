@@ -28,10 +28,10 @@ public class UserHelper {
 
     // --- CREATE ---
 
-    public static Task<Void> createUser(String uid, String firstname, String lastname,String urlPicture, String restaurantPlaceId,String restaurantType,String restaurantName,String restaurantVicinity,String jobAddress,String jobPlaceId, String jobName) {
+    public static Task<Void> createUser(String uid, String firstname, String lastname,String urlPicture, String restaurantPlaceId,String restaurantType,String restaurantName,String restaurantVicinity,String jobAddress,String jobPlaceId, String jobName,String token, boolean notificationEnabled) {
         // 1 - Create Obj
 
-        User userToCreate = new User(uid, firstname,lastname, urlPicture,restaurantPlaceId,restaurantType,restaurantName,restaurantVicinity,jobAddress,jobPlaceId,jobName);
+        User userToCreate = new User(uid, firstname,lastname, urlPicture,restaurantPlaceId,restaurantType,restaurantName,restaurantVicinity,jobAddress,jobPlaceId,jobName,token,notificationEnabled);
         Log.d("Debago", "createUser in Userhelper "+jobAddress+" "+jobName+" "+jobPlaceId);
         return UserHelper.getUsersCollection(jobPlaceId).document(uid).set(userToCreate);
     }
@@ -41,6 +41,10 @@ public class UserHelper {
     // --- GET ---
 
     public static Task<DocumentSnapshot> getUser(String uid,String jobPlaceId){
+        return UserHelper.getUsersCollection(jobPlaceId).document(uid).get();
+    }
+
+    public static Task<DocumentSnapshot> getNotifcationStatus(String uid,String jobPlaceId){
         return UserHelper.getUsersCollection(jobPlaceId).document(uid).get();
     }
 
@@ -96,6 +100,14 @@ public class UserHelper {
 
     public static Task<Void> updateRestaurantType(String restaurantType, String uid,String jobPlaceId) {
         return UserHelper.getUsersCollection(jobPlaceId).document(uid).update("restaurantType", restaurantType);
+    }
+
+    public static Task<Void> updateUserToken(String token, String uid,String jobPlaceId) {
+        return UserHelper.getUsersCollection(jobPlaceId).document(uid).update("token", token);
+    }
+
+    public static Task<Void> updateNotificationEnabled(boolean isNotificationEnabled, String uid,String jobPlaceId) {
+        return UserHelper.getUsersCollection(jobPlaceId).document(uid).update("notificationEnabled", isNotificationEnabled);
     }
 
     // --- DELETE ---
