@@ -117,4 +117,7 @@
     <string name="notification_message_text_app">Ce midi vous mangez au restaurant %1$s situé %2$s avec %3$s</string>
     <string name="notification_desabling">Activation des notifications</string>
     <string name="notification_enabling">Désactivation des notifications</string>
+    <string name="alert_dialog_location_far_from_works_text">Vous êtes trop loin de votre lieu de travail, voulez-vous passer en  mode normal et être géolocalisé?</string>
+    <string name="alert_dialog_location_far_from_works_pos_button">OUI, QUITTER LE MODE TRAVAIL</string>
+    <string name="alert_dialog_location_far_from_works_neg_button">NON</string>
 </resources>

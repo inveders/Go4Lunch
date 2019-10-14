@@ -18,7 +18,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.inved.go4lunch.R;
-import com.inved.go4lunch.api.PlaceDetailsData;
 import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.controller.activity.ViewPlaceActivity;
 import com.inved.go4lunch.firebase.User;
@@ -45,7 +44,6 @@ public class NotificationsActivity extends BaseActivity {
     @BindView(R.id.activity_notification_btn_see_choice)
     Button btnSeeRestaurantChoosen;
 
-    PlaceDetailsData placeDetailsData = new PlaceDetailsData();
     private Toolbar toolbar;
 
     @Override

@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
 import com.inved.go4lunch.R;
-import com.inved.go4lunch.api.PlaceDetailsData;
 import com.inved.go4lunch.controller.activity.ViewPlaceActivity;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.utils.App;
@@ -26,7 +25,7 @@ class WorkmatesViewHolder extends RecyclerView.ViewHolder {
     private ImageView mWorkmatesImage;
     private TextView mWorkmatesText;
     private ConstraintLayout mConstraintLayoutItem;
-    private PlaceDetailsData placeDetailsData = new PlaceDetailsData();
+
 
 
     WorkmatesViewHolder(@NonNull View itemView) {
