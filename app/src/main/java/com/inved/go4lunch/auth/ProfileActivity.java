@@ -56,7 +56,6 @@ public class ProfileActivity extends BaseActivity {
     @BindView(R.id.profile_activity_app_mode_button)
     Button appModeButton;
 
-    private String appModeText;
 
     //FOR DATA
     private String jobPlaceId;
@@ -74,14 +73,14 @@ public class ProfileActivity extends BaseActivity {
 
         notificationSwitch.setOnCheckedChangeListener((compoundButton, bChecked) -> {
             if (bChecked) {
-                Toast.makeText(ProfileActivity.this, getString(R.string.notification_enabling), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(ProfileActivity.this, getString(R.string.notification_enabling), Toast.LENGTH_SHORT).show();
 
                 if (getCurrentUser() != null) {
                     UserHelper.updateNotificationEnabled(true, getCurrentUser().getUid(), jobPlaceId);
                 }
 
             } else {
-                Toast.makeText(ProfileActivity.this, getString(R.string.notification_desabling), Toast.LENGTH_SHORT).show();
+               // Toast.makeText(ProfileActivity.this, getString(R.string.notification_desabling), Toast.LENGTH_SHORT).show();
                 if (getCurrentUser() != null) {
                     UserHelper.updateNotificationEnabled(false, getCurrentUser().getUid(), jobPlaceId);
                 }
