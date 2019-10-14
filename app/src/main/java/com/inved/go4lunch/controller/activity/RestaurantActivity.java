@@ -46,6 +46,7 @@ import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
+import com.inved.go4lunch.BuildConfig;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.auth.ProfileActivity;
 import com.inved.go4lunch.base.BaseActivity;
@@ -75,6 +76,9 @@ import permissions.dispatcher.RuntimePermissions;
 
 @RuntimePermissions
 public class RestaurantActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, LocationListener {
+
+    public static final String MAP_API_KEY = BuildConfig.GOOGLE_MAPS_API_KEY;
+    public static final String MATRIX_API_KEY = BuildConfig.GOOGLE_MATRIX_API_KEY;
 
     //FOR LOCAL BROADCAST MANAGER
     public static final String PLACE_DETAIL_DATA = "PLACE_DETAIL_DATA";
@@ -205,7 +209,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         this.checkLocation();
         // Initialize Places.
         if (!Places.isInitialized()) {
-            Places.initialize(getApplicationContext(), getString(R.string.google_api_key));
+            Places.initialize(getApplicationContext(), MAP_API_KEY);
         }
 
         fields = Arrays.asList(Place.Field.NAME,Place.Field.ID,Place.Field.LAT_LNG);

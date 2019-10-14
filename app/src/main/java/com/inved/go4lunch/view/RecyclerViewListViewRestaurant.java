@@ -30,15 +30,14 @@ import com.inved.go4lunch.R;
 import com.inved.go4lunch.controller.activity.ViewPlaceActivity;
 import com.inved.go4lunch.firebase.Restaurant;
 import com.inved.go4lunch.utils.App;
-import com.inved.go4lunch.utils.ManageJobPlaceId;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.MAP_API_KEY;
 import static com.inved.go4lunch.controller.fragment.MapFragment.RESTAURANT_PLACE_ID;
-import static com.inved.go4lunch.utils.ManageJobPlaceId.KEY_JOB_PLACE_ID_DATA;
 
 public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<RecyclerViewListViewRestaurant.ViewHolder> implements Filterable {
 
@@ -48,11 +47,9 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
     private ArrayList<Restaurant> restaurantArrayListFiltered;
 
     private String placeId;
-    private final RequestManager glide;
 
     public RecyclerViewListViewRestaurant(RequestManager glide, @Nullable ArrayList<Restaurant> restaurantArrayList) {
 
-        this.glide = glide;
         this.restaurantArrayList = restaurantArrayList;
 
     }
@@ -96,38 +93,44 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
             int opening_close_hours = restaurantArrayList.get(position).getCloseHours();
             int opening_close_minutes = restaurantArrayList.get(position).getCloseMinutes();
 
-            LocalDateTime currentTime = LocalDateTime.now();
-            int current_hours = currentTime.getHour();
+            LocalDateTime currentTime = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                currentTime = LocalDateTime.now();
+                int current_hours = currentTime.getHour();
 
-
-            if (current_hours < opening_open_hours) {
-                if (opening_close_hours != -1) {
-                    if (opening_open_minutes == 0) {
-                        holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.open_hours_text_no_minutes, opening_open_hours));
-                    } else {
-                        holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.open_hours_text, opening_open_hours, opening_open_minutes));
-                    }
-
-                } else {
-                    holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.no_opened_hours));
-
-                }
-            } else {
-                if (opening_close_hours != -1) {
-                    if (opening_close_hours == 0) {
-                        holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.opening_hours_midnight));
-                    } else {
-                        if (opening_close_minutes == 0) {
-                            holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.open_hours_until_no_minutes, opening_close_hours));
+                if (current_hours < opening_open_hours) {
+                    if (opening_close_hours != -1) {
+                        if (opening_open_minutes == 0) {
+                            holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.open_hours_text_no_minutes, opening_open_hours));
                         } else {
-                            holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.open_hours_until, opening_close_hours, opening_close_minutes));
+                            holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.open_hours_text, opening_open_hours, opening_open_minutes));
                         }
+
+                    } else {
+                        holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.no_opened_hours));
+
                     }
                 } else {
-                    holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.no_opened_hours));
-                }
+                    if (opening_close_hours != -1) {
+                        if (opening_close_hours == 0) {
+                            holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.opening_hours_midnight));
+                        } else {
+                            if (opening_close_minutes == 0) {
+                                holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.open_hours_until_no_minutes, opening_close_hours));
+                            } else {
+                                holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.open_hours_until, opening_close_hours, opening_close_minutes));
+                            }
+                        }
+                    } else {
+                        holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.no_opened_hours));
+                    }
 
+                }
             }
+
+
+
+
         }
 
 
@@ -174,7 +177,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
         //PHOTO
         // Initialize Places.
-        Places.initialize(App.getInstance().getApplicationContext(), App.getResourses().getString(R.string.google_api_key));
+        Places.initialize(App.getInstance().getApplicationContext(), MAP_API_KEY);
 
         // Create a new Places client instance.
         PlacesClient placesClient = Places.createClient(App.getInstance().getApplicationContext());

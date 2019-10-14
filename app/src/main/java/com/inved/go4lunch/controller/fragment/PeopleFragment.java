@@ -16,14 +16,12 @@ import com.bumptech.glide.Glide;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.Query;
 import com.inved.go4lunch.R;
-import com.inved.go4lunch.view.WorkmatesAdapter;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
+import com.inved.go4lunch.view.WorkmatesAdapter;
 
 import java.util.Objects;
-
-import static com.inved.go4lunch.utils.ManageJobPlaceId.KEY_JOB_PLACE_ID_DATA;
 
 public class PeopleFragment extends Fragment implements WorkmatesAdapter.Listener{
 

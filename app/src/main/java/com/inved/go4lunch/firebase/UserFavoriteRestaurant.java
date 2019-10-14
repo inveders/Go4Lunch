@@ -5,12 +5,12 @@ public class UserFavoriteRestaurant {
 
 
     private String restaurantPlaceId;
-    private Boolean isLiked;
+    private Boolean liked;
 
 
-    public UserFavoriteRestaurant(String restaurantPlaceId, Boolean isLiked) {
+    public UserFavoriteRestaurant(String restaurantPlaceId, Boolean liked) {
         this.restaurantPlaceId = restaurantPlaceId;
-        this.isLiked = isLiked;
+        this.liked = liked;
     }
 
     // --- GETTERS ---
@@ -20,7 +20,7 @@ public class UserFavoriteRestaurant {
     }
 
     public Boolean getLiked() {
-        return isLiked;
+        return liked;
     }
 
 
@@ -30,8 +30,8 @@ public class UserFavoriteRestaurant {
         this.restaurantPlaceId = restaurantPlaceId;
     }
 
-    public void setLiked(Boolean isLiked) {
-        isLiked = isLiked;
+    public void setLiked(Boolean liked) {
+        liked = liked;
     }
 }
 

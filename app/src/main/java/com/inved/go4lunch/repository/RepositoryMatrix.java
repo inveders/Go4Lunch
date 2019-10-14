@@ -21,6 +21,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.MATRIX_API_KEY;
+
 public class RepositoryMatrix {
 
     private ArrayList<Row> results = new ArrayList<>();
@@ -34,8 +36,7 @@ public class RepositoryMatrix {
         GoogleMatrixApi googleMatrixApi = RetrofitServiceMatrix.getGoogleMatrixApi();
 
         String units = "metric";
-        String google_key = "AIzaSyDGlWlfgLFt-CyCh9m8B7mQU8HMc6VT1xw";
-        Call<Matrix> call = googleMatrixApi.getDistanceBetweenTwoPlaces(origins,"place_id:"+destinations,units, google_key);
+        Call<Matrix> call = googleMatrixApi.getDistanceBetweenTwoPlaces(origins,"place_id:"+destinations,units, MATRIX_API_KEY);
 
         call.enqueue(new Callback<Matrix>() {
             @Override

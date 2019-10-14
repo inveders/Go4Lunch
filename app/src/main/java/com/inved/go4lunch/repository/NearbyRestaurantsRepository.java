@@ -38,6 +38,7 @@ import java.util.Objects;
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LATITUDE;
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LOCATION_CHANGED;
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LONGITUDE;
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.MAP_API_KEY;
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.TAG;
 
 public class NearbyRestaurantsRepository {
@@ -126,7 +127,7 @@ public class NearbyRestaurantsRepository {
 
         Log.d("debago", "in nearby firebase");
         // Initialize Places.
-        Places.initialize(context, App.getResourses().getString(R.string.google_api_key));
+        Places.initialize(context, MAP_API_KEY);
         // Create a new Places client instance.
         PlacesClient placesClient = Places.createClient(context);
 
@@ -364,7 +365,7 @@ public class NearbyRestaurantsRepository {
     private void fetchPlaceDetailRequest(String currentPlaceId) {
 
         // Initialize Places.
-        Places.initialize(App.getInstance().getApplicationContext(), App.getResourses().getString(R.string.google_api_key));
+        Places.initialize(App.getInstance().getApplicationContext(), MAP_API_KEY);
 
         // Create a new Places client instance.
         PlacesClient placesClient = Places.createClient(App.getInstance().getApplicationContext());

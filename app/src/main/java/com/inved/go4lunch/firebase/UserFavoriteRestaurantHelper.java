@@ -22,10 +22,10 @@ public class UserFavoriteRestaurantHelper {
 
     // --- CREATE ---
 
-    public static Task<Void> createUserFavoriteRestaurants(String uid, String restaurantPlaceId,Boolean isLiked,String jobPlaceId) {
+    public static Task<Void> createUserFavoriteRestaurants(String uid, String restaurantPlaceId,Boolean liked,String jobPlaceId) {
         // 1 - Create subcollection in user
 
-        UserFavoriteRestaurant userFavoriteRestaurantToCreate = new UserFavoriteRestaurant(restaurantPlaceId,isLiked);
+        UserFavoriteRestaurant userFavoriteRestaurantToCreate = new UserFavoriteRestaurant(restaurantPlaceId,liked);
         return UserFavoriteRestaurantHelper.getUsersFavoriteRestaurantCollection(uid,jobPlaceId).document(restaurantPlaceId).set(userFavoriteRestaurantToCreate);
     }
 
@@ -41,8 +41,8 @@ public class UserFavoriteRestaurantHelper {
 
     // --- UPDATE ---
 
-    public static Task<Void> updateFavoriteRestaurantLiked(String uid, String restaurantPlaceId,Boolean isLiked,String jobPlaceId) {
-        return UserFavoriteRestaurantHelper.getUsersFavoriteRestaurantCollection(uid,jobPlaceId).document(restaurantPlaceId).update("isLiked", isLiked);
+    public static Task<Void> updateFavoriteRestaurantLiked(String uid, String restaurantPlaceId,Boolean liked,String jobPlaceId) {
+        return UserFavoriteRestaurantHelper.getUsersFavoriteRestaurantCollection(uid,jobPlaceId).document(restaurantPlaceId).update("liked", liked);
     }
 
     // --- DELETE ---

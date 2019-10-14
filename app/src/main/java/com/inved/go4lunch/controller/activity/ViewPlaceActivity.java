@@ -51,6 +51,7 @@ import java.util.List;
 
 import butterknife.BindView;
 
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.MAP_API_KEY;
 import static com.inved.go4lunch.controller.fragment.MapFragment.RESTAURANT_PLACE_ID;
 
 public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.Listener {
@@ -370,7 +371,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                     if (task.getResult() != null) {
                         if (!task.getResult().getDocuments().isEmpty()) {
 
-                            Boolean isRestaurantLiked = task.getResult().getDocuments().get(0).getBoolean("isLiked");
+                            Boolean isRestaurantLiked = task.getResult().getDocuments().get(0).getBoolean("liked");
 
                             if (isRestaurantLiked != null) {
                                 if (isRestaurantLiked) {
@@ -421,8 +422,8 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
                                         int newRestaurantLike;
 
-                                        Boolean isRestaurantLiked = task1.getResult().getDocuments().get(0).getBoolean("isLiked");
-                                        Log.d("Debago", "ViewPlaceActivity onLikeButton isRestaurantLiked " + isRestaurantLiked);
+                                        Boolean isRestaurantLiked = task1.getResult().getDocuments().get(0).getBoolean("liked");
+                                        Log.d("Debago", "ViewPlaceActivity onLikeButton isRestaurantLiked " + isRestaurantLiked+ " task.getresult is "+task1.getResult());
                                         //We want to decrement
                                         if (isRestaurantLiked != null) {
                                             if (isRestaurantLiked) {
@@ -558,20 +559,12 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
         viewPlaceName.setText(restaurantName);
         viewPlaceAddress.setText(restaurantAddress);
 
-        /*   Glide.with(this)
-                .load(url.toString())
-                .placeholder(R.drawable.ic_android_blue_24dp)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .error(R.drawable.ic_error_red_24dp)
-                .into(viewPlacePhoto);*/
-
-
     }
 
     private void updatePhotoViewPlace(String placeId) {
 
         // Initialize Places.
-        Places.initialize(App.getInstance().getApplicationContext(), App.getResourses().getString(R.string.google_api_key));
+        Places.initialize(App.getInstance().getApplicationContext(), MAP_API_KEY);
 
         // Create a new Places client instance.
         PlacesClient placesClient = Places.createClient(App.getInstance().getApplicationContext());
@@ -619,10 +612,6 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                     }
                 });
             } else {
-               /* int w = 500, h = 300;
-
-                Bitmap.Config conf = Bitmap.Config.ARGB_8888; // see other conf types
-                Bitmap bitmap = Bitmap.createBitmap(w, h, conf); // this creates a MUTABLE bitmap*/
 
                 Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.background_connexion_activity_flou_ok);
                 viewPlacePhoto.setImageBitmap(bitmap);
