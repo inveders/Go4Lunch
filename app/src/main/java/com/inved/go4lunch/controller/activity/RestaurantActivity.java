@@ -99,7 +99,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     Location location; // location
     private LocationManager lm;
     // The minimum distance to change Updates in meters
-    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 1000; // 1000 meters for tests, after come back to 10 meters
+    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 1500; // 1000 meters for tests, after come back to 10 meters
     // The minimum time between updates in milliseconds
     private static final long MIN_TIME_BW_UPDATES = 1000 * 60; // 1 minute*/
 

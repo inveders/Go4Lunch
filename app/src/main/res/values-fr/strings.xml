@@ -120,4 +120,6 @@
     <string name="alert_dialog_location_far_from_works_text">Vous êtes trop loin de votre lieu de travail, voulez-vous passer en  mode normal et être géolocalisé?</string>
     <string name="alert_dialog_location_far_from_works_pos_button">OUI, QUITTER LE MODE TRAVAIL</string>
     <string name="alert_dialog_location_far_from_works_neg_button">NON</string>
+    <string name="no_restaurant_found">Aucun restaurant trouvé</string>
+    <string name="no_network_to_find_restaurant">Pas de réseau pour actualiser les restaurants, activer la localisation sur votre smartphone</string>
 </resources>

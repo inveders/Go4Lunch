@@ -167,4 +167,6 @@
     <string name="alert_dialog_location_far_from_works_text">You are too far from your works, do you want to pass in normal mode and be located?</string>
     <string name="alert_dialog_location_far_from_works_pos_button">YES, LEAVE WORK MODE</string>
     <string name="alert_dialog_location_far_from_works_neg_button">NO</string>
+    <string name="no_restaurant_found">No restaurant found</string>
+    <string name="no_network_to_find_restaurant">No network to update restaurant, activate localisation on your phone</string>
 </resources>
