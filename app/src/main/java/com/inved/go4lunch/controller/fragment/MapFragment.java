@@ -26,6 +26,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.inved.go4lunch.R;
@@ -33,7 +34,9 @@ import com.inved.go4lunch.controller.activity.RestaurantActivity;
 import com.inved.go4lunch.controller.activity.ViewPlaceActivity;
 import com.inved.go4lunch.firebase.Restaurant;
 import com.inved.go4lunch.firebase.RestaurantHelper;
+import com.inved.go4lunch.firebase.RestaurantInNormalModeHelper;
 import com.inved.go4lunch.utils.App;
+import com.inved.go4lunch.utils.ManageAppMode;
 import com.inved.go4lunch.utils.ManageAutocompleteResponse;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
 
@@ -48,6 +51,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     private Marker mMarker;
     private String jobPlaceId;
     private FloatingActionButton mapGeolocalisationButton;
+    private Context context= App.getInstance().getApplicationContext();
 
 
     public MapFragment() {
@@ -62,7 +66,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
         initializeSharedPreferences();
         initializeMap();
-
 
 
     }
@@ -86,7 +89,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     private void actionOnFloatingButton() {
         mapGeolocalisationButton.setOnClickListener(view ->
 
-        initializeMap());
+                initializeMap());
     }
 
     @Override
@@ -123,14 +126,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     }
 
 
-
     private void initializeMap() {
 
-        String sharedPreferenceRestaurantPlaceId = ManageAutocompleteResponse.getStringAutocomplete((App.getInstance().getApplicationContext()), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID);
+        String sharedPreferenceRestaurantPlaceId = ManageAutocompleteResponse.getStringAutocomplete((context), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID);
 
         if (sharedPreferenceRestaurantPlaceId != null) {
-            double latitude = ManageAutocompleteResponse.getDoubleAutocomplete(App.getInstance().getApplicationContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE);
-            double longitude = ManageAutocompleteResponse.getDoubleAutocomplete(App.getInstance().getApplicationContext(), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE);
+            double latitude = ManageAutocompleteResponse.getDoubleAutocomplete(context, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE);
+            double longitude = ManageAutocompleteResponse.getDoubleAutocomplete(context, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE);
             //   LatLng latLngSharedPreferences = new LatLng(latitude, longitude);
             customizeMarker(sharedPreferenceRestaurantPlaceId, latitude, longitude);
             initializeSharedPreferences();
@@ -138,21 +140,40 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
         } else {
 
-            RestaurantHelper.getAllRestaurants(jobPlaceId).get().addOnSuccessListener(queryDocumentSnapshots -> {
+            if(ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_work))||ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_forced_work))){
+                RestaurantHelper.getAllRestaurants(jobPlaceId).get().addOnSuccessListener(queryDocumentSnapshots -> {
 
-                for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                    Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
+                    for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                        Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
 
-                    String restaurantPlaceId = restaurant.getRestaurantPlaceId();
-                    double latitude = restaurant.getLatitude();
-                    double longitude = restaurant.getLongitude();
+                        String restaurantPlaceId = restaurant.getRestaurantPlaceId();
+                        double latitude = restaurant.getLatitude();
+                        double longitude = restaurant.getLongitude();
 
-                    customizeMarker(restaurantPlaceId, latitude, longitude);
-                }
+                        customizeMarker(restaurantPlaceId, latitude, longitude);
+                    }
 
-            }).addOnFailureListener(e -> {
+                }).addOnFailureListener(e -> {
 
-            });
+                });
+            }else{
+                RestaurantInNormalModeHelper.getAllRestaurants(FirebaseAuth.getInstance().getCurrentUser().getUid(),jobPlaceId).get().addOnSuccessListener(queryDocumentSnapshots -> {
+
+                    for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                        Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
+
+                        String restaurantPlaceId = restaurant.getRestaurantPlaceId();
+                        double latitude = restaurant.getLatitude();
+                        double longitude = restaurant.getLongitude();
+
+                        customizeMarker(restaurantPlaceId, latitude, longitude);
+                    }
+
+                }).addOnFailureListener(e -> {
+
+                });
+            }
+
         }
 
 
@@ -160,7 +181,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
     private void initializeSharedPreferences() {
 
-        ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(App.getInstance().getApplicationContext()), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID, null);
+        ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(context), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID, null);
 
     }
 
@@ -193,39 +214,85 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.snippet(restaurantPlaceId);
 
-        RestaurantHelper.getRestaurant(restaurantPlaceId, jobPlaceId).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                DocumentSnapshot document = task.getResult();
-                if (document != null) {
-                    Restaurant restaurant = document.toObject(Restaurant.class);
+        if(FirebaseAuth.getInstance().getCurrentUser()!=null){
+            if(ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_work))||ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_forced_work))){
 
-                    if (restaurant != null) {
-                        if (document.exists()) {
+                RestaurantHelper.getRestaurant(restaurantPlaceId, jobPlaceId).addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document != null) {
+                            Restaurant restaurant = document.toObject(Restaurant.class);
 
-                            markerOptions.position(latLng);
+                            if (restaurant != null) {
+                                if (document.exists()) {
 
-                            //creating and getting restaurant information
-                            int numberCustomers = restaurant.getRestaurantCustomers();
-                            if (numberCustomers > 0) {
-                                markerOptions.icon(bitmapDescriptorFromVectorSelected(getContext()));
-                                mGoogleMap.addMarker(markerOptions);
+                                    markerOptions.position(latLng);
 
-                            } else {
-                                markerOptions.icon(bitmapDescriptorFromVectorNotSelected(getContext()));
-                                mGoogleMap.addMarker(markerOptions);
+                                    //creating and getting restaurant information
+                                    int numberCustomers = restaurant.getRestaurantCustomers();
+                                    if (numberCustomers > 0) {
+                                        markerOptions.icon(bitmapDescriptorFromVectorSelected(getContext()));
+                                        mGoogleMap.addMarker(markerOptions);
 
+                                    } else {
+                                        markerOptions.icon(bitmapDescriptorFromVectorNotSelected(getContext()));
+                                        mGoogleMap.addMarker(markerOptions);
+
+                                    }
+
+                                    CameraPosition Liberty = CameraPosition.builder().target(latLng).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
+                                    mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
+                                    mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                                }
                             }
-
-                            CameraPosition Liberty = CameraPosition.builder().target(latLng).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
-                            mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
-                            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                         }
+
+
                     }
-                }
+                });
+            }else{
+                RestaurantInNormalModeHelper.getRestaurant(FirebaseAuth.getInstance().getCurrentUser().getUid(),restaurantPlaceId, jobPlaceId).addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document != null) {
+                            Restaurant restaurant = document.toObject(Restaurant.class);
+
+                            if (restaurant != null) {
+                                if (document.exists()) {
+
+                                    markerOptions.position(latLng);
+
+                                    //creating and getting restaurant information
+                                    int numberCustomers = restaurant.getRestaurantCustomers();
+                                    if (numberCustomers > 0) {
+                                        markerOptions.icon(bitmapDescriptorFromVectorSelected(getContext()));
+                                        mGoogleMap.addMarker(markerOptions);
+
+                                    } else {
+                                        markerOptions.icon(bitmapDescriptorFromVectorNotSelected(getContext()));
+                                        mGoogleMap.addMarker(markerOptions);
+
+                                    }
+
+                                    CameraPosition Liberty = CameraPosition.builder().target(latLng).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
+                                    mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
+                                    mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                                }
+                            }
+                        }
 
 
+                    }
+                });
             }
-        });
+        }
+
+
+
+
+
+
+
 
         if (mGoogleMap != null) {
             //Configure action on marker click

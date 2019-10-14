@@ -727,25 +727,36 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     //Handle two modes for user : work mode and normal mode to be located everywhere
     private void checkDistanceFromWork(String origins,String destinations){
 
+        Log.d("debago","origins :"+origins+" et destination :"+destinations);
         resultModel.getMatrixDistance(origins,destinations).observe(this, result -> {
 
+            int distance;
             String appMode = ManageAppMode.getAppMode(this);
-            int distance = (result.get(0).getElements().get(0).getDistance().getValue())/1000;
+            try {
+                distance = (result.get(0).getElements().get(0).getDistance().getValue())/1000;
+            }catch (Exception e){
+                Log.e("error","Error try catch " + e.getMessage());
+                distance=3;
+
+            }
+
+
+
 
             AlertDialog.Builder builder = new AlertDialog.Builder(this)
-            // Add the buttons
-            .setPositiveButton(R.string.alert_dialog_location_far_from_works_pos_button, (dialog, which) -> {
-                // do something like...
-                changeMode(false);
-            })
-            .setNegativeButton(R.string.alert_dialog_location_far_from_works_neg_button, (dialog, which) -> {
-                // do something like...
-                changeMode(true);
-            })
-            .setMessage(R.string.alert_dialog_location_far_from_works_text);
+                    // Add the buttons
+                    .setPositiveButton(R.string.alert_dialog_location_far_from_works_pos_button, (dialog, which) -> {
+                        // do something like...
+                        changeMode(false);
+                    })
+                    .setNegativeButton(R.string.alert_dialog_location_far_from_works_neg_button, (dialog, which) -> {
+                        // do something like...
+                        changeMode(true);
+                    })
+                    .setMessage(R.string.alert_dialog_location_far_from_works_text);
 
             // Create the AlertDialog
-           // AlertDialog dialog = builder.create();
+            // AlertDialog dialog = builder.create();
 
             if(distance>2 && appMode.equals(getString(R.string.app_mode_work))){
 
@@ -766,6 +777,8 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
                 changeMode(true);
 
             }
+
+
 
         });
 

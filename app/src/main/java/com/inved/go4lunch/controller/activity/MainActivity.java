@@ -136,7 +136,7 @@ public class MainActivity extends BaseActivity {
                         .setAvailableProviders(
                                 Collections.singletonList(new AuthUI.IdpConfig.FacebookBuilder().build())) // FACEBOOK
                         .setIsSmartLockEnabled(false, true)
-                        .setLogo(R.drawable.ic_logo_appli)
+                        .setLogo(R.drawable.ic_logo_go4lunch)
                         .build(),
                 RC_SIGN_IN);
     }
@@ -149,7 +149,7 @@ public class MainActivity extends BaseActivity {
                         .setAvailableProviders(
                                 Collections.singletonList(new AuthUI.IdpConfig.GoogleBuilder().build()))//GOOGLE
                         .setIsSmartLockEnabled(false, true)
-                        .setLogo(R.drawable.ic_logo_appli)
+                        .setLogo(R.drawable.ic_logo_go4lunch)
                         .build(),
                 RC_SIGN_IN);
     }

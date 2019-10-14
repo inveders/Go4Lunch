@@ -1,5 +1,7 @@
 package com.inved.go4lunch.firebase;
 
+import android.util.Log;
+
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -8,7 +10,7 @@ import com.google.firebase.firestore.Query;
 
 public class RestaurantInNormalModeHelper {
 
-    private static final String COLLECTION_NAME = "user";
+    private static final String COLLECTION_NAME = "users";
     private static final String COLLECTION_GENERAL = "location";
 
     private static final String SUB_COLLECTION_IN_NORMAL_MODE_RESTAURANT = "RestaurantInNormalMode";
@@ -43,7 +45,6 @@ public class RestaurantInNormalModeHelper {
 
         Restaurant restaurantInNormalModeToCreate = new Restaurant(restaurantPlaceId, restaurantCustomers, restaurantLike, jobPlaceId, restaurantName, ratingApp, openForLunch, distance
                 , openHours, closeHours, restaurantAddress, latitude, longitude, website, phoneNumber, openMinutes, closeMinutes);
-
         return RestaurantInNormalModeHelper.getRestaurantsInNormalModeCollection(uid,jobPlaceId).document(restaurantPlaceId).set(restaurantInNormalModeToCreate);
     }
 

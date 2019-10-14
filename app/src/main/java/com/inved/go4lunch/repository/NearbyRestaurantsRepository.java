@@ -80,7 +80,7 @@ public class NearbyRestaurantsRepository {
         LocalBroadcastManager.getInstance(context).registerReceiver(broadcastReceiver, new IntentFilter(KEY_LOCATION_CHANGED));
 
         if (appMode.equals(App.getResourses().getString(R.string.app_mode_normal))) {
-            Log.d("debago","NearbyRestaurantRepository, i'm in normal mode, I have to research new restaurants near me");
+
             deleteAllRestaurantInNormalMode();
         }
 
@@ -116,6 +116,8 @@ public class NearbyRestaurantsRepository {
                     for (DocumentSnapshot querySnapshot : task.getResult()) {
                         //We delete each existing restaurant before recreating all
                         RestaurantInNormalModeHelper.deleteRestaurantsInNormalMode(currentUser, querySnapshot.getString("restaurantPlaceId"), jobPlaceId);
+                        Log.d("debago","NearbyRestaurantRepository, we delete restaurnat "+querySnapshot.getString("restaurantName"));
+                        setNearbyRestaurantsInFirebase();
                     }
 
                 }
@@ -125,7 +127,6 @@ public class NearbyRestaurantsRepository {
 
     public void setNearbyRestaurantsInFirebase() {
 
-        Log.d("debago", "in nearby firebase");
         // Initialize Places.
         Places.initialize(context, MAP_API_KEY);
         // Create a new Places client instance.
@@ -137,15 +138,17 @@ public class NearbyRestaurantsRepository {
         // Use the builder to create a FindCurrentPlaceRequest.
         FindCurrentPlaceRequest request = FindCurrentPlaceRequest.builder(placeFields).build();
 
-        placesClient.findCurrentPlace(request).addOnSuccessListener((response) -> {
-
+        placesClient.findCurrentPlace(request).addOnSuccessListener((response) ->
+        {
 
             for (PlaceLikelihood placeLikelihood : response.getPlaceLikelihoods()) {
 
                 List typesList = placeLikelihood.getPlace().getTypes();
 
                 if (typesList != null) {
+
                     for (int i = 0; i < typesList.size(); i++) {
+
                         if ("RESTAURANT".equals(typesList.get(i).toString())) {
 
                             restaurantPlaceId = placeLikelihood.getPlace().getId();
@@ -180,21 +183,18 @@ public class NearbyRestaurantsRepository {
 
 
                     }
-                    if(typesList.contains("RESTAURANT")){ /**JUSTE POUR LE TEST APRES METTRE SI NE CONTIENS PAS*/
-                        Toast.makeText(context, App.getResourses().getString(R.string.no_restaurant_found), Toast.LENGTH_SHORT).show();
-                    }
+
                 }
 
 
             }
-        }).
 
-                addOnFailureListener((exception) ->
+        }).addOnFailureListener((exception) ->
 
                 {
                     if (exception instanceof ApiException) {
                         ApiException apiException = (ApiException) exception;
-                        Log.e("Debaga", "Place not found: " + apiException.getStatusCode());
+                        Log.d("Debaga", "Place not found: " + apiException.getStatusCode());
                         Toast.makeText(context, App.getResourses().getString(R.string.no_network_to_find_restaurant), Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -204,9 +204,10 @@ public class NearbyRestaurantsRepository {
     private void createRestaurantsInFirebase(String restaurantPlaceId, String restaurantName, int rating, double latitude, double longitude,
                                              String distance, String restaurantAddress) {
         //Create restaurant in firebase if it doesn't exist
-
+        Log.d("debago","NearbyRestaurant in Create Restaurant");
 
         if (appMode.equals(App.getResourses().getString(R.string.app_mode_work))) {
+            Log.d("debago","NearbyRestaurant we are in work mode");
             RestaurantHelper.getRestaurant(restaurantPlaceId, jobPlaceId).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
@@ -220,6 +221,7 @@ public class NearbyRestaurantsRepository {
             });
         } else {
 
+            Log.d("debago","NearbyRestaurant we create in database restaurant in normal mode "+restaurantPlaceId);
             RestaurantInNormalModeHelper.createRestaurantsInNormalMode(currentUser, restaurantPlaceId, 0, 0, jobPlaceId, restaurantName, rating, false, distance, 0, 0, restaurantAddress, latitude, longitude, null, null, 0, 0);
 
         }
