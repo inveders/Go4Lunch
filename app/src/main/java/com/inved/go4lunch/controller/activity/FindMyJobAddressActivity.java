@@ -182,7 +182,7 @@ public class FindMyJobAddressActivity extends BaseActivity {
                             String token1 = task.getResult().getToken();
                             if(getCurrentUser()!=null){
                                 Log.d("debago","creating token");
-                                UserHelper.updateUserToken(token1,getCurrentUser().getUid(),ManageJobPlaceId.getJobPlaceId(getApplicationContext(),KEY_JOB_PLACE_ID));
+                                UserHelper.updateUserToken(token1,getCurrentUser().getUid(),ManageJobPlaceId.getJobPlaceId(getApplicationContext()));
                                 // Log and toast
                                 String msg = "my token"+ token1;
                                 Log.d(TAG, msg);

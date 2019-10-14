@@ -52,7 +52,6 @@ import java.util.List;
 import butterknife.BindView;
 
 import static com.inved.go4lunch.controller.fragment.MapFragment.RESTAURANT_PLACE_ID;
-import static com.inved.go4lunch.utils.ManageJobPlaceId.KEY_JOB_PLACE_ID_DATA;
 
 public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.Listener {
 
@@ -107,7 +106,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
         context = this;
 
-        jobPlaceId = ManageJobPlaceId.getJobPlaceId(this, KEY_JOB_PLACE_ID_DATA);
+        jobPlaceId = ManageJobPlaceId.getJobPlaceId(this);
         currentPlaceId = getIntent().getStringExtra(RESTAURANT_PLACE_ID);
         initializeViewPlace();
 

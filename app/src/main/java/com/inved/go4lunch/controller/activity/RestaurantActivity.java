@@ -3,8 +3,8 @@ package com.inved.go4lunch.controller.activity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
@@ -12,7 +12,6 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -118,6 +117,8 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     TextView navLastname;
     TextView navEmail;
     ImageView navProfileImage;
+
+    private Dialog mDialog;
 
     //Declaration for fragments
     BottomNavigationView bottomNavigationView;
@@ -561,7 +562,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         intent.putExtra(KEY_LONGITUDE, getLongitude());
 
 
-        this.checkDistanceFromWork(currentGeolocalisation, ManageJobPlaceId.getJobPlaceId(this,ManageJobPlaceId.KEY_JOB_PLACE_ID));
+        this.checkDistanceFromWork(currentGeolocalisation, ManageJobPlaceId.getJobPlaceId(this));
         LocalBroadcastManager.getInstance(RestaurantActivity.this).sendBroadcast(intent);
 
     }
@@ -727,35 +728,37 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
             String appMode = ManageAppMode.getAppMode(this);
             int distance = (result.get(0).getElements().get(0).getDistance().getValue())/1000;
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this)
             // Add the buttons
-            builder.setPositiveButton(R.string.alert_dialog_location_far_from_works_pos_button, (dialog, which) -> {
+            .setPositiveButton(R.string.alert_dialog_location_far_from_works_pos_button, (dialog, which) -> {
                 // do something like...
                 changeMode(false);
-                Log.d("debago","end to click ok");
-            });
-            builder.setNegativeButton(R.string.alert_dialog_location_far_from_works_neg_button, (dialog, which) -> {
+            })
+            .setNegativeButton(R.string.alert_dialog_location_far_from_works_neg_button, (dialog, which) -> {
                 // do something like...
                 changeMode(true);
-                Log.d("debago","end to click no");
-            });
-            builder.setMessage(R.string.alert_dialog_location_far_from_works_text);
+            })
+            .setMessage(R.string.alert_dialog_location_far_from_works_text);
 
             // Create the AlertDialog
-            AlertDialog dialog = builder.create();
+           // AlertDialog dialog = builder.create();
 
-            if(distance>2 && appMode.equals("normal")){
+            if(distance>2 && appMode.equals(getString(R.string.app_mode_work))){
 
-                if(dialog.isShowing()){
-                    Log.d("debago","dialog is not showed :");
-
-                }else{
-                    Log.d("debago","dialog is already showed :");
-                    dialog.show();
+                // Dismiss any old dialog.
+                if (mDialog != null) {
+                    mDialog.dismiss();
                 }
 
+                // Show the new dialog.
+                mDialog = builder.show();
+
             }
-            else if(distance<2 && appMode.equals("normal")){
+            else if(distance<2 && appMode.equals(getString(R.string.app_mode_normal))){
+                changeMode(true);
+
+            }
+            else if(distance<2 && appMode.equals(getString(R.string.app_mode_forced_work))){
                 changeMode(true);
 
             }
@@ -766,9 +769,18 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     private void changeMode(boolean workModeDesired) {
         if(workModeDesired){
-            ManageAppMode.saveAppMode(this,"work");
+            if(ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_work))){
+                ManageAppMode.saveAppMode(this,getString(R.string.app_mode_forced_work));
+            }else{
+                ManageAppMode.saveAppMode(this,getString(R.string.app_mode_work));
+            }
+
+            Toast.makeText(this, getString(R.string.app_mode_change_to_work_mode), Toast.LENGTH_SHORT).show();
+            fillFirebase();
         }else{
-            ManageAppMode.saveAppMode(this,"normal");
+            ManageAppMode.saveAppMode(this,getString(R.string.app_mode_normal));
+            Toast.makeText(this, getString(R.string.app_mode_change_to_normal_mode), Toast.LENGTH_SHORT).show();
+            fillFirebase();
         }
     }
 

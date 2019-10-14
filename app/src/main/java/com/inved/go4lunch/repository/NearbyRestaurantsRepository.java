@@ -39,11 +39,10 @@ import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LATI
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LOCATION_CHANGED;
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LONGITUDE;
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.TAG;
-import static com.inved.go4lunch.utils.ManageJobPlaceId.KEY_JOB_PLACE_ID_DATA;
 
 public class NearbyRestaurantsRepository {
 
-    private String jobPlaceId = ManageJobPlaceId.getJobPlaceId(App.getInstance().getApplicationContext(), KEY_JOB_PLACE_ID_DATA);
+    private String jobPlaceId = ManageJobPlaceId.getJobPlaceId(App.getInstance().getApplicationContext());
     private Context context = App.getInstance().getApplicationContext();
     private String appMode = ManageAppMode.getAppMode(context);
     private int rating;
@@ -79,9 +78,33 @@ public class NearbyRestaurantsRepository {
         };
         LocalBroadcastManager.getInstance(context).registerReceiver(broadcastReceiver, new IntentFilter(KEY_LOCATION_CHANGED));
 
-        if (appMode.equals("normal")) {
+        if (appMode.equals(App.getResourses().getString(R.string.app_mode_normal))) {
+            Log.d("debago","NearbyRestaurantRepository, i'm in normal mode, I have to research new restaurants near me");
             deleteAllRestaurantInNormalMode();
         }
+
+        if(appMode.equals(App.getResourses().getString(R.string.app_mode_forced_work))){
+            Log.d("debago","NearbyRestaurantRepository, i'm in forced work mode, I have update restaurant near from my work");
+            updateFirebaseWithRestaurantsFromMyWorkIfExist();
+        }
+
+    }
+
+    private void updateFirebaseWithRestaurantsFromMyWorkIfExist() {
+
+        RestaurantHelper.getAllRestaurants(jobPlaceId).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                if (task.getResult() != null) {
+                    for (DocumentSnapshot querySnapshot : task.getResult()) {
+                        //We delete each existing restaurant before recreating all
+                        fetchPlaceDetailRequest(querySnapshot.getString("restaurantPlaceId"));
+                    }
+
+                }else{
+                    Toast.makeText(context, App.getResourses().getString(R.string.app_mode_forced_mode_no_restaurant_found), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
     }
 
@@ -182,7 +205,7 @@ public class NearbyRestaurantsRepository {
         //Create restaurant in firebase if it doesn't exist
 
 
-        if (appMode.equals("work")) {
+        if (appMode.equals(App.getResourses().getString(R.string.app_mode_work))) {
             RestaurantHelper.getRestaurant(restaurantPlaceId, jobPlaceId).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();

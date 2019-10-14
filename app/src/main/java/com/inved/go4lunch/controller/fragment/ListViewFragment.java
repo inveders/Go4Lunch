@@ -40,7 +40,6 @@ import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_GEOL
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LOCATION_CHANGED;
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.PLACE_SEARCH_DATA;
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.TAG;
-import static com.inved.go4lunch.utils.ManageJobPlaceId.KEY_JOB_PLACE_ID_DATA;
 
 public class ListViewFragment extends Fragment {
 
@@ -89,7 +88,7 @@ public class ListViewFragment extends Fragment {
 
         View mView = inflater.inflate(R.layout.fragment_listview, container, false);
 
-        jobPlaceId = ManageJobPlaceId.getJobPlaceId(App.getInstance().getApplicationContext(), KEY_JOB_PLACE_ID_DATA);
+        jobPlaceId = ManageJobPlaceId.getJobPlaceId(App.getInstance().getApplicationContext());
 
         restaurantArrayList = new ArrayList<>();
 

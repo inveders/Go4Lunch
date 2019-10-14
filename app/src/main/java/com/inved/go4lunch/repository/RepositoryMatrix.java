@@ -43,10 +43,8 @@ public class RepositoryMatrix {
 
                 Matrix matrix = response.body();
                 if(matrix!=null){
-                    Log.d("debago","getmutablelivedata row not null "+matrix.getRows());
                     if (matrix.getRows() != null) {
                         results = (ArrayList<Row>) matrix.getRows();
-                        Log.d("debago","getmutablelivedata result distance"+(results.get(0).getElements().get(0).getDistance().getValue())/1000);
                         mutableLiveData.setValue(results);
                     }
                 }

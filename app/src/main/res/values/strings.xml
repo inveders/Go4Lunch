@@ -163,10 +163,18 @@
     <string name="permission_button_allow">ALLOW</string>
     <string name="permission_button_deny">DENY</string>
 
-    <!-- LOCATION -->
+    <!-- APP MODE -->
     <string name="alert_dialog_location_far_from_works_text">You are too far from your works, do you want to pass in normal mode and be located?</string>
     <string name="alert_dialog_location_far_from_works_pos_button">YES, LEAVE WORK MODE</string>
     <string name="alert_dialog_location_far_from_works_neg_button">NO</string>
     <string name="no_restaurant_found">No restaurant found</string>
     <string name="no_network_to_find_restaurant">No network to update restaurant, activate localisation on your phone</string>
+
+    <string name="app_mode_work" translatable="false">work</string>
+    <string name="app_mode_normal" translatable="false">normal</string>
+    <string name="app_mode_forced_work" translatable="false">forced work</string>
+    <string name="app_mode_change_to_work_mode">Work mode activated</string>
+    <string name="app_mode_change_to_normal_mode">Normal mode activated</string>
+
+    <string name="app_mode_forced_mode_no_restaurant_found">For a first use in work mode, you have to be in your job for more security</string>
 </resources>

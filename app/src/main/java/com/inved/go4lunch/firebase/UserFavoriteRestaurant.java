@@ -30,8 +30,8 @@ public class UserFavoriteRestaurant {
         this.restaurantPlaceId = restaurantPlaceId;
     }
 
-    public void setLiked(Boolean liked) {
-        isLiked = liked;
+    public void setLiked(Boolean isLiked) {
+        isLiked = isLiked;
     }
 }
 

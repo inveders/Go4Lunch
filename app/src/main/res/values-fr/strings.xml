@@ -115,11 +115,14 @@
     <string name="permission_button_allow">PERMETTRE</string>
     <string name="permission_button_deny">REFUSER</string>
     <string name="notification_message_text_app">Ce midi vous mangez au restaurant %1$s situé %2$s avec %3$s</string>
-    <string name="notification_desabling">Activation des notifications</string>
-    <string name="notification_enabling">Désactivation des notifications</string>
+    <string name="notification_desabling">Désactivation des notifications</string>
+    <string name="notification_enabling">Activation des notifications</string>
     <string name="alert_dialog_location_far_from_works_text">Vous êtes trop loin de votre lieu de travail, voulez-vous passer en  mode normal et être géolocalisé?</string>
     <string name="alert_dialog_location_far_from_works_pos_button">OUI, QUITTER LE MODE TRAVAIL</string>
     <string name="alert_dialog_location_far_from_works_neg_button">NON</string>
     <string name="no_restaurant_found">Aucun restaurant trouvé</string>
     <string name="no_network_to_find_restaurant">Pas de réseau pour actualiser les restaurants, activer la localisation sur votre smartphone</string>
+    <string name="app_mode_change_to_work_mode">Mode travail activé</string>
+    <string name="app_mode_change_to_normal_mode">Mode normal activé</string>
+    <string name="app_mode_forced_mode_no_restaurant_found">Pour une première utilisation en mode travail, vous devez être sur votre lieu de travail pour plus de sécurité.</string>
 </resources>

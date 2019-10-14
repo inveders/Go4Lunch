@@ -15,7 +15,7 @@ public class ManageJobPlaceId {
                 editor.apply();
     }
 
-    public static String getJobPlaceId(Context context,String key){
+    public static String getJobPlaceId(Context context){
         SharedPreferences sharedPreferences = context.getSharedPreferences(KEY_JOB_PLACE_ID, Context.MODE_PRIVATE);
         return sharedPreferences.getString(KEY_JOB_PLACE_ID_DATA,null);
     }

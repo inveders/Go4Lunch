@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -24,6 +26,7 @@ import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.controller.activity.MainActivity;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
+import com.inved.go4lunch.utils.ManageAppMode;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
 
 import java.util.Objects;
@@ -50,8 +53,10 @@ public class ProfileActivity extends BaseActivity {
     TextView textViewJobName;
     @BindView(R.id.profile_activity_text_view_job_address)
     TextView textViewJobAddress;
+    @BindView(R.id.profile_activity_app_mode_button)
+    Button appModeButton;
 
-
+    private String appModeText;
 
     //FOR DATA
     private String jobPlaceId;
@@ -60,26 +65,25 @@ public class ProfileActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        jobPlaceId = ManageJobPlaceId.getJobPlaceId(this,KEY_JOB_PLACE_ID_DATA);
+        jobPlaceId = ManageJobPlaceId.getJobPlaceId(this);
 
 
         this.configureToolBar();
         this.updateUIWhenCreating();
 
 
-
         notificationSwitch.setOnCheckedChangeListener((compoundButton, bChecked) -> {
             if (bChecked) {
                 Toast.makeText(ProfileActivity.this, getString(R.string.notification_enabling), Toast.LENGTH_SHORT).show();
 
-                if(getCurrentUser()!=null){
-                    UserHelper.updateNotificationEnabled(true,getCurrentUser().getUid(),jobPlaceId);
+                if (getCurrentUser() != null) {
+                    UserHelper.updateNotificationEnabled(true, getCurrentUser().getUid(), jobPlaceId);
                 }
 
             } else {
                 Toast.makeText(ProfileActivity.this, getString(R.string.notification_desabling), Toast.LENGTH_SHORT).show();
-                if(getCurrentUser()!=null){
-                    UserHelper.updateNotificationEnabled(false,getCurrentUser().getUid(),jobPlaceId);
+                if (getCurrentUser() != null) {
+                    UserHelper.updateNotificationEnabled(false, getCurrentUser().getUid(), jobPlaceId);
                 }
             }
         });
@@ -88,10 +92,12 @@ public class ProfileActivity extends BaseActivity {
     }
 
     @Override
-    public int getFragmentLayout() { return R.layout.activity_profile; }
+    public int getFragmentLayout() {
+        return R.layout.activity_profile;
+    }
 
     // Configure Toolbar
-    private void configureToolBar(){
+    private void configureToolBar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         setTitle(R.string.Profile_Activity_Title);
@@ -103,87 +109,103 @@ public class ProfileActivity extends BaseActivity {
     // ACTIONS
     // --------------------
 
-    @OnClick(R.id.profile_activity_button_update)
-    public void onClickUpdateButton() {this.updateNameInFirebase(); }
+    @OnClick(R.id.profile_activity_app_mode_button)
+    public void onClickAppModeButton() {
+        if(ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_work))||ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_forced_work))){
+            ManageAppMode.saveAppMode(this,getString(R.string.app_mode_normal));
+            appModeButton.setText(getString(R.string.app_mode_change_to_normal_mode));
+        }else{
+            ManageAppMode.saveAppMode(this,getString(R.string.app_mode_work));
+            appModeButton.setText(getString(R.string.app_mode_change_to_work_mode));
+        }
+    }
 
+    @OnClick(R.id.profile_activity_button_update)
+    public void onClickUpdateButton() {
+        this.updateNameInFirebase();
+    }
 
 
     @OnClick(R.id.profile_activity_button_delete)
     public void onClickDeleteButton() {
-            new AlertDialog.Builder(this)
-                    .setMessage(R.string.popup_message_confirmation_delete_account)
-                    .setPositiveButton(R.string.popup_message_choice_yes, (dialogInterface, i) -> {
-                        deleteUserFromFirebase();
+        new AlertDialog.Builder(this)
+                .setMessage(R.string.popup_message_confirmation_delete_account)
+                .setPositiveButton(R.string.popup_message_choice_yes, (dialogInterface, i) -> {
+                    deleteUserFromFirebase();
 
-                      //  startMainActivity();
+                    //  startMainActivity();
 
-                    })
-                    .setNegativeButton(R.string.popup_message_choice_no, null)
-                    .show();
-        }
+                })
+                .setNegativeButton(R.string.popup_message_choice_no, null)
+                .show();
+    }
 
-        // --------------------
-        // REST REQUESTS
-        // --------------------
-        // Create http requests (Delete)
+    // --------------------
+    // REST REQUESTS
+    // --------------------
+    // Create http requests (Delete)
 
 
+    private void deleteUserFromFirebase() {
 
-        private void deleteUserFromFirebase(){
+        // Get auth credentials from the user for re-authentication. The example below shows
+        // email and password credentials but there are multiple possible providers,
+        // such as GoogleAuthProvider or FacebookAuthProvider.
+        AuthCredential credential = GoogleAuthProvider
+                .getCredential(Objects.requireNonNull(getCurrentUser()).getEmail(), null);
 
-            // Get auth credentials from the user for re-authentication. The example below shows
-            // email and password credentials but there are multiple possible providers,
-            // such as GoogleAuthProvider or FacebookAuthProvider.
-            AuthCredential credential = GoogleAuthProvider
-                    .getCredential(Objects.requireNonNull(getCurrentUser()).getEmail(),null);
+        // Prompt the user to re-provide their sign-in credentials
+        getCurrentUser().reauthenticate(credential)
+                .addOnCompleteListener(task -> {
+                    AuthUI.getInstance()
+                            .delete(getApplicationContext())
+                            .addOnCompleteListener(task1 -> {
+                                if (task1.isSuccessful()) {
+                                    Log.d("debago", "User account deleted.");
+                                    startMainActivity();
+                                    finish();
+                                }
+                            });
 
-            // Prompt the user to re-provide their sign-in credentials
-            getCurrentUser().reauthenticate(credential)
-                    .addOnCompleteListener(task -> {
-                        AuthUI.getInstance()
-                                .delete(getApplicationContext())
-                                .addOnCompleteListener(task1 -> {
-                                    if (task1.isSuccessful()) {
-                                        Log.d("debago", "User account deleted.");
-                                        startMainActivity();
-                                        finish();
-                                    }
-                                });
+                    UserHelper.deleteUser(getCurrentUser().getUid(), jobPlaceId).addOnFailureListener(onFailureListener());
 
-                        UserHelper.deleteUser(getCurrentUser().getUid(),jobPlaceId).addOnFailureListener(onFailureListener());
+                });
 
-                    });
-
-        }
-
+    }
 
 
     // 3 - Update User Firstname and lastname
-    private void updateNameInFirebase(){
+    private void updateNameInFirebase() {
 
 
         String firstname = Objects.requireNonNull(this.textInputEditTextFirstname.getText()).toString();
         String lastname = Objects.requireNonNull(this.textInputEditTextLastname.getText()).toString();
-        if (this.getCurrentUser() != null){
-            if (!firstname.isEmpty() &&  !firstname.equals(getString(R.string.info_no_firstname_found))){
-                UserHelper.updateFirstname(firstname, this.getCurrentUser().getUid(),jobPlaceId).addOnFailureListener(this.onFailureListener()).addOnSuccessListener(this.updateUIAfterRESTRequestsCompleted());
+        if (this.getCurrentUser() != null) {
+            if (!firstname.isEmpty() && !firstname.equals(getString(R.string.info_no_firstname_found))) {
+                UserHelper.updateFirstname(firstname, this.getCurrentUser().getUid(), jobPlaceId).addOnFailureListener(this.onFailureListener()).addOnSuccessListener(this.updateUIAfterRESTRequestsCompleted());
             }
         }
-        if (this.getCurrentUser() != null){
-            if (!lastname.isEmpty() &&  !lastname.equals(getString(R.string.info_no_lastname_found))){
-                UserHelper.updateLastname(lastname, this.getCurrentUser().getUid(),jobPlaceId).addOnFailureListener(this.onFailureListener()).addOnSuccessListener(this.updateUIAfterRESTRequestsCompleted());
+        if (this.getCurrentUser() != null) {
+            if (!lastname.isEmpty() && !lastname.equals(getString(R.string.info_no_lastname_found))) {
+                UserHelper.updateLastname(lastname, this.getCurrentUser().getUid(), jobPlaceId).addOnFailureListener(this.onFailureListener()).addOnSuccessListener(this.updateUIAfterRESTRequestsCompleted());
             }
         }
     }
 
-        // --------------------
-        // UI
-        // --------------------
+    // --------------------
+    // UI
+    // --------------------
 
     // Update UI when activity is creating
-    private void updateUIWhenCreating(){
+    private void updateUIWhenCreating() {
 
-        if (this.getCurrentUser() != null){
+        if(ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_work))||ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_forced_work))){
+            appModeButton.setText(getString(R.string.app_mode_change_to_work_mode));
+        }else{
+            appModeButton.setText(getString(R.string.app_mode_change_to_normal_mode));
+        }
+
+        if (this.getCurrentUser() != null) {
 
             //Get picture URL from Firebase
             if (this.getCurrentUser().getPhotoUrl() != null) {
@@ -208,40 +230,36 @@ public class ProfileActivity extends BaseActivity {
 
                         assert currentUser != null;
                         String firstname = currentUser.getFirstname();
-                        if(TextUtils.isEmpty(firstname)||firstname.equals(getString(R.string.info_no_firstname_found))){
+                        if (TextUtils.isEmpty(firstname) || firstname.equals(getString(R.string.info_no_firstname_found))) {
                             textInputEditTextFirstname.setHint(getString(R.string.info_no_lastname_found));
-                        }
-                        else{
+                        } else {
                             textInputEditTextFirstname.setText(firstname);
                         }
 
                         String lastname = currentUser.getLastname();
-                        if(TextUtils.isEmpty(lastname)||lastname.equals(getString(R.string.info_no_lastname_found))){
+                        if (TextUtils.isEmpty(lastname) || lastname.equals(getString(R.string.info_no_lastname_found))) {
                             textInputEditTextLastname.setHint(getString(R.string.info_no_lastname_found));
-                        }
-                        else{
+                        } else {
                             textInputEditTextLastname.setText(lastname);
                         }
 
                         String jobAddress = currentUser.getJobAddress();
-                        if(TextUtils.isEmpty(jobAddress)||jobAddress.equals(getString(R.string.info_no_job_address_found))){
+                        if (TextUtils.isEmpty(jobAddress) || jobAddress.equals(getString(R.string.info_no_job_address_found))) {
                             textViewJobAddress.setHint(getString(R.string.info_no_job_address_found));
-                        }
-                        else{
+                        } else {
                             textViewJobAddress.setText(jobAddress);
                         }
 
                         String jobName = currentUser.getJobName();
-                        if(TextUtils.isEmpty(jobName)||jobName.equals(getString(R.string.info_no_job_name_found))){
+                        if (TextUtils.isEmpty(jobName) || jobName.equals(getString(R.string.info_no_job_name_found))) {
                             textViewJobName.setHint(getString(R.string.info_no_job_name_found));
-                        }
-                        else{
+                        } else {
                             textViewJobName.setText(jobName);
                         }
 
-                        if(currentUser.isNotificationEnabled()){
+                        if (currentUser.isNotificationEnabled()) {
                             notificationSwitch.setChecked(currentUser.isNotificationEnabled());
-                        }else{
+                        } else {
                             notificationSwitch.setChecked(currentUser.isNotificationEnabled());
                         }
 
@@ -249,21 +267,19 @@ public class ProfileActivity extends BaseActivity {
                     });
 
 
-
         }
     }
 
 
-    private void startMainActivity(){
+    private void startMainActivity() {
         Intent intent = new Intent(this, MainActivity.class);
 
         startActivity(intent);
     }
 
 
-
-        // Create OnCompleteListener called after tasks ended
-        private OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted(){
-            return aVoid -> Toast.makeText(getApplicationContext(), getString(R.string.update_confirmation), Toast.LENGTH_LONG).show();
-        }
+    // Create OnCompleteListener called after tasks ended
+    private OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted() {
+        return aVoid -> Toast.makeText(getApplicationContext(), getString(R.string.update_confirmation), Toast.LENGTH_LONG).show();
+    }
 }

@@ -5,8 +5,8 @@ import android.content.SharedPreferences;
 
 public class ManageAppMode {
 
-    public static final String KEY_APP_MODE = "KEY_APP_MODE";
-    public static final String KEY_APP_MODE_DATA = "KEY_APP_MODE_DATA";
+    private static final String KEY_APP_MODE = "KEY_APP_MODE";
+    private static final String KEY_APP_MODE_DATA = "KEY_APP_MODE_DATA";
 
     public static void saveAppMode(Context context, String appMode) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(KEY_APP_MODE, Context.MODE_PRIVATE);
