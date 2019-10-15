@@ -168,7 +168,6 @@
     <string name="alert_dialog_location_far_from_works_pos_button">YES, LEAVE WORK MODE</string>
     <string name="alert_dialog_location_far_from_works_neg_button">NO</string>
     <string name="no_restaurant_found">No restaurant found</string>
-    <string name="no_network_to_find_restaurant">No network to update restaurant, activate localisation on your phone</string>
 
     <string name="app_mode_work" translatable="false">work</string>
     <string name="app_mode_normal" translatable="false">normal</string>
