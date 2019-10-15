@@ -18,24 +18,15 @@ import com.google.firebase.firestore.Query;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
-import com.inved.go4lunch.utils.ManageJobPlaceId;
 import com.inved.go4lunch.view.WorkmatesAdapter;
-
-import java.util.Objects;
 
 public class PeopleFragment extends Fragment implements WorkmatesAdapter.Listener{
 
     private RecyclerView mRecyclerWorkmates;
-    private String jobPlaceId;
-
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-
-        jobPlaceId = ManageJobPlaceId.getJobPlaceId(Objects.requireNonNull(getActivity()));
-
 
         View mView = inflater.inflate(R.layout.fragment_people, container, false);
 
@@ -52,7 +43,7 @@ public class PeopleFragment extends Fragment implements WorkmatesAdapter.Listene
 
     private void displayAllWorkmates() {
 
-        WorkmatesAdapter mRecyclerWorkmatesAdapter = new WorkmatesAdapter(generateOptionsForAdapter(UserHelper.getAllUsers(jobPlaceId)), Glide.with(this), this, getContext());
+        WorkmatesAdapter mRecyclerWorkmatesAdapter = new WorkmatesAdapter(generateOptionsForAdapter(UserHelper.getAllUsers()), Glide.with(this), this, getContext());
         //Choose how to display the list in the RecyclerView (vertical or horizontal)
         mRecyclerWorkmates.setHasFixedSize(true); //REVOIR CELA
         mRecyclerWorkmates.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));

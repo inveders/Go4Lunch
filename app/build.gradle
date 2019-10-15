@@ -32,11 +32,13 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField("String", "GOOGLE_MAPS_API_KEY", GOOGLE_MAPS_API_KEY)
+            resValue("string", "GOOGLE_MAPS_API_KEY", GOOGLE_MAPS_API_KEY)
             buildConfigField("String", "GOOGLE_MATRIX_API_KEY", GOOGLE_MATRIX_API_KEY)
         }
         debug {
             testCoverageEnabled true
             buildConfigField("String", "GOOGLE_MAPS_API_KEY", GOOGLE_MAPS_API_KEY)
+            resValue("string", "GOOGLE_MAPS_API_KEY", GOOGLE_MAPS_API_KEY)
             buildConfigField("String", "GOOGLE_MATRIX_API_KEY", GOOGLE_MATRIX_API_KEY)
         }
     }
@@ -116,6 +118,7 @@ dependencies {
     }
     implementation 'androidx.fragment:fragment:1.1.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
+    implementation 'org.jetbrains:annotations:15.0'
 
 }
 

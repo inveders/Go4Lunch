@@ -8,15 +8,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.controller.activity.ViewPlaceActivity;
@@ -31,9 +26,6 @@ import static com.inved.go4lunch.controller.fragment.MapFragment.RESTAURANT_PLAC
 
 public class NotificationsActivity extends BaseActivity {
 
-    public static final String NOTIFICATION_RESTAURANT_NAME = "RESTAURANT_NAME";
-    public static final String NOTIFICATION_RESTAURANT_ADDRESS = "RESTAURANT_ADDRESS";
-
     //FOR DESIGN
     @BindView(R.id.activity_notification_message_text)
     TextView notificationMessageText;
@@ -43,8 +35,6 @@ public class NotificationsActivity extends BaseActivity {
 
     @BindView(R.id.activity_notification_btn_see_choice)
     Button btnSeeRestaurantChoosen;
-
-    private Toolbar toolbar;
 
     @Override
     public int getFragmentLayout() {
@@ -68,35 +58,35 @@ public class NotificationsActivity extends BaseActivity {
 
     // Configure Toolbar
     private void configureToolBar(){
-        this.toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         setTitle(R.string.Notification_activity_Title);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        if(getSupportActionBar()!=null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+
     }
 
     private void firebaseInformations(){
 
-        UserHelper.getUserWhateverLocation(this.getCurrentUser().getUid()).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+        if(this.getCurrentUser()!=null){
+            UserHelper.getUserWhateverLocation(this.getCurrentUser().getUid()).get().addOnSuccessListener(queryDocumentSnapshots -> {
                 User currentUser = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
 
                 assert currentUser != null;
                 String restaurantName = TextUtils.isEmpty(currentUser.getRestaurantName()) ? getString(R.string.info_no_restaurant_name_found) : currentUser.getRestaurantName();
                 String restaurantVicinity = TextUtils.isEmpty(currentUser.getRestaurantVicinity()) ? getString(R.string.info_no_restaurant_adresse_found) : currentUser.getRestaurantVicinity();
                 String restaurantPlaceId = currentUser.getRestaurantPlaceId();
-             //   sendDataInService(restaurantName,restaurantVicinity);
 
-                UserHelper.getAllWorkmatesJoining(currentUser.getRestaurantPlaceId(),currentUser.getJobPlaceId()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        ArrayList<String> workmates = new ArrayList<String>();
+                UserHelper.getAllWorkmatesJoining(currentUser.getRestaurantPlaceId()).get().addOnCompleteListener(task -> {
+                    ArrayList<String> workmates = new ArrayList<>();
 
-                        if (task.isSuccessful()) {
+                    if (task.isSuccessful()) {
+                        if(task.getResult()!=null){
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                            //    Log.d("debago", document.getId() + " => " + document.getData());
-                                workmates.add(document.get("firstname").toString());
+
+                                workmates.add(document.getString("firstname"));
 
                             }
                             for (int i = 0; i <workmates.size() ; i++) {
@@ -105,17 +95,19 @@ public class NotificationsActivity extends BaseActivity {
                                 }
 
                             }
-                        } else {
-                            Log.d("debago", "Error getting documents: ", task.getException());
                         }
-                        showNotificationMessageTextworkmates(workmates);
 
+                    } else {
+                        Log.d("debago", "Error getting documents: ", task.getException());
                     }
+                    showNotificationMessageTextworkmates(workmates);
+
                 });
 
                 showNotificationMessageText(restaurantName,restaurantVicinity,restaurantPlaceId);
-            }
-        });
+            });
+        }
+
 
     }
 
@@ -142,9 +134,14 @@ public class NotificationsActivity extends BaseActivity {
         else{
             String workmatesList = "";
             String newligne=System.getProperty("line.separator");
+            StringBuilder stringBuilder = new StringBuilder();
             for (String s : workmates)
             {
-                workmatesList += s + " \n";
+                stringBuilder.append(workmatesList)
+                        .append("+=")
+                        .append(s)
+                        .append("+")
+                        .append("\n");
             }
             notificationMessageWorkmates.setText(getString(R.string.notification_message_workmates,newligne,workmatesList));
         }

@@ -1,13 +1,11 @@
 package com.inved.go4lunch.model;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
-import com.inved.go4lunch.model.matrix.Element;
 import com.inved.go4lunch.model.matrix.Row;
 import com.inved.go4lunch.repository.RepositoryMatrix;
 

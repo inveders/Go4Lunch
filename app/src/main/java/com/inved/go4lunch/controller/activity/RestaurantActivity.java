@@ -1,11 +1,11 @@
 package com.inved.go4lunch.controller.activity;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -32,9 +32,16 @@ import androidx.viewpager.widget.ViewPager;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
 import com.google.android.libraries.places.api.model.Place;
@@ -67,32 +74,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import permissions.dispatcher.NeedsPermission;
-import permissions.dispatcher.OnNeverAskAgain;
-import permissions.dispatcher.OnPermissionDenied;
-import permissions.dispatcher.OnShowRationale;
-import permissions.dispatcher.PermissionRequest;
-import permissions.dispatcher.RuntimePermissions;
-
-@RuntimePermissions
 public class RestaurantActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, LocationListener {
 
     public static final String MAP_API_KEY = BuildConfig.GOOGLE_MAPS_API_KEY;
     public static final String MATRIX_API_KEY = BuildConfig.GOOGLE_MATRIX_API_KEY;
 
     //FOR LOCAL BROADCAST MANAGER
-    public static final String PLACE_DETAIL_DATA = "PLACE_DETAIL_DATA";
-
-    public static final String PLACE_DATA_PHONE_NUMBER = "PLACE_DETAIL_DATA_PHONE_NUMBER";
 
     public static final String PLACE_SEARCH_DATA = "PLACE_SEARCH_DATA";
-
-    public static final String PLACE_DATA_NAME = "RESTAURANT_NAME";
-    public static final String PLACE_DATA_ADDRESS = "ADDRESS";
-    public static final String PLACE_DATA_PLACE_ID = "PLACE_ID";
-    public static final String PLACE_DATA_WEBSITE = "WEBSITE";
-    public static final String PLACE_DATA_RATING = "RATING";
-    public static final String PLACE_DATA_OPENING_HOURS = "LIST_RESULT_PLACE_SEARCH";
 
     public static final String TAG = "Debago";
     private static final int AUTOCOMPLETE_REQUEST_CODE = 645;
@@ -100,7 +89,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     //FOR LOCATION
     protected PlacesClient placesClient;
     Location location; // location
-    private LocationManager lm;
     // The minimum distance to change Updates in meters
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 1500; // 1000 meters for tests, after come back to 10 meters
     // The minimum time between updates in milliseconds
@@ -176,9 +164,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        RestaurantActivityPermissionsDispatcher.fillFirebaseWithPermissionCheck(RestaurantActivity.this);
 
-        //fillFirebase();
 
         this.configureToolBar();
         //Bottom Navigation View
@@ -236,27 +222,29 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     private void checkLocation() {
 
         //Subscribe to providers
-        lm = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+        LocationManager lm = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+        if(lm !=null){
+            if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+
+                lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+            }
+
+            if (lm.isProviderEnabled(LocationManager.PASSIVE_PROVIDER)) {
+                lm.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+            }
+
+            if (lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+            }
         }
 
-        if (lm.isProviderEnabled(LocationManager.PASSIVE_PROVIDER)) {
-            lm.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-        }
-
-        if (lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
-        }
     }
 
-    @NeedsPermission({Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION})
     public void fillFirebase() {
-
+        checkPosition();
         Log.d("debago","RestaurantActivity : in fillFirebase, need permission");
-        NearbyRestaurantsRepository nearbyRestaurantsRepository = new NearbyRestaurantsRepository();
-        nearbyRestaurantsRepository.setNearbyRestaurantsInFirebase();
+        new NearbyRestaurantsRepository();
     }
 
 
@@ -340,7 +328,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
 
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
-                // TODO: Handle the error.
+
                 if(data!= null){
                     Status status = Autocomplete.getStatusFromIntent(data);
                     if (status.getStatusMessage() != null) {
@@ -356,24 +344,11 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     }
 
 
-
-  /*  private int getSelectedItem(BottomNavigationView bottomNavigationView) {
-        Menu menu = bottomNavigationView.getMenu();
-        for (int i = 0; i < bottomNavigationView.getMenu().size(); i++) {
-            MenuItem menuItem = menu.getItem(i);
-            if (menuItem.isChecked()) {
-                return menuItem.getItemId();
-            }
-        }
-        return 0;
-    }*/
-
-
     @Override
     public void onResume() {
         super.onResume();
+        //fillFirebase();
         userInformationFromFirebase();
-        RestaurantActivityPermissionsDispatcher.fillFirebaseWithPermissionCheck(RestaurantActivity.this);
     }
 
     //Navigation drawer
@@ -439,7 +414,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     };
 
 
- /* private void checkLocation(){
+  private void checkPosition(){
       //check if gps is enabled or not and then request user to enable it
       LocationRequest locationRequest = LocationRequest.create();
       locationRequest.setInterval(10000);
@@ -451,27 +426,21 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
       SettingsClient settingsClient = LocationServices.getSettingsClient(RestaurantActivity.this);
       Task<LocationSettingsResponse> task = settingsClient.checkLocationSettings(builder.build());
 
-      task.addOnSuccessListener(RestaurantActivity.this, new OnSuccessListener<LocationSettingsResponse>() {
-          @Override
-          public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-             // mapFragment.getDeviceLocation();
-          }
+      task.addOnSuccessListener(RestaurantActivity.this, locationSettingsResponse -> {
+         // mapFragment.getDeviceLocation();
       });
 
-      task.addOnFailureListener(RestaurantActivity.this, new OnFailureListener() {
-          @Override
-          public void onFailure(@NonNull Exception e) {
-              if (e instanceof ResolvableApiException) {
-                  ResolvableApiException resolvable = (ResolvableApiException) e;
-                  try {
-                      resolvable.startResolutionForResult(RestaurantActivity.this, 51);
-                  } catch (IntentSender.SendIntentException e1) {
-                      e1.printStackTrace();
-                  }
+      task.addOnFailureListener(RestaurantActivity.this, e -> {
+          if (e instanceof ResolvableApiException) {
+              ResolvableApiException resolvable = (ResolvableApiException) e;
+              try {
+                  resolvable.startResolutionForResult(RestaurantActivity.this, 51);
+              } catch (IntentSender.SendIntentException e1) {
+                  e1.printStackTrace();
               }
           }
       });
-  }*/
+  }
 
 
 
@@ -548,7 +517,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     @Override
     public void onLocationChanged(Location location) {
 
-        //Log.e("debago","onlocation changed");
         latitude = location.getLatitude();
         longitude = location.getLongitude();
         sendLocationDataToFragments();
@@ -565,7 +533,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         intent.putExtra(KEY_LATITUDE, getLatitude());
         intent.putExtra(KEY_LONGITUDE, getLongitude());
 
-
+        fillFirebase();
         this.checkDistanceFromWork(currentGeolocalisation, ManageJobPlaceId.getJobPlaceId(this));
         LocalBroadcastManager.getInstance(RestaurantActivity.this).sendBroadcast(intent);
 
@@ -683,45 +651,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         }
     }
 
-
-//PERMISSIONS
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        RestaurantActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
-    }
-
-    @OnPermissionDenied({Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION})
-    void onAccessLocationDenied() {
-        // NOTE: Deal with a denied permission, e.g. by showing specific UI
-        // or disabling certain functionality
-        Toast.makeText(this, R.string.permission_acces_location_fine_denied, Toast.LENGTH_SHORT).show();
-    }
-
-    @OnShowRationale({Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION})
-    void showRationaleForAccesLocation(PermissionRequest request) {
-        // NOTE: Show a rationale to explain why the permission is needed, e.g. with a dialog.
-        // Call proceed() or cancel() on the provided PermissionRequest to continue or abort
-        showRationaleDialog(request);
-    }
-
-    @OnNeverAskAgain({Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION})
-    void onAccesLocationNeverAskAgain() {
-        Toast.makeText(this, R.string.permission_acces_location_fine_never_ask_again, Toast.LENGTH_SHORT).show();
-    }
-
-    private void showRationaleDialog(final PermissionRequest request) {
-        new AlertDialog.Builder(this)
-                .setPositiveButton(R.string.permission_button_allow, (dialog, which) -> request.proceed())
-                .setNegativeButton(R.string.permission_button_deny, (dialog, which) -> request.cancel())
-                .setCancelable(false)
-                .setMessage(R.string.permission_acces_location_fine_rationale)
-                .show();
-    }
-
-
     //HANDLING MODE
 
     //Handle two modes for user : work mode and normal mode to be located everywhere
@@ -793,12 +722,12 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
             }
 
             Toast.makeText(this, getString(R.string.app_mode_change_to_work_mode), Toast.LENGTH_SHORT).show();
-            fillFirebase();
+
         }else{
             ManageAppMode.saveAppMode(this,getString(R.string.app_mode_normal));
             Toast.makeText(this, getString(R.string.app_mode_change_to_normal_mode), Toast.LENGTH_SHORT).show();
-            fillFirebase();
         }
+        fillFirebase();
     }
 
 

@@ -1,9 +1,10 @@
 package com.inved.go4lunch.firebase;
 
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.inved.go4lunch.utils.App;
+import com.inved.go4lunch.utils.ManageJobPlaceId;
 
 public class UserFavoriteRestaurantHelper {
 
@@ -14,26 +15,26 @@ public class UserFavoriteRestaurantHelper {
 
     // --- COLLECTION REFERENCE ---
 
-    public static CollectionReference getUsersFavoriteRestaurantCollection(String uid,String jobPlaceId){
-        return FirebaseFirestore.getInstance().collection(COLLECTION_GENERAL).document(jobPlaceId).collection(COLLECTION_NAME).document(uid).collection(SUB_COLLECTION_FAVORITE_RESTAURANT);
+    private static CollectionReference getUsersFavoriteRestaurantCollection(String uid){
+        return FirebaseFirestore.getInstance().collection(COLLECTION_GENERAL).document(ManageJobPlaceId.getJobPlaceId(App.getInstance().getApplicationContext())).collection(COLLECTION_NAME).document(uid).collection(SUB_COLLECTION_FAVORITE_RESTAURANT);
 
     }
 
 
     // --- CREATE ---
 
-    public static Task<Void> createUserFavoriteRestaurants(String uid, String restaurantPlaceId,Boolean liked,String jobPlaceId) {
+    public static void createUserFavoriteRestaurants(String uid, String restaurantPlaceId, Boolean liked) {
         // 1 - Create subcollection in user
 
         UserFavoriteRestaurant userFavoriteRestaurantToCreate = new UserFavoriteRestaurant(restaurantPlaceId,liked);
-        return UserFavoriteRestaurantHelper.getUsersFavoriteRestaurantCollection(uid,jobPlaceId).document(restaurantPlaceId).set(userFavoriteRestaurantToCreate);
+        UserFavoriteRestaurantHelper.getUsersFavoriteRestaurantCollection(uid).document(restaurantPlaceId).set(userFavoriteRestaurantToCreate);
     }
 
 
     // --- GET ---
 
-    public static Query getCurrentRestaurantPlaceId(String uid, String restaurantPlaceId,String jobPlaceId){
-        return UserFavoriteRestaurantHelper.getUsersFavoriteRestaurantCollection(uid,jobPlaceId)
+    public static Query getCurrentRestaurantPlaceId(String uid, String restaurantPlaceId){
+        return UserFavoriteRestaurantHelper.getUsersFavoriteRestaurantCollection(uid)
                 .whereEqualTo("restaurantPlaceId",restaurantPlaceId);
 
     }
@@ -41,8 +42,8 @@ public class UserFavoriteRestaurantHelper {
 
     // --- UPDATE ---
 
-    public static Task<Void> updateFavoriteRestaurantLiked(String uid, String restaurantPlaceId,Boolean liked,String jobPlaceId) {
-        return UserFavoriteRestaurantHelper.getUsersFavoriteRestaurantCollection(uid,jobPlaceId).document(restaurantPlaceId).update("liked", liked);
+    public static void updateFavoriteRestaurantLiked(String uid, String restaurantPlaceId, Boolean liked) {
+        UserFavoriteRestaurantHelper.getUsersFavoriteRestaurantCollection(uid).document(restaurantPlaceId).update("liked", liked);
     }
 
     // --- DELETE ---

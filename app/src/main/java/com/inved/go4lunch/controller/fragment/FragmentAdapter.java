@@ -1,5 +1,6 @@
 package com.inved.go4lunch.controller.fragment;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
@@ -13,12 +14,13 @@ public class FragmentAdapter extends FragmentPagerAdapter {
     private List<androidx.fragment.app.Fragment> Fragment = new ArrayList<>(); //Fragment List
     private List<String> NamePage = new ArrayList<>(); // Fragment Name List
     public FragmentAdapter(FragmentManager manager) {
-        super(manager);
+        super(manager,BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
     }
     public void add(Fragment Frag, String Title) {
         Fragment.add(Frag);
         NamePage.add(Title);
     }
+    @NonNull
     @Override
     public Fragment getItem(int position) {
         return Fragment.get(position);

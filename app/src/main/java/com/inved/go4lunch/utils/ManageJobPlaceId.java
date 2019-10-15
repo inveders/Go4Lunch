@@ -5,8 +5,8 @@ import android.content.SharedPreferences;
 
 public class ManageJobPlaceId {
 
-    public static final String KEY_JOB_PLACE_ID = "KEY_JOB_PLACE_ID";
-    public static final String KEY_JOB_PLACE_ID_DATA = "KEY_JOB_PLACE_ID_DATA";
+    private static final String KEY_JOB_PLACE_ID = "KEY_JOB_PLACE_ID";
+    private static final String KEY_JOB_PLACE_ID_DATA = "KEY_JOB_PLACE_ID_DATA";
 
     public static void saveJobPlaceId(Context context,String jobPlaceId) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(KEY_JOB_PLACE_ID, Context.MODE_PRIVATE);

@@ -5,14 +5,10 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
-import com.inved.go4lunch.R;
-import com.inved.go4lunch.model.matrix.Element;
 import com.inved.go4lunch.model.matrix.Matrix;
 import com.inved.go4lunch.model.matrix.Row;
 import com.inved.go4lunch.retrofit.GoogleMatrixApi;
 import com.inved.go4lunch.retrofit.RetrofitServiceMatrix;
-import com.inved.go4lunch.utils.App;
-import com.inved.go4lunch.utils.ManageJobPlaceId;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,8 +1,8 @@
 package com.inved.go4lunch.firebase;
 
-import androidx.annotation.NonNull;
+import android.os.Build;
 
-import com.google.android.gms.maps.model.LatLng;
+import androidx.annotation.NonNull;
 
 import java.util.Comparator;
 
@@ -147,14 +147,6 @@ public class Restaurant implements Comparable<Restaurant> {
         this.restaurantPlaceId = restaurantPlaceId;
     }
 
-    public void setRestaurantCustomers(int restaurantCustomers) {
-        this.restaurantCustomers = restaurantCustomers;
-    }
-
-    public void setRestaurantLike(int restaurantLike) {
-        this.restaurantLike = restaurantLike;
-    }
-
     public void setJobPlaceId(String jobPlaceId) {
         this.jobPlaceId = jobPlaceId;
     }
@@ -164,64 +156,24 @@ public class Restaurant implements Comparable<Restaurant> {
         this.restaurantName = restaurantName;
     }
 
-    public void setRatingApp(int ratingApp) {
-        this.ratingApp = ratingApp;
-    }
-
-    public void setOpenForLunch(boolean openForLunch) {
-        this.openForLunch = openForLunch;
-    }
-
 
     public void setDistance(String distance) {
         this.distance = distance;
     }
 
-    public void setOpenHours(int openHours) {
-        this.openHours = openHours;
-    }
-
-    public void setCloseHours(int closeHours) {
-        this.closeHours = closeHours;
-    }
-
-    public void setRestaurantAddress(String restaurantAddress) {
-        this.restaurantAddress = restaurantAddress;
-    }
-
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
-    }
-
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
-    }
-
-    public void setWebsite(String website) {
-        this.website = website;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public void setOpenMinutes(int openMinutes) {
-        this.openMinutes = openMinutes;
-    }
-
-    public void setCloseMinutes(int closeMinutes) {
-        this.closeMinutes = closeMinutes;
-    }
-
 
     @Override
     public int compareTo(@NonNull Restaurant o) {
-        return Comparator.comparing(Restaurant::getRatingApp)
-                .thenComparing(Restaurant::getOpenForLunch)
-                .thenComparing(Restaurant::getRestaurantCustomers)
-                .thenComparing(Restaurant::getDistance)
-                .reversed()
-                .compare(this, o);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return Comparator.comparing(Restaurant::getRatingApp)
+                    .thenComparing(Restaurant::getOpenForLunch)
+                    .thenComparing(Restaurant::getRestaurantCustomers)
+                    .thenComparing(Restaurant::getDistance)
+                    .reversed()
+                    .compare(this, o);
+        }
+
+        return -1;
     }
 
 }

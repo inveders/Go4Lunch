@@ -1,7 +1,6 @@
 package com.inved.go4lunch.controller.fragment;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,11 +11,9 @@ import android.widget.RatingBar;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.fragment.app.DialogFragment;
 
 import com.inved.go4lunch.R;
@@ -43,7 +40,7 @@ public class FullScreenDialog extends DialogFragment implements View.OnClickList
         return new FullScreenDialog();
     }
 
-    public void setCallback(Callback callback) {
+    void setCallback(Callback callback) {
         this.callback = callback;
     }
 
@@ -133,9 +130,7 @@ public class FullScreenDialog extends DialogFragment implements View.OnClickList
             }
         });
 
-        openForLunch.setOnCheckedChangeListener((compoundButton, bChecked) ->{
-            openForLunchChoice = bChecked;
-        });
+        openForLunch.setOnCheckedChangeListener((compoundButton, bChecked) -> openForLunchChoice = bChecked);
 
         ratingBar.setOnRatingBarChangeListener((ratingBar, rating, fromUser) -> ratingChoice = (int) rating);
 

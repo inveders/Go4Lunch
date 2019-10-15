@@ -9,14 +9,10 @@ public class Row {
 
     @SerializedName("elements")
     @Expose
-    public List<Element> elements = null;
+    private List<Element> elements = null;
 
     public List<Element> getElements() {
         return elements;
-    }
-
-    public void setElements(List<Element> elements) {
-        this.elements = elements;
     }
 
 }

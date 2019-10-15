@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,7 +39,7 @@ import com.inved.go4lunch.firebase.RestaurantInNormalModeHelper;
 import com.inved.go4lunch.utils.App;
 import com.inved.go4lunch.utils.ManageAppMode;
 import com.inved.go4lunch.utils.ManageAutocompleteResponse;
-import com.inved.go4lunch.utils.ManageJobPlaceId;
+
 
 import java.util.Objects;
 
@@ -49,7 +50,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     private GoogleMap mGoogleMap;
     private View mView;
     private Marker mMarker;
-    private String jobPlaceId;
+
     private FloatingActionButton mapGeolocalisationButton;
     private Context context= App.getInstance().getApplicationContext();
 
@@ -61,8 +62,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        jobPlaceId = ManageJobPlaceId.getJobPlaceId(Objects.requireNonNull(getActivity()));
 
         initializeSharedPreferences();
         initializeMap();
@@ -125,8 +124,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
     }
 
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+
+        initializeMap();
+    }
 
     private void initializeMap() {
+
 
         String sharedPreferenceRestaurantPlaceId = ManageAutocompleteResponse.getStringAutocomplete((context), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID);
 
@@ -140,38 +146,44 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
         } else {
 
-            if(ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_work))||ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_forced_work))){
-                RestaurantHelper.getAllRestaurants(jobPlaceId).get().addOnSuccessListener(queryDocumentSnapshots -> {
 
-                    for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                        Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
+                if(ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_work))||ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_forced_work))){
+                    RestaurantHelper.getAllRestaurants().get().addOnSuccessListener(queryDocumentSnapshots -> {
 
-                        String restaurantPlaceId = restaurant.getRestaurantPlaceId();
-                        double latitude = restaurant.getLatitude();
-                        double longitude = restaurant.getLongitude();
+                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                            Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
 
-                        customizeMarker(restaurantPlaceId, latitude, longitude);
-                    }
+                            String restaurantPlaceId = restaurant.getRestaurantPlaceId();
+                            double latitude = restaurant.getLatitude();
+                            double longitude = restaurant.getLongitude();
 
-                }).addOnFailureListener(e -> {
+                            customizeMarker(restaurantPlaceId, latitude, longitude);
+                        }
 
-                });
+                    }).addOnFailureListener(e -> {
+
+                    });
+
+
             }else{
-                RestaurantInNormalModeHelper.getAllRestaurants(FirebaseAuth.getInstance().getCurrentUser().getUid(),jobPlaceId).get().addOnSuccessListener(queryDocumentSnapshots -> {
+                if(FirebaseAuth.getInstance().getCurrentUser()!=null){
+                    RestaurantInNormalModeHelper.getAllRestaurants(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnSuccessListener(queryDocumentSnapshots -> {
 
-                    for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                        Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
+                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                            Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
 
-                        String restaurantPlaceId = restaurant.getRestaurantPlaceId();
-                        double latitude = restaurant.getLatitude();
-                        double longitude = restaurant.getLongitude();
+                            String restaurantPlaceId = restaurant.getRestaurantPlaceId();
+                            double latitude = restaurant.getLatitude();
+                            double longitude = restaurant.getLongitude();
 
-                        customizeMarker(restaurantPlaceId, latitude, longitude);
-                    }
+                            customizeMarker(restaurantPlaceId, latitude, longitude);
+                        }
 
-                }).addOnFailureListener(e -> {
+                    }).addOnFailureListener(e -> {
 
-                });
+                    });
+                }
+
             }
 
         }
@@ -196,6 +208,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
     private void customizeMarker(String restaurantPlaceId, double lat, double longi) {
 
+        Log.d("debago","customize marker");
         if (mGoogleMap != null) {
             mGoogleMap.clear();
         }
@@ -204,7 +217,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         int mBearing = 0;
         int mTilt = 45;
         if (mMarker != null) {
-            //Mettre un log.d
+
             mMarker.remove();
         }
 
@@ -215,43 +228,46 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         markerOptions.snippet(restaurantPlaceId);
 
         if(FirebaseAuth.getInstance().getCurrentUser()!=null){
-            if(ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_work))||ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_forced_work))){
 
-                RestaurantHelper.getRestaurant(restaurantPlaceId, jobPlaceId).addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document != null) {
-                            Restaurant restaurant = document.toObject(Restaurant.class);
+                if(ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_work))||ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_forced_work))){
 
-                            if (restaurant != null) {
-                                if (document.exists()) {
+                    RestaurantHelper.getRestaurant(restaurantPlaceId).addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document != null) {
+                                Restaurant restaurant = document.toObject(Restaurant.class);
 
-                                    markerOptions.position(latLng);
+                                if (restaurant != null) {
+                                    if (document.exists()) {
 
-                                    //creating and getting restaurant information
-                                    int numberCustomers = restaurant.getRestaurantCustomers();
-                                    if (numberCustomers > 0) {
-                                        markerOptions.icon(bitmapDescriptorFromVectorSelected(getContext()));
-                                        mGoogleMap.addMarker(markerOptions);
+                                        markerOptions.position(latLng);
 
-                                    } else {
-                                        markerOptions.icon(bitmapDescriptorFromVectorNotSelected(getContext()));
-                                        mGoogleMap.addMarker(markerOptions);
+                                        //creating and getting restaurant information
+                                        int numberCustomers = restaurant.getRestaurantCustomers();
+                                        if (numberCustomers > 0) {
+                                            markerOptions.icon(bitmapDescriptorFromVectorSelected(getContext()));
+                                            mGoogleMap.addMarker(markerOptions);
 
+                                        } else {
+                                            markerOptions.icon(bitmapDescriptorFromVectorNotSelected(getContext()));
+                                            mGoogleMap.addMarker(markerOptions);
+
+                                        }
+
+                                        CameraPosition Liberty = CameraPosition.builder().target(latLng).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
+                                        mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
+                                        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                                     }
-
-                                    CameraPosition Liberty = CameraPosition.builder().target(latLng).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
-                                    mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
-                                    mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                                 }
                             }
+
+
                         }
+                    });
 
 
-                    }
-                });
             }else{
-                RestaurantInNormalModeHelper.getRestaurant(FirebaseAuth.getInstance().getCurrentUser().getUid(),restaurantPlaceId, jobPlaceId).addOnCompleteListener(task -> {
+                RestaurantInNormalModeHelper.getRestaurant(FirebaseAuth.getInstance().getCurrentUser().getUid(),restaurantPlaceId).addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
                         if (document != null) {
@@ -367,10 +383,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
         mGoogleMap = googleMap;
         mGoogleMap.setOnMarkerClickListener(marker -> false);
-        //    mGoogleMap.setMyLocationEnabled(true);
-        //   mGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        //    mGoogleMap.moveCamera(CameraUpdateFactory.zoomBy(11));
 
         LatLng initialPosition = new LatLng(0, 0);
 

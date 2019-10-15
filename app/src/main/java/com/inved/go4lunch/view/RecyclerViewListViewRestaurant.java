@@ -75,8 +75,6 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
         }
 
-
-        /**N'EST PAS ACTUALISE RAPIDEMENT*/
         if (restaurantArrayList != null) {
             holder.mRestaurantAdress.setText(restaurantArrayList.get(position).getRestaurantAddress());
             holder.mNumberRates.setText(String.valueOf(restaurantArrayList.get(position).getRestaurantCustomers()));
@@ -93,7 +91,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
             int opening_close_hours = restaurantArrayList.get(position).getCloseHours();
             int opening_close_minutes = restaurantArrayList.get(position).getCloseMinutes();
 
-            LocalDateTime currentTime = null;
+            LocalDateTime currentTime;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 currentTime = LocalDateTime.now();
                 int current_hours = currentTime.getHour();
@@ -290,7 +288,6 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
     }
 
-
     @Override
     public Filter getFilter() {
 
@@ -305,7 +302,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
                     restaurantArrayListFiltered = restaurantArrayList;
 
                 } else {
-                    //   Log.d("Debago", "RecyclerViewRestaurant GETfILTER : charString is not empty result "+   mData.get(0).getName()+" contains charString "+ charString);
+
                     ArrayList<Restaurant> filteredList = new ArrayList<>();
 
 
@@ -326,7 +323,6 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
                 FilterResults filterResults = new FilterResults();
 
                 filterResults.values = restaurantArrayListFiltered;
-                Log.d("Debago", "filteredresult after loop " + filterResults);
                 return filterResults;
 
             }

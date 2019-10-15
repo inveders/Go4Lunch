@@ -17,10 +17,6 @@ public class Distance {
         return value;
     }
 
-    public void setValue(Integer value) {
-        this.value = value;
-    }
-
     public String getText() {
         return text;
     }

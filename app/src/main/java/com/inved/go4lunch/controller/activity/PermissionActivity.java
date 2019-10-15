@@ -63,25 +63,6 @@ public class PermissionActivity extends BaseActivity  {
             startActivity(new Intent(PermissionActivity.this, FindMyJobAddressActivity.class));
             finish();
         }
-        else{
-         /*   if(response.isPermanentlyDenied()){
-                AlertDialog.Builder builder = new AlertDialog.Builder(PermissionActivity.this);
-                builder.setTitle("Permission Denied")
-                        .setMessage("Permission to access device location is permanently denied. you need to go to setting to allow the permission.")
-                        .setNegativeButton("Cancel", null)
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Intent intent = new Intent();
-                                intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                intent.setData(Uri.fromParts("package", getPackageName(), null));
-                            }
-                        })
-                        .show();
-            } else {
-                Toast.makeText(PermissionActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
-            }*/
-        }
     }
 
 

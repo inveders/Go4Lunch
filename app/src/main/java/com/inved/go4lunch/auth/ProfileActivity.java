@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Switch;
@@ -27,14 +26,11 @@ import com.inved.go4lunch.controller.activity.MainActivity;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.utils.ManageAppMode;
-import com.inved.go4lunch.utils.ManageJobPlaceId;
 
 import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-
-import static com.inved.go4lunch.utils.ManageJobPlaceId.KEY_JOB_PLACE_ID_DATA;
 
 public class ProfileActivity extends BaseActivity {
 
@@ -57,14 +53,9 @@ public class ProfileActivity extends BaseActivity {
     Button appModeButton;
 
 
-    //FOR DATA
-    private String jobPlaceId;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        jobPlaceId = ManageJobPlaceId.getJobPlaceId(this);
 
 
         this.configureToolBar();
@@ -76,13 +67,13 @@ public class ProfileActivity extends BaseActivity {
                 //Toast.makeText(ProfileActivity.this, getString(R.string.notification_enabling), Toast.LENGTH_SHORT).show();
 
                 if (getCurrentUser() != null) {
-                    UserHelper.updateNotificationEnabled(true, getCurrentUser().getUid(), jobPlaceId);
+                    UserHelper.updateNotificationEnabled(true, getCurrentUser().getUid());
                 }
 
             } else {
                // Toast.makeText(ProfileActivity.this, getString(R.string.notification_desabling), Toast.LENGTH_SHORT).show();
                 if (getCurrentUser() != null) {
-                    UserHelper.updateNotificationEnabled(false, getCurrentUser().getUid(), jobPlaceId);
+                    UserHelper.updateNotificationEnabled(false, getCurrentUser().getUid());
                 }
             }
         });
@@ -166,7 +157,7 @@ public class ProfileActivity extends BaseActivity {
                                 }
                             });
 
-                    UserHelper.deleteUser(getCurrentUser().getUid(), jobPlaceId).addOnFailureListener(onFailureListener());
+                    UserHelper.deleteUser(getCurrentUser().getUid()).addOnFailureListener(onFailureListener());
 
                 });
 
@@ -181,12 +172,12 @@ public class ProfileActivity extends BaseActivity {
         String lastname = Objects.requireNonNull(this.textInputEditTextLastname.getText()).toString();
         if (this.getCurrentUser() != null) {
             if (!firstname.isEmpty() && !firstname.equals(getString(R.string.info_no_firstname_found))) {
-                UserHelper.updateFirstname(firstname, this.getCurrentUser().getUid(), jobPlaceId).addOnFailureListener(this.onFailureListener()).addOnSuccessListener(this.updateUIAfterRESTRequestsCompleted());
+                UserHelper.updateFirstname(firstname, this.getCurrentUser().getUid()).addOnFailureListener(this.onFailureListener()).addOnSuccessListener(this.updateUIAfterRESTRequestsCompleted());
             }
         }
         if (this.getCurrentUser() != null) {
             if (!lastname.isEmpty() && !lastname.equals(getString(R.string.info_no_lastname_found))) {
-                UserHelper.updateLastname(lastname, this.getCurrentUser().getUid(), jobPlaceId).addOnFailureListener(this.onFailureListener()).addOnSuccessListener(this.updateUIAfterRESTRequestsCompleted());
+                UserHelper.updateLastname(lastname, this.getCurrentUser().getUid()).addOnFailureListener(this.onFailureListener()).addOnSuccessListener(this.updateUIAfterRESTRequestsCompleted());
             }
         }
     }
