@@ -25,4 +25,13 @@
         app:layout_anchor="@id/fragment_listview_recycler_view"
         app:layout_anchorGravity="bottom|right|end" />
 
+    <TextView
+        android:id="@+id/fragment_list_view_textview_no_restaurant"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:layout_margin="@dimen/default_large_margin"
+        android:text="@string/no_restaurant_found"
+        android:visibility="invisible"/>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

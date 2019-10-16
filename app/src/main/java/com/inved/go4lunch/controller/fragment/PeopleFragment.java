@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,11 +20,17 @@ import com.google.firebase.firestore.Query;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
+import com.inved.go4lunch.utils.App;
+import com.inved.go4lunch.utils.ManageAppMode;
 import com.inved.go4lunch.view.WorkmatesAdapter;
+
+import butterknife.BindView;
 
 public class PeopleFragment extends Fragment implements WorkmatesAdapter.Listener{
 
     private RecyclerView mRecyclerWorkmates;
+    private String appMode = ManageAppMode.getAppMode(App.getInstance().getApplicationContext());
+
 
     @Nullable
     @Override
@@ -33,8 +41,16 @@ public class PeopleFragment extends Fragment implements WorkmatesAdapter.Listene
 
         //RecyclerView initialization
         mRecyclerWorkmates = mView.findViewById(R.id.fragment_people_recycler_view);
+        TextView textViewNoWorkmatesInNormalMode = mView.findViewById(R.id.fragment_people_textview_no_workmates);
 
-        displayAllWorkmates();
+        if (!appMode.equals(App.getResourses().getString(R.string.app_mode_normal))) {
+            displayAllWorkmates();
+        }else{
+            mRecyclerWorkmates.setVisibility(View.INVISIBLE);
+            textViewNoWorkmatesInNormalMode.setVisibility(View.VISIBLE);
+
+        }
+
 
         return mView;
 

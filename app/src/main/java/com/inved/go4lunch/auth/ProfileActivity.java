@@ -1,6 +1,9 @@
 package com.inved.go4lunch.auth;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -12,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -23,14 +27,22 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.controller.activity.MainActivity;
+import com.inved.go4lunch.controller.activity.RestaurantActivity;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
+import com.inved.go4lunch.utils.CheckDistanceFromWork;
 import com.inved.go4lunch.utils.ManageAppMode;
+import com.inved.go4lunch.utils.ManageJobPlaceId;
 
 import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.OnClick;
+
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_GEOLOCALISATION;
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LATITUDE;
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LOCATION_CHANGED;
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LONGITUDE;
 
 public class ProfileActivity extends BaseActivity {
 
@@ -52,11 +64,30 @@ public class ProfileActivity extends BaseActivity {
     @BindView(R.id.profile_activity_app_mode_button)
     Button appModeButton;
 
+    private String myCurrentGeolocalisation = null;
+    private double latitude;
+    private double longitude;
+
+    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (KEY_LOCATION_CHANGED.equals(intent.getAction())) {
+                intent.getSerializableExtra(KEY_GEOLOCALISATION);
+                myCurrentGeolocalisation = intent.getStringExtra(KEY_GEOLOCALISATION);
+                latitude = intent.getDoubleExtra(KEY_LATITUDE, 0.0);
+                longitude = intent.getDoubleExtra(KEY_LONGITUDE, 0.0);
+                Log.d("debago", "profile activity latitude :" + latitude);
+            }
+
+
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter(KEY_LOCATION_CHANGED));
 
         this.configureToolBar();
         this.updateUIWhenCreating();
@@ -71,7 +102,7 @@ public class ProfileActivity extends BaseActivity {
                 }
 
             } else {
-               // Toast.makeText(ProfileActivity.this, getString(R.string.notification_desabling), Toast.LENGTH_SHORT).show();
+                // Toast.makeText(ProfileActivity.this, getString(R.string.notification_desabling), Toast.LENGTH_SHORT).show();
                 if (getCurrentUser() != null) {
                     UserHelper.updateNotificationEnabled(false, getCurrentUser().getUid());
                 }
@@ -101,11 +132,18 @@ public class ProfileActivity extends BaseActivity {
 
     @OnClick(R.id.profile_activity_app_mode_button)
     public void onClickAppModeButton() {
-        if(ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_work))||ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_forced_work))){
-            ManageAppMode.saveAppMode(this,getString(R.string.app_mode_normal));
+        if (ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_work)) || ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_forced_work))) {
+            ManageAppMode.saveAppMode(this, getString(R.string.app_mode_normal));
             appModeButton.setText(getString(R.string.app_mode_change_to_normal_mode));
-        }else{
-            ManageAppMode.saveAppMode(this,getString(R.string.app_mode_work));
+        } else {
+            if (latitude != 0.0) {
+                RestaurantActivity restaurantActivity = new RestaurantActivity();
+                Log.d("debago", "mycurrentgeoloc :" + myCurrentGeolocalisation + " latitude :" + latitude);
+                restaurantActivity.checkDistanceFromWork(myCurrentGeolocalisation, ManageJobPlaceId.getJobPlaceId(this), latitude, longitude);
+
+            } else {
+                ManageAppMode.saveAppMode(this, getString(R.string.app_mode_forced_work));
+            }
             appModeButton.setText(getString(R.string.app_mode_change_to_work_mode));
         }
     }
@@ -189,9 +227,9 @@ public class ProfileActivity extends BaseActivity {
     // Update UI when activity is creating
     private void updateUIWhenCreating() {
 
-        if(ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_work))||ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_forced_work))){
+        if (ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_work)) || ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_forced_work))) {
             appModeButton.setText(getString(R.string.app_mode_change_to_work_mode));
-        }else{
+        } else {
             appModeButton.setText(getString(R.string.app_mode_change_to_normal_mode));
         }
 

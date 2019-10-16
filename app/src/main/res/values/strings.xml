@@ -90,13 +90,13 @@
     <string name="distance_text" translatable="false">%1$s m</string>
     <string name="no_opened_hours">No schedule for this day !</string>
 
-
     <!-- FRAGMENT RESTAURANT PEOPLE -->
     <string name="fragment_people_item_image">Workmates image</string>
     <string name="fragment_people_item_text">Alex is eating Turkish (Snack Ender)</string>
     <string name="workmates_text_choice">" %1$s is eating in restaurant %2$s"</string>
     <string name="workmates_text_joining">" %1$s is joining"</string>
     <string name="workmates_text_no_choice">%1$s hasn\'t decided yet!</string>
+    <string name="workmates_no_showed_normal_mode">You are in NORMAL MODE, pass in WORK MODE to show your workmates</string>
 
     <!-- DETAIL RESTAURANT -->
     <string name="restaurant_choosen">The restaurant has been well chosen</string>
@@ -175,5 +175,5 @@
     <string name="app_mode_change_to_work_mode">Work mode activated</string>
     <string name="app_mode_change_to_normal_mode">Normal mode activated</string>
 
-    <string name="app_mode_forced_mode_no_restaurant_found">For a first use in work mode, you have to be in your job for more security</string>
+    <string name="app_mode_forced_mode_no_restaurant_found">Neither you nor any of your colleagues have logged in to the application at work. This is required for first use!</string>
 </resources>

@@ -1,6 +1,7 @@
 package com.inved.go4lunch.controller.activity;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -22,9 +23,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.ViewPager;
@@ -65,7 +68,8 @@ import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.model.ResultModel;
 import com.inved.go4lunch.notification.NotificationsActivity;
-import com.inved.go4lunch.repository.NearbyRestaurantsRepository;
+import com.inved.go4lunch.utils.App;
+import com.inved.go4lunch.utils.CheckDistanceFromWork;
 import com.inved.go4lunch.utils.ManageAppMode;
 import com.inved.go4lunch.utils.ManageAutocompleteResponse;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
@@ -82,7 +86,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     //FOR LOCAL BROADCAST MANAGER
 
     public static final String PLACE_SEARCH_DATA = "PLACE_SEARCH_DATA";
-
+    private Dialog mDialog;
     public static final String TAG = "Debago";
     private static final int AUTOCOMPLETE_REQUEST_CODE = 645;
 
@@ -110,7 +114,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     TextView navEmail;
     ImageView navProfileImage;
 
-    private Dialog mDialog;
+
 
     //Declaration for fragments
     BottomNavigationView bottomNavigationView;
@@ -241,10 +245,14 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     }
 
-    public void fillFirebase() {
+    public void fillFirebase(Double lat,Double longi) {
         checkPosition();
-        Log.d("debago","RestaurantActivity : in fillFirebase, need permission");
-        new NearbyRestaurantsRepository();
+       /* Log.d("debago","RestaurantActivity : in fillFirebase, need permission");
+        new NearbyRestaurantsRepository();*/
+       resultModel.setNearbyRestaurantsInFirebase(lat,longi).observe(this, result -> {
+         //  Log.d("debago","in result model firebase :"+result.get(0).getName());
+           refreshFragment();
+       });
     }
 
 
@@ -281,6 +289,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     private void refreshFragment() {
 
+        Log.d("debago","refresh fragment here");
         if(getFragmentRefreshListener()!=null){
             getFragmentRefreshListener().onRefresh();
         }
@@ -347,7 +356,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     @Override
     public void onResume() {
         super.onResume();
-        //fillFirebase();
         userInformationFromFirebase();
     }
 
@@ -532,10 +540,11 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         intent.putExtra(KEY_GEOLOCALISATION, currentGeolocalisation);
         intent.putExtra(KEY_LATITUDE, getLatitude());
         intent.putExtra(KEY_LONGITUDE, getLongitude());
-
-        fillFirebase();
-        this.checkDistanceFromWork(currentGeolocalisation, ManageJobPlaceId.getJobPlaceId(this));
         LocalBroadcastManager.getInstance(RestaurantActivity.this).sendBroadcast(intent);
+
+        fillFirebase(getLatitude(),getLongitude());
+        this.checkDistanceFromWork(currentGeolocalisation,ManageJobPlaceId.getJobPlaceId(this),getLatitude(),getLongitude());
+
 
     }
 
@@ -651,12 +660,13 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         }
     }
 
+
     //HANDLING MODE
 
     //Handle two modes for user : work mode and normal mode to be located everywhere
-    private void checkDistanceFromWork(String origins,String destinations){
+    public void checkDistanceFromWork(String origins,String destinations,Double lat, Double longi){
 
-        Log.d("debago","origins :"+origins+" et destination :"+destinations);
+        //Log.d("debago","origins :"+origins+" et destination :"+destinations);
         resultModel.getMatrixDistance(origins,destinations).observe(this, result -> {
 
             int distance;
@@ -669,25 +679,22 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
             }
 
-
-
-
             AlertDialog.Builder builder = new AlertDialog.Builder(this)
                     // Add the buttons
                     .setPositiveButton(R.string.alert_dialog_location_far_from_works_pos_button, (dialog, which) -> {
                         // do something like...
-                        changeMode(false);
+                        changeMode(false,lat,longi);
                     })
                     .setNegativeButton(R.string.alert_dialog_location_far_from_works_neg_button, (dialog, which) -> {
                         // do something like...
-                        changeMode(true);
+                        changeMode(true,lat,longi);
                     })
                     .setMessage(R.string.alert_dialog_location_far_from_works_text);
 
             // Create the AlertDialog
             // AlertDialog dialog = builder.create();
 
-            if(distance>2 && appMode.equals(getString(R.string.app_mode_work))){
+            if(distance>2 && appMode.equals(App.getResourses().getString(R.string.app_mode_work))){
 
                 // Dismiss any old dialog.
                 if (mDialog != null) {
@@ -698,22 +705,20 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
                 mDialog = builder.show();
 
             }
-            else if(distance<2 && appMode.equals(getString(R.string.app_mode_normal))){
-                changeMode(true);
+            else if(distance<2 && appMode.equals(App.getResourses().getString(R.string.app_mode_normal))){
+                changeMode(true,lat,longi);
 
             }
-            else if(distance<2 && appMode.equals(getString(R.string.app_mode_forced_work))){
-                changeMode(true);
+            else if(distance<2 && appMode.equals(App.getResourses().getString(R.string.app_mode_forced_work))){
+                changeMode(true,lat,longi);
 
             }
-
-
 
         });
 
     }
 
-    private void changeMode(boolean workModeDesired) {
+    private void changeMode(boolean workModeDesired, Double lat, Double longi) {
         if(workModeDesired){
             if(ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_work))){
                 ManageAppMode.saveAppMode(this,getString(R.string.app_mode_forced_work));
@@ -727,7 +732,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
             ManageAppMode.saveAppMode(this,getString(R.string.app_mode_normal));
             Toast.makeText(this, getString(R.string.app_mode_change_to_normal_mode), Toast.LENGTH_SHORT).show();
         }
-        fillFirebase();
+        fillFirebase(lat,longi);
     }
 
 

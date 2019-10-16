@@ -512,7 +512,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
                     changeButtonColor("#B70400");//red color
 
-                    //     Log.d("Debagoo", "ViewPlaceActivity choose restaurant cas3 bis: je désélectionne mon choix");
+                         Log.d("Debagoo", "ViewPlaceActivity choose restaurant cas3 bis: je désélectionne mon choix");
                 })
                 .setNegativeButton(R.string.popup_message_choice_no, null)
                 .show();
@@ -524,6 +524,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     private void changeButtonColor(String newColor) {
 
+        Log.d("Debagoo", "ViewPlaceActivity cchangeButtonColor");
         // isChoosenRestaurantImage.setColorFilter(Color.parseColor(newColor));
         isChoosenRestaurantImage.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(newColor)));
 
@@ -900,7 +901,10 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
     public void onDataChanged() {
 
         // Show TextView in case RecyclerView is empty
-        textViewRecyclerViewEmpty.setVisibility(this.mRecyclerWorkmatesAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
+        if(!ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_normal))){
+            textViewRecyclerViewEmpty.setVisibility(this.mRecyclerWorkmatesAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
+        }
+
     }
 
 }

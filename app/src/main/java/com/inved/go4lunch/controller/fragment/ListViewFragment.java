@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -48,7 +49,7 @@ public class ListViewFragment extends Fragment {
 
     private RecyclerViewListViewRestaurant mRecyclerListViewAdapter;
     private RecyclerView mRecyclerListView;
-
+    private TextView textViewNoRestaurantFound;
     private String myLastGeolocalisation = null;
     private FloatingActionButton filterButton;
     private String restaurantName;
@@ -63,7 +64,7 @@ public class ListViewFragment extends Fragment {
     private boolean isOpenForLunch;
     private String distance;
     private ArrayList<Restaurant> restaurantArrayList;
-    private Context context=App.getInstance().getApplicationContext();
+    private Context context = App.getInstance().getApplicationContext();
 
 
     //Receive current localisation from Localisation.class
@@ -93,6 +94,9 @@ public class ListViewFragment extends Fragment {
 
         restaurantArrayList = new ArrayList<>();
 
+        //DECLARE ET IITIALIZE TEXTVIEW
+        textViewNoRestaurantFound = mView.findViewById(R.id.fragment_list_view_textview_no_restaurant);
+
         //RecyclerView initialization
         mRecyclerListView = mView.findViewById(R.id.fragment_listview_recycler_view);
         mRecyclerListView.setHasFixedSize(true);
@@ -118,48 +122,11 @@ public class ListViewFragment extends Fragment {
             restaurantArrayList.clear();
         }
 
-        if(ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_work))||ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_forced_work))){
+        if (ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_work)) || ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_forced_work))) {
             RestaurantHelper.getAllRestaurants().get().addOnCompleteListener(task -> {
 
                 if (task.getResult() != null) {
-                    for (DocumentSnapshot querySnapshot : task.getResult()) {
-                        Restaurant restaurant = querySnapshot.toObject(Restaurant.class);
-
-                        if (restaurant != null) {
-                            restaurantPlaceId = restaurant.getRestaurantPlaceId();
-                            restaurantCustomers = restaurant.getRestaurantCustomers();
-                            restaurantName = restaurant.getRestaurantName();
-                            rating = restaurant.getRatingApp();
-                            isOpenForLunch = restaurant.getOpenForLunch();
-                            distance = restaurant.getDistance();
-                            openHours = restaurant.getOpenHours();
-                            closeHours = restaurant.getCloseHours();
-                            restaurantAddress = restaurant.getRestaurantAddress();
-                            openMinutes = restaurant.getOpenMinutes();
-                            closeMinutes = restaurant.getCloseMinutes();
-
-
-                            Restaurant restaurantObject = new Restaurant(restaurantPlaceId, restaurantCustomers, 0, ManageJobPlaceId.getJobPlaceId(App.getInstance().getApplicationContext()),
-                                    restaurantName, rating, isOpenForLunch, distance, openHours, closeHours, restaurantAddress, 0.0, 0.0,
-                                    null, null, openMinutes, closeMinutes);
-
-                            restaurantArrayList.add(restaurantObject);
-                        }
-
-                    }
-
-                }
-
-
-                mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(Glide.with(context), restaurantArrayList);
-                mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
-                mRecyclerListViewAdapter.setData(restaurantArrayList);
-            }).addOnFailureListener(e -> Log.e("debago", "Problem during the load data"));
-        }else{
-            if(FirebaseAuth.getInstance().getCurrentUser()!=null){
-                RestaurantInNormalModeHelper.getAllRestaurants(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnCompleteListener(task -> {
-
-                    if (task.getResult() != null) {
+                    if(task.getResult().size()>0){
                         for (DocumentSnapshot querySnapshot : task.getResult()) {
                             Restaurant restaurant = querySnapshot.toObject(Restaurant.class);
 
@@ -176,7 +143,6 @@ public class ListViewFragment extends Fragment {
                                 openMinutes = restaurant.getOpenMinutes();
                                 closeMinutes = restaurant.getCloseMinutes();
 
-
                                 Restaurant restaurantObject = new Restaurant(restaurantPlaceId, restaurantCustomers, 0, ManageJobPlaceId.getJobPlaceId(App.getInstance().getApplicationContext()),
                                         restaurantName, rating, isOpenForLunch, distance, openHours, closeHours, restaurantAddress, 0.0, 0.0,
                                         null, null, openMinutes, closeMinutes);
@@ -185,7 +151,55 @@ public class ListViewFragment extends Fragment {
                             }
 
                         }
+                    }else{
+                        textViewNoRestaurantFound.setVisibility(View.VISIBLE);
+                    }
 
+
+                }
+
+
+                mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(Glide.with(context), restaurantArrayList);
+                mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
+                mRecyclerListViewAdapter.setData(restaurantArrayList);
+            }).addOnFailureListener(e -> Log.e("debago", "Problem during the load data"));
+        } else {
+            if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                RestaurantInNormalModeHelper.getAllRestaurants(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnCompleteListener(task -> {
+
+
+                    if (task.getResult() != null) {
+                        if (task.getResult().size() > 0) {
+                            for (DocumentSnapshot querySnapshot : task.getResult()) {
+                                Restaurant restaurant = querySnapshot.toObject(Restaurant.class);
+
+                                if (restaurant != null) {
+                                    restaurantPlaceId = restaurant.getRestaurantPlaceId();
+                                    restaurantCustomers = restaurant.getRestaurantCustomers();
+                                    restaurantName = restaurant.getRestaurantName();
+                                    rating = restaurant.getRatingApp();
+                                    isOpenForLunch = restaurant.getOpenForLunch();
+                                    distance = restaurant.getDistance();
+                                    openHours = restaurant.getOpenHours();
+                                    closeHours = restaurant.getCloseHours();
+                                    restaurantAddress = restaurant.getRestaurantAddress();
+                                    openMinutes = restaurant.getOpenMinutes();
+                                    closeMinutes = restaurant.getCloseMinutes();
+
+
+                                    Restaurant restaurantObject = new Restaurant(restaurantPlaceId, restaurantCustomers, 0, ManageJobPlaceId.getJobPlaceId(App.getInstance().getApplicationContext()),
+                                            restaurantName, rating, isOpenForLunch, distance, openHours, closeHours, restaurantAddress, 0.0, 0.0,
+                                            null, null, openMinutes, closeMinutes);
+
+                                    restaurantArrayList.add(restaurantObject);
+                                }
+
+                            }
+
+                        } else {
+                            textViewNoRestaurantFound.setVisibility(View.VISIBLE);
+
+                        }
                     }
 
 
@@ -207,7 +221,7 @@ public class ListViewFragment extends Fragment {
             restaurantArrayList.clear();
         }
 
-        if(ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_work))||ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_forced_work))) {
+        if (ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_work)) || ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_forced_work))) {
             RestaurantHelper.getFilterRestaurant(mQuery).get().addOnCompleteListener(task -> {
 
                 if (task.getResult() != null) {
@@ -244,8 +258,8 @@ public class ListViewFragment extends Fragment {
                 mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
                 mRecyclerListViewAdapter.setData(restaurantArrayList);
             }).addOnFailureListener(e -> Log.e("debago", "Problem during the filter"));
-        }else{
-            if(FirebaseAuth.getInstance().getCurrentUser()!=null){
+        } else {
+            if (FirebaseAuth.getInstance().getCurrentUser() != null) {
                 RestaurantInNormalModeHelper.getFilterRestaurant(FirebaseAuth.getInstance().getCurrentUser().getUid(), mQuery).get().addOnCompleteListener(task -> {
 
                     if (task.getResult() != null) {
@@ -369,7 +383,7 @@ public class ListViewFragment extends Fragment {
                 loadDataFromFirebaseFilter(restaurantNameFromAutocomplete);
                 initializeSharedPreferences();
             }
-        }else{
+        } else {
             loadDataFromFirebase();
         }
     }

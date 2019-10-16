@@ -1,28 +1,30 @@
 package com.inved.go4lunch.repository;
 
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.util.Log;
 import android.widget.Toast;
 
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.annotation.NonNull;
+import androidx.lifecycle.MutableLiveData;
 
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.OpeningHours;
 import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.model.PlaceLikelihood;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
-import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.firebase.RestaurantHelper;
 import com.inved.go4lunch.firebase.RestaurantInNormalModeHelper;
+import com.inved.go4lunch.model.placesearch.PlaceSearch;
+import com.inved.go4lunch.model.placesearch.Result;
+import com.inved.go4lunch.retrofit.GoogleNearbySearchApi;
+import com.inved.go4lunch.retrofit.RetrofitServiceNearbySearch;
 import com.inved.go4lunch.utils.App;
 import com.inved.go4lunch.utils.ManageAppMode;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
@@ -31,13 +33,15 @@ import com.inved.go4lunch.utils.UnitConversion;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LATITUDE;
-import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LOCATION_CHANGED;
-import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LONGITUDE;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.MAP_API_KEY;
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.TAG;
 
@@ -54,8 +58,6 @@ public class NearbyRestaurantsRepository {
     private String restaurantName;
     private String website;
     private String phoneNumber;
-    private Double myCurrentLat;
-    private Double myCurrentLongi;
     private int openHours;
     private int closeHours;
     private int openMinutes;
@@ -65,20 +67,14 @@ public class NearbyRestaurantsRepository {
     private UnitConversion unitConversion = new UnitConversion();
     private String currentUser = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
 
+    //FOR RETROFIT
+    private ArrayList<Result> results = new ArrayList<>();
+    private MutableLiveData<List<Result>> mutableLiveData = new MutableLiveData<>();
+
     public NearbyRestaurantsRepository() {
-        BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (KEY_LOCATION_CHANGED.equals(intent.getAction())) {
-                    myCurrentLat = intent.getDoubleExtra(KEY_LATITUDE, 0.0);
-                    myCurrentLongi = intent.getDoubleExtra(KEY_LONGITUDE, 0.0);
-                }
 
-            }
-        };
-        LocalBroadcastManager.getInstance(context).registerReceiver(broadcastReceiver, new IntentFilter(KEY_LOCATION_CHANGED));
 
-        if (appMode.equals(App.getResourses().getString(R.string.app_mode_normal))) {
+       /* if (appMode.equals(App.getResourses().getString(R.string.app_mode_normal))) {
             Log.d("debago","NearbyRestaurantRepository, i'm in normal mode");
             deleteAllRestaurantInNormalMode();
         }
@@ -90,6 +86,118 @@ public class NearbyRestaurantsRepository {
         if(appMode.equals(App.getResourses().getString(R.string.app_mode_work))){
             Log.d("debago","NearbyRestaurantRepository, i'm in work mode");
             setNearbyRestaurantsInFirebase();
+        }*/
+
+    }
+
+    public MutableLiveData<List<Result>> getNearbySearchMutableLiveData(Double myCurrentLat, Double myCurrentLongi) {
+
+        GoogleNearbySearchApi googleNearbySearchApi = RetrofitServiceNearbySearch.getGoogleNearbySearchApi();
+
+        // Log.d("debago","latitude : "+myCurrentLat);
+        String location = "" + myCurrentLat + "," + myCurrentLongi + "";
+        int radius = 400;
+        String type = "restaurant";
+        Call<PlaceSearch> call = googleNearbySearchApi.getNearbyRestaurants(location, radius, type, MAP_API_KEY);
+
+        call.enqueue(new Callback<PlaceSearch>() {
+            @Override
+            public void onResponse(@NonNull Call<PlaceSearch> call, @NonNull Response<PlaceSearch> response) {
+
+                PlaceSearch placeSearch = response.body();
+                if (placeSearch != null) {
+                    if (placeSearch.getResults() != null) {
+                        results = (ArrayList<Result>) placeSearch.getResults();
+                        mutableLiveData.setValue(results);
+
+                        if (!results.isEmpty()) {
+                            if (appMode.equals(App.getResourses().getString(R.string.app_mode_normal))) {
+                                Log.d("debago", "NearbyRestaurantRepository, i'm in normal mode " + results);
+
+                                RestaurantInNormalModeHelper.getRestaurant(currentUser, results.get(0).getPlaceId()).addOnCompleteListener(task -> {
+                                    if (task.getResult() != null) {
+                                        String restaurantId = task.getResult().getString("restaurantPlaceId");
+                                        if (task.getResult().getString("restaurantPlaceId") != null) {
+                                            if (restaurantId != null) {
+                                                if (restaurantId.equals(results.get(0).getPlaceId())) {
+                                                    //We are in normal app mode and we are in the same place that restaurants saved in firebase, we just need to update detail as opening hours and others
+                                                    Log.d("debago", "NearbyRestaurantRepository livedata to detail");
+                                                    // fetchPlaceDetailRequest(restaurantPlaceId);
+                                                } else {
+                                                    //We are in normal app mode and we ARE NOT in the same place that restaurant saved in firebase, we need to delete them and re-create new restaurants from current place
+                                                    Log.d("debago", "NearbyRestaurantRepository livedata to delete");
+                                                    deleteAllRestaurantInNormalMode(results, myCurrentLat, myCurrentLongi);
+                                                }
+                                            }
+                                        } else {
+                                            Log.d("debago", "NearbyRestaurantRepository livedata to create");
+                                            setNearbyRestaurantsInFirebase(results, myCurrentLat, myCurrentLongi);
+                                        }
+
+                                    }
+
+                                });
+
+                            }
+
+                            if (appMode.equals(App.getResourses().getString(R.string.app_mode_forced_work))) {
+                                Log.d("debago", "NearbyRestaurantRepository, i'm in forced work mode");
+                                updateFirebaseWithRestaurantsFromMyWorkIfExist();
+                            }
+                            if (appMode.equals(App.getResourses().getString(R.string.app_mode_work))) {
+                                Log.d("debago", "NearbyRestaurantRepository, i'm in work mode");
+                                setNearbyRestaurantsInFirebase(results, myCurrentLat, myCurrentLongi);
+                            }
+                        } else {
+                            deleteAllRestaurantInNormalMode(results, myCurrentLat, myCurrentLongi);
+                            Toast.makeText(context, App.getResourses().getString(R.string.no_restaurant_found), Toast.LENGTH_SHORT).show();
+                        }
+
+
+                    }
+                }
+
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<PlaceSearch> call, @NonNull Throwable t) {
+                Log.d("debago", "inRetrofit failure :" + t);
+            }
+        });
+
+        return mutableLiveData;
+
+
+    }
+
+    private void setNearbyRestaurantsInFirebase(ArrayList<Result> results, Double myCurrentLat, Double myCurrentLongi) {
+
+        for (Result myResult : results) {
+
+            restaurantPlaceId = myResult.getPlaceId();
+            restaurantName = myResult.getName();
+            restaurantAddress = myResult.getVicinity();
+//                    isOpen=myResult.getOpeningHours().getOpenNow();
+
+            if (myResult.getRating() != null) {
+                rating = ratingValueCalcul(myResult.getRating());
+            } else {
+                rating = 0;
+            }
+
+            if (myResult.getGeometry().getLocation().getLat() != null) {
+                latitude = myResult.getGeometry().getLocation().getLat();
+                longitude = myResult.getGeometry().getLocation().getLng();
+                distance = distanceCalcul(latitude, longitude, myCurrentLat, myCurrentLongi);
+            } else {
+                latitude = 0.0;
+                longitude = 0.0;
+                distance = null;
+            }
+
+            createRestaurantsInFirebase(restaurantPlaceId, restaurantName, rating, latitude, longitude, distance, restaurantAddress);
+
+            // fetchPlaceDetailRequest(restaurantPlaceId);
         }
 
     }
@@ -99,117 +207,54 @@ public class NearbyRestaurantsRepository {
         RestaurantHelper.getAllRestaurants().get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 if (task.getResult() != null) {
-                    for (DocumentSnapshot querySnapshot : task.getResult()) {
-                        //We delete each existing restaurant before recreating all
-                        fetchPlaceDetailRequest(querySnapshot.getString("restaurantPlaceId"));
-                    }
+                    if (task.getResult().size() > 0) {
+                        for (DocumentSnapshot querySnapshot : task.getResult()) {
+                            //We delete each existing restaurant before recreating all
+                            //Log.d("debago","I place Detail");
+                            // fetchPlaceDetailRequest(querySnapshot.getString("restaurantPlaceId"));
+                        }
+                    } else {
 
-                }else{
-                    Toast.makeText(context, App.getResourses().getString(R.string.app_mode_forced_mode_no_restaurant_found), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, App.getResourses().getString(R.string.app_mode_forced_mode_no_restaurant_found), Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
 
     }
 
-    private void deleteAllRestaurantInNormalMode() {
+    private void deleteAllRestaurantInNormalMode(ArrayList<Result> results, Double
+            myCurrentLat, Double myCurrentLongi) {
         RestaurantInNormalModeHelper.getAllRestaurants(currentUser).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                if (task.getResult() != null) {
-                    for (DocumentSnapshot querySnapshot : task.getResult()) {
-                        //We delete each existing restaurant before recreating all
-                        RestaurantInNormalModeHelper.deleteRestaurantsInNormalMode(currentUser, querySnapshot.getString("restaurantPlaceId"));
-                       // Log.d("debago","NearbyRestaurantRepository, we delete restaurnat "+querySnapshot.getString("restaurantName"));
-                        setNearbyRestaurantsInFirebase();
-                    }
 
+                if (task.getResult() != null) {
+                    if (!task.getResult().getDocuments().isEmpty()) {
+                        for (DocumentSnapshot querySnapshot : task.getResult()) {
+                            //We delete each existing restaurant before recreating all
+
+                            RestaurantInNormalModeHelper.deleteRestaurantsInNormalMode(currentUser, querySnapshot.getString("restaurantPlaceId"));
+                            // Log.d("debago","NearbyRestaurantRepository, we delete restaurnat "+querySnapshot.getString("restaurantName"));
+
+                        }
+                        setNearbyRestaurantsInFirebase(results, myCurrentLat, myCurrentLongi);
+                    } else {
+                        Log.d("debago", "NearbyRestaurantRepository, no restaurant in firebase, so we create ");
+                        setNearbyRestaurantsInFirebase(results, myCurrentLat, myCurrentLongi);
+                    }
                 }
+
             }
         });
     }
 
-    private void setNearbyRestaurantsInFirebase() {
-
-        // Initialize Places.
-        Places.initialize(context, MAP_API_KEY);
-        // Create a new Places client instance.
-        PlacesClient placesClient = Places.createClient(context);
-
-        // Use fields to define the data types to return.
-        List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME, Place.Field.ID, Place.Field.LAT_LNG, Place.Field.TYPES, Place.Field.RATING, Place.Field.ADDRESS);
-
-        // Use the builder to create a FindCurrentPlaceRequest.
-        FindCurrentPlaceRequest request = FindCurrentPlaceRequest.builder(placeFields).build();
-
-        placesClient.findCurrentPlace(request).addOnSuccessListener((response) ->
-        {
-
-            for (PlaceLikelihood placeLikelihood : response.getPlaceLikelihoods()) {
-
-                List typesList = placeLikelihood.getPlace().getTypes();
-
-                if (typesList != null) {
-
-                    for (int i = 0; i < typesList.size(); i++) {
-
-                        if ("RESTAURANT".equals(typesList.get(i).toString())) {
-
-                            restaurantPlaceId = placeLikelihood.getPlace().getId();
-                            restaurantName = placeLikelihood.getPlace().getName();
-                            restaurantAddress = placeLikelihood.getPlace().getAddress();
-
-
-                            if (placeLikelihood.getPlace().getRating() != null) {
-                                rating = ratingValueCalcul(placeLikelihood.getPlace().getRating());
-                            } else {
-                                rating = 0;
-                            }
-
-                            if (placeLikelihood.getPlace().getLatLng() != null) {
-                                latitude = placeLikelihood.getPlace().getLatLng().latitude;
-                                longitude = placeLikelihood.getPlace().getLatLng().longitude;
-                                distance = distanceCalcul(latitude, longitude);
-                            } else {
-                                latitude = 0.0;
-                                longitude = 0.0;
-                                distance = null;
-                            }
-
-
-                            createRestaurantsInFirebase(restaurantPlaceId, restaurantName, rating, latitude, longitude, distance, restaurantAddress);
-
-                            fetchPlaceDetailRequest(restaurantPlaceId);
-
-
-                        }
-
-
-
-                    }
-
-                }
-
-
-            }
-
-           // MapFragment mapFragment = new MapFragment();
-            //mapFragment.initializeMap();
-        }).addOnFailureListener((exception) ->
-
-                {
-                    if (exception instanceof ApiException) {
-                        ApiException apiException = (ApiException) exception;
-                        Log.d("Debaga", "Place not found: " + apiException.getStatusCode());                    }
-                });
-    }
-
-
-    private void createRestaurantsInFirebase(String restaurantPlaceId, String restaurantName, int rating, double latitude, double longitude,
+    private void createRestaurantsInFirebase(String restaurantPlaceId, String restaurantName,
+                                             int rating, double latitude, double longitude,
                                              String distance, String restaurantAddress) {
         //Create restaurant in firebase if it doesn't exist
 
         if (appMode.equals(App.getResourses().getString(R.string.app_mode_work))) {
-            Log.d("debago","NearbyRestaurant we are in work mode");
+            Log.d("debago", "NearbyRestaurant we are in work mode to create restaurant");
             RestaurantHelper.getRestaurant(restaurantPlaceId).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
@@ -231,14 +276,14 @@ public class NearbyRestaurantsRepository {
 
     }
 
-    private int ratingValueCalcul(double ratingValue) {
+    public int ratingValueCalcul(double ratingValue) {
 
         int rating = 0;
-        if (ratingValue > 0 && ratingValue < 1.665) {
+        if (ratingValue > 0 && ratingValue < 4.3) {
             rating = 1;
-        } else if (ratingValue >= 1.665 && ratingValue < 3.33) {
+        } else if (ratingValue >= 4.3 && ratingValue < 4.6) {
             rating = 2;
-        } else if (ratingValue >= 3.33 && ratingValue <= 5) {
+        } else if (ratingValue >= 4.6 && ratingValue <= 5) {
             rating = 3;
         }
         return rating;
@@ -246,7 +291,8 @@ public class NearbyRestaurantsRepository {
     }
 
 
-    private String distanceCalcul(double latitude, double longitude) {
+    private String distanceCalcul(double latitude, double longitude, Double
+            myCurrentLat, Double myCurrentLongi) {
 
         //DISTANCE
         if (latitude != 0 || longitude != 0) {
@@ -268,27 +314,23 @@ public class NearbyRestaurantsRepository {
 
     }
 
+
     private int openHoursCalcul(OpeningHours openingHours) {
 
         LocalDateTime currentTime = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             currentTime = LocalDateTime.now();
-        }
-        int current_day = 0;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            current_day = currentTime.getDayOfWeek().getValue() - 1;
-        }
+            int current_day = 0;
+            current_day = currentTime.getDayOfWeek().getValue();
+            Log.d("debago", "NearbyRestaurant currentday 1 : " + current_day);
+            if (openingHours != null) {
 
-        if (openingHours != null) {
-
-            if (openingHours.getPeriods().get(current_day).getOpen() != null) {
-
-
-                return Objects.requireNonNull(openingHours.getPeriods().get(current_day).getOpen()).getTime().getHours();
-
+                Log.d("debago", "NearbyRestaurant openHoursCalcul/ currentday : " + current_day + "autre chose :" + openingHours.getPeriods().get(current_day).getOpen());
+                if (openingHours.getPeriods().get(current_day).getOpen() != null) {
+                    return openingHours.getPeriods().get(current_day).getOpen().getTime().getHours();
+                }
             }
         }
-
 
         return -1;
 
@@ -410,7 +452,7 @@ public class NearbyRestaurantsRepository {
                 openForLunch = isOpen && closeHours < 15;
             }
 
-            if(appMode.equals("work")){
+            if (appMode.equals(App.getResourses().getString(R.string.app_mode_work)) || appMode.equals(App.getResourses().getString(R.string.app_mode_forced_work))) {
                 RestaurantHelper.updateRestaurantPhoneNumber(phoneNumber, currentPlaceId);
                 RestaurantHelper.updateRestaurantWebsite(website, currentPlaceId);
                 RestaurantHelper.updateRestaurantOpenHours(openHours, currentPlaceId);
@@ -418,16 +460,15 @@ public class NearbyRestaurantsRepository {
                 RestaurantHelper.updateRestaurantOpenForLunch(openForLunch, currentPlaceId);
                 RestaurantHelper.updateRestaurantOpenMinutes(openMinutes, currentPlaceId);
                 RestaurantHelper.updateRestaurantCloseMinutes(closeMinutes, currentPlaceId);
-            }else{
-                RestaurantInNormalModeHelper.updateRestaurantPhoneNumber(currentUser,phoneNumber, currentPlaceId);
-                RestaurantInNormalModeHelper.updateRestaurantWebsite(currentUser,website, currentPlaceId);
-                RestaurantInNormalModeHelper.updateRestaurantOpenHours(currentUser,openHours, currentPlaceId);
-                RestaurantInNormalModeHelper.updateRestaurantCloseHours(currentUser,closeHours, currentPlaceId);
-                RestaurantInNormalModeHelper.updateRestaurantOpenForLunch(currentUser,openForLunch, currentPlaceId);
-                RestaurantInNormalModeHelper.updateRestaurantOpenMinutes(currentUser,openMinutes, currentPlaceId);
-                RestaurantInNormalModeHelper.updateRestaurantCloseMinutes(currentUser,closeMinutes, currentPlaceId);
+            } else {
+                RestaurantInNormalModeHelper.updateRestaurantPhoneNumber(currentUser, phoneNumber, currentPlaceId);
+                RestaurantInNormalModeHelper.updateRestaurantWebsite(currentUser, website, currentPlaceId);
+                RestaurantInNormalModeHelper.updateRestaurantOpenHours(currentUser, openHours, currentPlaceId);
+                RestaurantInNormalModeHelper.updateRestaurantCloseHours(currentUser, closeHours, currentPlaceId);
+                RestaurantInNormalModeHelper.updateRestaurantOpenForLunch(currentUser, openForLunch, currentPlaceId);
+                RestaurantInNormalModeHelper.updateRestaurantOpenMinutes(currentUser, openMinutes, currentPlaceId);
+                RestaurantInNormalModeHelper.updateRestaurantCloseMinutes(currentUser, closeMinutes, currentPlaceId);
             }
-
 
         }).addOnFailureListener((exception) -> {
             if (exception instanceof ApiException) {

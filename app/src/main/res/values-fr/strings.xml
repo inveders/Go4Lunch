@@ -124,5 +124,6 @@
     <string name="no_network_to_find_restaurant">Pas de réseau pour actualiser les restaurants, activer la localisation sur votre smartphone</string>
     <string name="app_mode_change_to_work_mode">Mode travail activé</string>
     <string name="app_mode_change_to_normal_mode">Mode normal activé</string>
-    <string name="app_mode_forced_mode_no_restaurant_found">Pour une première utilisation en mode travail, vous devez être sur votre lieu de travail pour plus de sécurité.</string>
+    <string name="app_mode_forced_mode_no_restaurant_found">Ni vous, ni aucun de vos collègues ne s\'est connecté sur l\'application, au travail. Ceci est requis pour une première utilisation !</string>
+    <string name="workmates_no_showed_normal_mode">Vous êtes en MODE NORMAL, passez en MODE TRAVAIL pour voir vos collègues</string>
 </resources>

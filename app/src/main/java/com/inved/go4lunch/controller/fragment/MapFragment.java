@@ -175,7 +175,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                             String restaurantPlaceId = restaurant.getRestaurantPlaceId();
                             double latitude = restaurant.getLatitude();
                             double longitude = restaurant.getLongitude();
-
+                            //Log.d("debago","restaurantPlaceId "+restaurantPlaceId);
                             customizeMarker(restaurantPlaceId, latitude, longitude);
                         }
 
@@ -208,21 +208,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
     private void customizeMarker(String restaurantPlaceId, double lat, double longi) {
 
-        Log.d("debago","customize marker");
         if (mGoogleMap != null) {
             mGoogleMap.clear();
         }
 
-        int mZoom = 18;
-        int mBearing = 0;
-        int mTilt = 45;
+        int mZoom = 17;
+        int mBearing = 4;
+        int mTilt = 30;//45
         if (mMarker != null) {
 
             mMarker.remove();
         }
 
         LatLng latLng = new LatLng(lat, longi);
-
 
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.snippet(restaurantPlaceId);
@@ -289,7 +287,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                                         mGoogleMap.addMarker(markerOptions);
 
                                     }
-
+                                   // Log.d("debago","RestaurantActivity : in mapfragment movecamera, : "+latLng);
                                     CameraPosition Liberty = CameraPosition.builder().target(latLng).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
                                     mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
                                     mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));

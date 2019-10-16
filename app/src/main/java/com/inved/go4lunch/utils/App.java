@@ -40,7 +40,7 @@ public class App extends Application {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeInMillis(System.currentTimeMillis());
-            calendar.set(Calendar.HOUR_OF_DAY, 21); /**Remettre 14 après*/
+            calendar.set(Calendar.HOUR_OF_DAY, 17); /**Remettre 14 après*/
 
             // With setInexactRepeating(), you have to use one of the MyAlarm interval
             // constants--in this case, MyAlarm.INTERVAL_DAY.

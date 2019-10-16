@@ -14,5 +14,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <TextView
+        android:id="@+id/fragment_people_textview_no_workmates"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:layout_margin="@dimen/default_large_margin"
+        android:text="@string/workmates_no_showed_normal_mode"
+        android:visibility="invisible"/>
+
 
 </RelativeLayout>

@@ -30,6 +30,7 @@ import com.inved.go4lunch.R;
 import com.inved.go4lunch.controller.activity.ViewPlaceActivity;
 import com.inved.go4lunch.firebase.Restaurant;
 import com.inved.go4lunch.utils.App;
+import com.inved.go4lunch.utils.ManageAppMode;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -77,12 +78,13 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
         if (restaurantArrayList != null) {
             holder.mRestaurantAdress.setText(restaurantArrayList.get(position).getRestaurantAddress());
+
             holder.mNumberRates.setText(String.valueOf(restaurantArrayList.get(position).getRestaurantCustomers()));
             int numberWorkmatesInRestaurant = restaurantArrayList.get(position).getRestaurantCustomers();
             holder.mNumberRates.setText(App.getResourses().getString(R.string.workmates_in_restaurant, numberWorkmatesInRestaurant));
 
-        }
 
+        }
 
         //OPENING HOURS
         if (restaurantArrayList != null) {
@@ -127,8 +129,6 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
             }
 
 
-
-
         }
 
 
@@ -143,7 +143,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
                 intent.putExtra(RESTAURANT_PLACE_ID, placeId);
                 view.getContext().startActivity(intent);
             } else {
-                Toast.makeText(view.getContext(), "Aucun restaurant trouvé", Toast.LENGTH_SHORT).show();
+                Toast.makeText(view.getContext(), App.getResourses().getString(R.string.no_restaurant_found), Toast.LENGTH_SHORT).show();
             }
 
         });
@@ -153,14 +153,14 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
         switch (ratingValue) {
             case 1:
-                holder.mStarFirst.setVisibility(View.VISIBLE);
+                holder.mStarFirst.setVisibility(View.INVISIBLE);
                 holder.mStarSecond.setVisibility(View.INVISIBLE);
-                holder.mStarThird.setVisibility(View.INVISIBLE);
+                holder.mStarThird.setVisibility(View.VISIBLE);
                 break;
             case 2:
-                holder.mStarFirst.setVisibility(View.VISIBLE);
+                holder.mStarFirst.setVisibility(View.INVISIBLE);
                 holder.mStarSecond.setVisibility(View.VISIBLE);
-                holder.mStarThird.setVisibility(View.INVISIBLE);
+                holder.mStarThird.setVisibility(View.VISIBLE);
                 break;
             case 3:
                 holder.mStarFirst.setVisibility(View.VISIBLE);
@@ -231,7 +231,6 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
     }
 
-
     @Override
     public int getItemCount() {
 
@@ -243,7 +242,6 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
         }
 
     }
-
 
     public void setData(ArrayList<Restaurant> restaurantArrayList) {
 
@@ -267,6 +265,7 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
         ImageView mStarThird;
         ConstraintLayout mConstraintLayoutItem;
         TextView mDistance;
+        ImageView mNumberRatesIcon;
 
         ViewHolder(View itemView) {
 
@@ -283,6 +282,12 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
             mStarFirst = itemView.findViewById(R.id.fragment_listview_item_like_start_first);
             mStarSecond = itemView.findViewById(R.id.fragment_listview_item_like_start_second);
             mStarThird = itemView.findViewById(R.id.fragment_listview_item_like_start_third);
+            mNumberRatesIcon = itemView.findViewById(R.id.fragment_listview_item_person_icon_rate);
+
+            if(ManageAppMode.getAppMode(App.getInstance().getApplicationContext()).equals(App.getResourses().getString(R.string.app_mode_normal))){
+                mNumberRates.setVisibility(View.INVISIBLE);
+                mNumberRatesIcon.setVisibility(View.INVISIBLE);
+            }
 
         }
 
