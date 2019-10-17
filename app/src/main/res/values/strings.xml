@@ -69,6 +69,8 @@
     <string name="toolbar_title_restaurant_activity">I\'m Hungry!</string>
     <string name="toolbar_title_people_fragment">Available Workmates</string>
     <string name="Enter_restaurant_name">Enter a restaurant name</string>
+    <string name="restaurant_activity_autocomplete_no_near_you">Your search does not match a place near you, do you still want to see the details of that place?</string>
+    <string name="Restaurant_activity_press_clear_button">Please, press clear button</string>
 
     <!-- FRAGMENT RESTAURANT LISTVIEW -->
     <string name="fragment_listview_item_image">restaurant image</string>
@@ -176,4 +178,7 @@
     <string name="app_mode_change_to_normal_mode">Normal mode activated</string>
 
     <string name="app_mode_forced_mode_no_restaurant_found">Neither you nor any of your colleagues have logged in to the application at work. This is required for first use!</string>
+    <string name="fullscreen_dialog__by_price_level">Price</string>
+
+
 </resources>

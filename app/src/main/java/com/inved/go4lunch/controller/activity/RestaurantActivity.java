@@ -1,7 +1,6 @@
 package com.inved.go4lunch.controller.activity;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -23,11 +22,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.ViewPager;
@@ -64,12 +61,13 @@ import com.inved.go4lunch.controller.fragment.FragmentAdapter;
 import com.inved.go4lunch.controller.fragment.ListViewFragment;
 import com.inved.go4lunch.controller.fragment.MapFragment;
 import com.inved.go4lunch.controller.fragment.PeopleFragment;
+import com.inved.go4lunch.firebase.RestaurantHelper;
+import com.inved.go4lunch.firebase.RestaurantInNormalModeHelper;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.model.ResultModel;
 import com.inved.go4lunch.notification.NotificationsActivity;
 import com.inved.go4lunch.utils.App;
-import com.inved.go4lunch.utils.CheckDistanceFromWork;
 import com.inved.go4lunch.utils.ManageAppMode;
 import com.inved.go4lunch.utils.ManageAutocompleteResponse;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
@@ -77,6 +75,8 @@ import com.inved.go4lunch.utils.ManageJobPlaceId;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+
+import static com.inved.go4lunch.controller.fragment.MapFragment.RESTAURANT_PLACE_ID;
 
 public class RestaurantActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, LocationListener {
 
@@ -115,7 +115,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     ImageView navProfileImage;
 
 
-
     //Declaration for fragments
     BottomNavigationView bottomNavigationView;
     ViewPager viewPager;
@@ -142,7 +141,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     private FragmentRefreshListener fragmentRefreshListener;
 
-    public interface FragmentRefreshListener{
+    public interface FragmentRefreshListener {
         void onRefresh();
     }
 
@@ -156,18 +155,19 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     private MapFragmentRefreshListener mapFragmentRefreshListener;
 
-    public interface MapFragmentRefreshListener{
+    public interface MapFragmentRefreshListener {
         void onMapRefresh();
     }
 
     @Override
-    public int getFragmentLayout() {return R.layout.activity_restaurant;}
+    public int getFragmentLayout() {
+        return R.layout.activity_restaurant;
+    }
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
 
 
         this.configureToolBar();
@@ -176,7 +176,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         bottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         //NavigationDrawer
-        logout=findViewById(R.id.activity_main_drawer_logout);
+        logout = findViewById(R.id.activity_main_drawer_logout);
 
         //Viewpager
         viewPager = findViewById(R.id.viewpager_fragment); //Init Viewpager
@@ -202,11 +202,11 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
             Places.initialize(getApplicationContext(), MAP_API_KEY);
         }
 
-        fields = Arrays.asList(Place.Field.NAME,Place.Field.ID,Place.Field.LAT_LNG);
+        fields = Arrays.asList(Place.Field.NAME, Place.Field.ID, Place.Field.LAT_LNG);
 
         // Create a new Places client instance.
         placesClient = Places.createClient(this);
-       token = AutocompleteSessionToken.newInstance();
+        token = AutocompleteSessionToken.newInstance();
 
 
         this.userInformationFromFirebase();
@@ -218,8 +218,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         resultModel = ViewModelProviders.of(this).get(ResultModel.class);
 
 
-
-
     }
 
     @SuppressLint("MissingPermission")
@@ -228,7 +226,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         //Subscribe to providers
         LocationManager lm = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
-        if(lm !=null){
+        if (lm != null) {
             if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
 
                 lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
@@ -245,14 +243,14 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     }
 
-    public void fillFirebase(Double lat,Double longi) {
+    public void fillFirebase(Double lat, Double longi) {
         checkPosition();
        /* Log.d("debago","RestaurantActivity : in fillFirebase, need permission");
         new NearbyRestaurantsRepository();*/
-       resultModel.setNearbyRestaurantsInFirebase(lat,longi).observe(this, result -> {
-         //  Log.d("debago","in result model firebase :"+result.get(0).getName());
-           refreshFragment();
-       });
+        resultModel.setNearbyRestaurantsInFirebase(lat, longi).observe(this, result -> {
+            //  Log.d("debago","in result model firebase :"+result.get(0).getName());
+            refreshFragment();
+        });
     }
 
 
@@ -281,7 +279,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         });
 
 
-
         return true;
     }
 
@@ -289,12 +286,11 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     private void refreshFragment() {
 
-        Log.d("debago","refresh fragment here");
-        if(getFragmentRefreshListener()!=null){
+        if (getFragmentRefreshListener() != null) {
             getFragmentRefreshListener().onRefresh();
         }
 
-        if(getMapFragmentRefreshListener()!=null){
+        if (getMapFragmentRefreshListener() != null) {
             getMapFragmentRefreshListener().onMapRefresh();
         }
 
@@ -314,7 +310,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
                 .setCountry("FR")
                 .setHint(getString(R.string.Enter_restaurant_name))
                 .setLocationBias(bounds)
-              //  .setLocationRestriction(bounds)
+                //  .setLocationRestriction(bounds)
                 .setTypeFilter(TypeFilter.ESTABLISHMENT)
                 .build(this);
         startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
@@ -336,9 +332,50 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
                 ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE, place.getLatLng().longitude);
 
 
+                if (ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_normal))) {
+                    if (getCurrentUser() != null) {
+                        //We check if the autocomplete placeId is in our firebase.
+                        RestaurantInNormalModeHelper.getRestaurant(this.getCurrentUser().getUid(), place.getId()).addOnSuccessListener(documentSnapshot -> {
+
+                            if (documentSnapshot.getString("restaurantPlaceId") == null) {
+                                Log.d("debago", "Restaurant activity we have null response the search to direectly open view place activity");
+                                if (place.getId() != null) {
+
+                                    dialogToGoInViewPlaceIfAutocomplete(place.getId());
+                                } else {
+                                    Log.d("debago", "restaurant activity, autocomplete palce id is null");
+
+                                }
+
+                            }
+
+                        });
+                    }
+
+                }else{
+
+                        //We check if the autocomplete placeId is in our firebase.
+                        RestaurantHelper.getRestaurant(place.getId()).addOnSuccessListener(documentSnapshot -> {
+
+                            if (documentSnapshot.getString("restaurantPlaceId") == null) {
+                               if (place.getId() != null) {
+
+                                    dialogToGoInViewPlaceIfAutocomplete(place.getId());
+                                } else {
+                                    Log.d("debago", "restaurant activity, autocomplete place id is null");
+
+                                }
+
+                            }
+
+                        });
+
+                }
+
+
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
 
-                if(data!= null){
+                if (data != null) {
                     Status status = Autocomplete.getStatusFromIntent(data);
                     if (status.getStatusMessage() != null) {
                         Log.i(TAG, status.getStatusMessage());
@@ -350,6 +387,31 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
                 Log.i(TAG, "User canceled the operation");
             }
         }
+    }
+
+    private void startViewPlaceActivity(String autocompletePlaceId) {
+
+        Intent intent = new Intent(this, ViewPlaceActivity.class);
+        intent.putExtra(RESTAURANT_PLACE_ID, autocompletePlaceId);
+        startActivity(intent);
+    }
+
+    private void dialogToGoInViewPlaceIfAutocomplete(String autocompletePlace){
+
+        new AlertDialog.Builder(this)
+                // Add the buttons
+                .setPositiveButton(R.string.popup_message_choice_yes, (dialog, which) -> {
+                    // do something like...
+                    startViewPlaceActivity(autocompletePlace);
+                })
+                .setNegativeButton(R.string.popup_message_choice_no, (dialog, which) -> {
+                    // do nothing stay on the page...
+                    refreshFragment();
+                    Toast.makeText(this, getString(R.string.places_autocomplete_clear_button), Toast.LENGTH_SHORT).show();
+                })
+                .setMessage(getString(R.string.restaurant_activity_autocomplete_no_near_you))
+                .show();
+
     }
 
 
@@ -377,12 +439,15 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         // 4 - Handle Navigation Item Click
         int id = item.getItemId();
 
-        switch (id){
-            case R.id.activity_main_drawer_lunch :startNotificationActivity();//this.detectPlaceIdForLunch();
+        switch (id) {
+            case R.id.activity_main_drawer_lunch:
+                startNotificationActivity();//this.detectPlaceIdForLunch();
                 break;
-            case R.id.activity_main_drawer_settings: this.startProfileActivity();
+            case R.id.activity_main_drawer_settings:
+                this.startProfileActivity();
                 break;
-            case R.id.activity_main_drawer_logout:signOutUserFromFirebase();
+            case R.id.activity_main_drawer_logout:
+                signOutUserFromFirebase();
                 break;
             default:
                 break;
@@ -422,54 +487,50 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     };
 
 
-  private void checkPosition(){
-      //check if gps is enabled or not and then request user to enable it
-      LocationRequest locationRequest = LocationRequest.create();
-      locationRequest.setInterval(10000);
-      locationRequest.setFastestInterval(5000);
-      locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    private void checkPosition() {
+        //check if gps is enabled or not and then request user to enable it
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setInterval(10000);
+        locationRequest.setFastestInterval(5000);
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-      LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
 
-      SettingsClient settingsClient = LocationServices.getSettingsClient(RestaurantActivity.this);
-      Task<LocationSettingsResponse> task = settingsClient.checkLocationSettings(builder.build());
+        SettingsClient settingsClient = LocationServices.getSettingsClient(RestaurantActivity.this);
+        Task<LocationSettingsResponse> task = settingsClient.checkLocationSettings(builder.build());
 
-      task.addOnSuccessListener(RestaurantActivity.this, locationSettingsResponse -> {
-         // mapFragment.getDeviceLocation();
-      });
+        task.addOnSuccessListener(RestaurantActivity.this, locationSettingsResponse -> {
+            // mapFragment.getDeviceLocation();
+        });
 
-      task.addOnFailureListener(RestaurantActivity.this, e -> {
-          if (e instanceof ResolvableApiException) {
-              ResolvableApiException resolvable = (ResolvableApiException) e;
-              try {
-                  resolvable.startResolutionForResult(RestaurantActivity.this, 51);
-              } catch (IntentSender.SendIntentException e1) {
-                  e1.printStackTrace();
-              }
-          }
-      });
-  }
-
+        task.addOnFailureListener(RestaurantActivity.this, e -> {
+            if (e instanceof ResolvableApiException) {
+                ResolvableApiException resolvable = (ResolvableApiException) e;
+                try {
+                    resolvable.startResolutionForResult(RestaurantActivity.this, 51);
+                } catch (IntentSender.SendIntentException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+    }
 
 
     // Configure Toolbar
-    private void configureToolBar(){
+    private void configureToolBar() {
         this.toolbar = findViewById(R.id.activity_restaurant_toolbar);
         setSupportActionBar(toolbar);
         setTitle(getString(R.string.toolbar_title_restaurant_activity));
     }
 
 
-
-
     // Configure Drawer Layout
-    private void configureDrawerLayout(){
+    private void configureDrawerLayout() {
         this.drawerLayout = findViewById(R.id.activity_restaurant_drawer_layout);
         ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
-       // userInformationFromFirebase();
-
+        // userInformationFromFirebase();
 
 
     }
@@ -477,7 +538,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     private void userInformationFromFirebase() {
 
 
-        if (this.getCurrentUser() != null){
+        if (this.getCurrentUser() != null) {
 
             //Get picture URL from Firebase
             if (this.getCurrentUser().getPhotoUrl() != null) {
@@ -491,7 +552,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
             String email = TextUtils.isEmpty(this.getCurrentUser().getEmail()) ? getString(R.string.info_no_email_found) : this.getCurrentUser().getEmail();
 
-            if(email!=null) {
+            if (email != null) {
                 navEmail.setText(email);
             }
             // 7 - Get data from Firestore
@@ -512,7 +573,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     }
 
     // Configure NavigationView
-    private void configureNavigationView(){
+    private void configureNavigationView() {
         NavigationView navigationView = findViewById(R.id.activity_restaurant_nav_view);
         navigationView.setNavigationItemSelectedListener(this);
     }
@@ -533,23 +594,22 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     }
 
 
-
-    public void sendLocationDataToFragments (){
-        String currentGeolocalisation = ""+getLatitude()+","+getLongitude()+"";
+    public void sendLocationDataToFragments() {
+        String currentGeolocalisation = "" + getLatitude() + "," + getLongitude() + "";
         final Intent intent = new Intent(KEY_LOCATION_CHANGED);
         intent.putExtra(KEY_GEOLOCALISATION, currentGeolocalisation);
         intent.putExtra(KEY_LATITUDE, getLatitude());
         intent.putExtra(KEY_LONGITUDE, getLongitude());
         LocalBroadcastManager.getInstance(RestaurantActivity.this).sendBroadcast(intent);
 
-        fillFirebase(getLatitude(),getLongitude());
-        this.checkDistanceFromWork(currentGeolocalisation,ManageJobPlaceId.getJobPlaceId(this),getLatitude(),getLongitude());
+        fillFirebase(getLatitude(), getLongitude());
+        this.checkDistanceFromWork(currentGeolocalisation, ManageJobPlaceId.getJobPlaceId(this), getLatitude(), getLongitude());
 
 
     }
 
-    public double getLatitude(){
-        if(location != null){
+    public double getLatitude() {
+        if (location != null) {
             latitude = location.getLatitude();
         }
 
@@ -557,8 +617,8 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     }
 
 
-    public double getLongitude(){
-        if(location != null){
+    public double getLongitude() {
+        if (location != null) {
             longitude = location.getLongitude();
         }
 
@@ -587,7 +647,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     //Viewpager
 
-    public static void setupFm(FragmentManager fragmentManager, ViewPager viewPager){
+    public static void setupFm(FragmentManager fragmentManager, ViewPager viewPager) {
         FragmentAdapter Adapter = new FragmentAdapter(fragmentManager);
         //Add All Fragment To List
         Adapter.add(new MapFragment(), "Page Map");
@@ -597,30 +657,28 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     }
 
 
-
-
     // Launch Profile Activity
-    private void startProfileActivity(){
+    private void startProfileActivity() {
         Intent intent = new Intent(this, ProfileActivity.class);
         startActivity(intent);
     }
 
     // Launch Main Activity
-    private void startMainActivity(){
+    private void startMainActivity() {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
 
     // Launch Notification Activity
-    private void startNotificationActivity(){
+    private void startNotificationActivity() {
         Intent intent = new Intent(this, NotificationsActivity.class);
         startActivity(intent);
     }
 
     //Signout
 
- //   @OnClick(R.id.activity_main_drawer_logout)
-    public void signOutUserFromFirebase(){
+    //   @OnClick(R.id.activity_main_drawer_logout)
+    public void signOutUserFromFirebase() {
         AuthUI.getInstance()
 
                 .signOut(this)
@@ -630,7 +688,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     }
 
     // Create OnCompleteListener called after tasks ended
-    private OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted(){
+    private OnSuccessListener<Void> updateUIAfterRESTRequestsCompleted() {
         return aVoid -> {
             startMainActivity();
             finish();
@@ -641,6 +699,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         @Override
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
         }
+
         @Override
         public void onPageSelected(int position) {
             switch (position) {
@@ -655,6 +714,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
                     break;
             }
         }
+
         @Override
         public void onPageScrollStateChanged(int state) {
         }
@@ -664,18 +724,18 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     //HANDLING MODE
 
     //Handle two modes for user : work mode and normal mode to be located everywhere
-    public void checkDistanceFromWork(String origins,String destinations,Double lat, Double longi){
+    public void checkDistanceFromWork(String origins, String destinations, Double lat, Double longi) {
 
         //Log.d("debago","origins :"+origins+" et destination :"+destinations);
-        resultModel.getMatrixDistance(origins,destinations).observe(this, result -> {
+        resultModel.getMatrixDistance(origins, destinations).observe(this, result -> {
 
             int distance;
             String appMode = ManageAppMode.getAppMode(this);
             try {
-                distance = (result.get(0).getElements().get(0).getDistance().getValue())/1000;
-            }catch (Exception e){
-                Log.e("error","Error try catch " + e.getMessage());
-                distance=3;
+                distance = (result.get(0).getElements().get(0).getDistance().getValue()) / 1000;
+            } catch (Exception e) {
+                Log.e("error", "Error try catch " + e.getMessage());
+                distance = 3;
 
             }
 
@@ -683,18 +743,18 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
                     // Add the buttons
                     .setPositiveButton(R.string.alert_dialog_location_far_from_works_pos_button, (dialog, which) -> {
                         // do something like...
-                        changeMode(false,lat,longi);
+                        changeMode(false, lat, longi);
                     })
                     .setNegativeButton(R.string.alert_dialog_location_far_from_works_neg_button, (dialog, which) -> {
                         // do something like...
-                        changeMode(true,lat,longi);
+                        changeMode(true, lat, longi);
                     })
                     .setMessage(R.string.alert_dialog_location_far_from_works_text);
 
             // Create the AlertDialog
             // AlertDialog dialog = builder.create();
 
-            if(distance>2 && appMode.equals(App.getResourses().getString(R.string.app_mode_work))){
+            if (distance > 2 && appMode.equals(App.getResourses().getString(R.string.app_mode_work))) {
 
                 // Dismiss any old dialog.
                 if (mDialog != null) {
@@ -704,13 +764,11 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
                 // Show the new dialog.
                 mDialog = builder.show();
 
-            }
-            else if(distance<2 && appMode.equals(App.getResourses().getString(R.string.app_mode_normal))){
-                changeMode(true,lat,longi);
+            } else if (distance < 2 && appMode.equals(App.getResourses().getString(R.string.app_mode_normal))) {
+                changeMode(true, lat, longi);
 
-            }
-            else if(distance<2 && appMode.equals(App.getResourses().getString(R.string.app_mode_forced_work))){
-                changeMode(true,lat,longi);
+            } else if (distance < 2 && appMode.equals(App.getResourses().getString(R.string.app_mode_forced_work))) {
+                changeMode(true, lat, longi);
 
             }
 
@@ -719,20 +777,20 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     }
 
     private void changeMode(boolean workModeDesired, Double lat, Double longi) {
-        if(workModeDesired){
-            if(ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_work))){
-                ManageAppMode.saveAppMode(this,getString(R.string.app_mode_forced_work));
-            }else{
-                ManageAppMode.saveAppMode(this,getString(R.string.app_mode_work));
+        if (workModeDesired) {
+            if (ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_work))) {
+                ManageAppMode.saveAppMode(this, getString(R.string.app_mode_forced_work));
+            } else {
+                ManageAppMode.saveAppMode(this, getString(R.string.app_mode_work));
             }
 
             Toast.makeText(this, getString(R.string.app_mode_change_to_work_mode), Toast.LENGTH_SHORT).show();
 
-        }else{
-            ManageAppMode.saveAppMode(this,getString(R.string.app_mode_normal));
+        } else {
+            ManageAppMode.saveAppMode(this, getString(R.string.app_mode_normal));
             Toast.makeText(this, getString(R.string.app_mode_change_to_normal_mode), Toast.LENGTH_SHORT).show();
         }
-        fillFirebase(lat,longi);
+        fillFirebase(lat, longi);
     }
 
 

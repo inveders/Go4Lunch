@@ -39,6 +39,7 @@ import com.inved.go4lunch.firebase.RestaurantInNormalModeHelper;
 import com.inved.go4lunch.utils.App;
 import com.inved.go4lunch.utils.ManageAppMode;
 import com.inved.go4lunch.utils.ManageAutocompleteResponse;
+import com.inved.go4lunch.utils.ManageRestaurantChoiceInNormalMode;
 
 
 import java.util.Objects;
@@ -277,12 +278,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                                     markerOptions.position(latLng);
 
                                     //creating and getting restaurant information
-                                    int numberCustomers = restaurant.getRestaurantCustomers();
-                                    if (numberCustomers > 0) {
+                                    //int numberCustomers = restaurant.getRestaurantCustomers();
+
+                                    if(restaurantPlaceId.equals(ManageRestaurantChoiceInNormalMode.getRestaurantChoice(App.getInstance().getApplicationContext()))){
                                         markerOptions.icon(bitmapDescriptorFromVectorSelected(getContext()));
                                         mGoogleMap.addMarker(markerOptions);
-
-                                    } else {
+                                    }
+                                    else {
                                         markerOptions.icon(bitmapDescriptorFromVectorNotSelected(getContext()));
                                         mGoogleMap.addMarker(markerOptions);
 

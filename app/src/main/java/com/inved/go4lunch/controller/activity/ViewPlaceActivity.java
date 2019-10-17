@@ -43,16 +43,20 @@ import com.inved.go4lunch.firebase.RestaurantInNormalModeHelper;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserFavoriteRestaurantHelper;
 import com.inved.go4lunch.firebase.UserHelper;
+import com.inved.go4lunch.repository.NearbyRestaurantsRepository;
 import com.inved.go4lunch.utils.App;
 import com.inved.go4lunch.utils.ManageAppMode;
+import com.inved.go4lunch.utils.ManageRestaurantChoiceInNormalMode;
 import com.inved.go4lunch.view.WorkmatesAdapter;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
 
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.MAP_API_KEY;
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.TAG;
 import static com.inved.go4lunch.controller.fragment.MapFragment.RESTAURANT_PLACE_ID;
 
 public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.Listener {
@@ -119,11 +123,15 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     private void initializeViewPlace() {
 
+
         if (ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_work)) || ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_forced_work))) {
             RestaurantHelper.getRestaurant(currentPlaceId).addOnSuccessListener(documentSnapshot -> {
                 Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
 
+
+
                 if (restaurant != null) {
+
 
                     restaurantName = restaurant.getRestaurantName();
                     restaurantAddress = restaurant.getRestaurantAddress();
@@ -138,9 +146,18 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                     initializationLikedRestaurants(currentPlaceId);
                     actionOnLikeButton(currentPlaceId);
                     showingLikeStars(rating);
+                }else{
+
+                    initializeViewPlaceWithFetchDetailDirectly();
                 }
 
 
+            }).addOnFailureListener((exception) -> {
+                if (exception instanceof ApiException) {
+
+                    // Handle error with given status code.
+                    Log.e("debago", "Error " + exception.getMessage());
+                }
             });
         } else {
             if (this.getCurrentUser() != null) {
@@ -162,12 +179,84 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                         initializationLikedRestaurants(currentPlaceId);
                         actionOnLikeButton(currentPlaceId);
                         showingLikeStars(rating);
+                    }else{
+                        initializeViewPlaceWithFetchDetailDirectly();
+                       }
+
+
+                }).addOnFailureListener((exception) -> {
+                    if (exception instanceof ApiException) {
+
+                        // Handle error with given status code.
+                        Log.e("debago", "This restaurant is not found in database: " + exception.getMessage());
+
                     }
-
-
                 });
             }
         }
+
+
+    }
+
+    private void initializeViewPlaceWithFetchDetailDirectly(){
+
+        // Initialize Places.
+        Places.initialize(App.getInstance().getApplicationContext(), MAP_API_KEY);
+
+        // Create a new Places client instance.
+        PlacesClient placesClient = Places.createClient(App.getInstance().getApplicationContext());
+
+        // Specify the fields to return.
+        List<Place.Field> placeFields = Arrays.asList(Place.Field.ID,Place.Field.NAME,Place.Field.ADDRESS,
+                Place.Field.PHONE_NUMBER,
+                Place.Field.WEBSITE_URI,
+                Place.Field.RATING);
+
+
+        // Construct a request object, passing the place ID and fields array.
+        FetchPlaceRequest request = FetchPlaceRequest.builder(currentPlaceId, placeFields)
+                .build();
+
+
+        placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
+            Place place = response.getPlace();
+
+            restaurantName = place.getName();
+            restaurantAddress = place.getAddress();
+            phoneNumber = place.getPhoneNumber();
+
+            if (place.getWebsiteUri() != null) {
+                website = place.getWebsiteUri().toString();
+            } else {
+                website = "";
+            }
+
+            NearbyRestaurantsRepository nearbyRestaurantsRepository = new NearbyRestaurantsRepository();
+            if(place.getRating()!=null){
+                rating = nearbyRestaurantsRepository.ratingValueCalcul(place.getRating().intValue());
+            }else{
+                rating=1;
+            }
+
+            isChoosenRestaurantImage.hide();
+            initializationChoosenRestaurants(currentPlaceId, restaurantName, restaurantAddress);
+            updateViewPlaceActivity(restaurantName, restaurantAddress);
+            updatePhotoViewPlace(currentPlaceId);
+            displayAllWorkmatesJoining(currentPlaceId);
+            actionOnButton(phoneNumber, website);
+            initializationLikedRestaurants(currentPlaceId);
+            actionOnLikeButton(currentPlaceId);
+            showingLikeStars(rating);
+
+
+        }).addOnFailureListener((exception) -> {
+            if (exception instanceof ApiException) {
+
+                Log.e(TAG, "Place detail not found: " + exception.getMessage());
+            }
+        });
+
+
 
 
     }
@@ -211,15 +300,28 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
                     //  Log.d("Debago", "ViewPlaceActivity initialization: restaurantqInFirebase " + restaurantPlaceIdInFirebase + " et mCurrentPLace " + mCurrentPlaceId);
 
-                    if (TextUtils.isEmpty(restaurantPlaceIdInFirebase) || !restaurantPlaceIdInFirebase.equals(mCurrentPlaceId)) {
-                        //      Log.d("Debagoo", "ViewPlaceActivity initialization: couleur rouge");
-                        isChoosenRestaurantImage.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#B70400")));//red color
+                    if(ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_normal))){
+                        if (ManageRestaurantChoiceInNormalMode.getRestaurantChoice(this)==null || !ManageRestaurantChoiceInNormalMode.getRestaurantChoice(this).equals(mCurrentPlaceId)) {
+                            //      Log.d("Debagoo", "ViewPlaceActivity initialization: couleur rouge");
+                            isChoosenRestaurantImage.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#B70400")));//red color
 
-                    } else {
-                        //    Log.d("Debagoo", "ViewPlaceActivity initialization: couleur verte");
-                        isChoosenRestaurantImage.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#4CAF50")));//green color
+                        } else {
+                            //    Log.d("Debagoo", "ViewPlaceActivity initialization: couleur verte");
+                            isChoosenRestaurantImage.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#4CAF50")));//green color
 
+                        }
+                    }else{
+                        if (TextUtils.isEmpty(restaurantPlaceIdInFirebase) || !restaurantPlaceIdInFirebase.equals(mCurrentPlaceId)) {
+                            //      Log.d("Debagoo", "ViewPlaceActivity initialization: couleur rouge");
+                            isChoosenRestaurantImage.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#B70400")));//red color
+
+                        } else {
+                            //    Log.d("Debagoo", "ViewPlaceActivity initialization: couleur verte");
+                            isChoosenRestaurantImage.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#4CAF50")));//green color
+
+                        }
                     }
+
                 }
 
 
@@ -232,8 +334,53 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
             QuerySnapshot document = task.getResult();
 
             if (document != null) {
-                String restaurantPlaceIdInFirebase = document.getDocuments().get(0).getString("restaurantPlaceId");
-                clickOnButton(currentPlaceId, restaurantPlaceIdInFirebase, myRestaurantName, myRestaurantVicinity);
+                if(ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_normal))){
+
+                    if (ManageRestaurantChoiceInNormalMode.getRestaurantChoice(this)==null){
+                        ManageRestaurantChoiceInNormalMode.saveRestaurantChoice(this,currentPlaceId);
+                        changeButtonColor("#4CAF50");//green color
+
+                    } else if(!ManageRestaurantChoiceInNormalMode.getRestaurantChoice(this).equals(mCurrentPlaceId)){
+
+
+                        new android.app.AlertDialog.Builder(this)
+                                // Add the buttons
+                                .setPositiveButton(R.string.popup_message_choice_yes, (dialog, which) -> {
+                                    // do something like...
+                                    ManageRestaurantChoiceInNormalMode.saveRestaurantChoice(this,currentPlaceId);
+                                    changeButtonColor("#4CAF50");//green color
+                                })
+                                .setNegativeButton(R.string.popup_message_choice_no, (dialog, which) -> {
+                                    // do nothing stay on the page...
+
+                                })
+                                .setMessage(context.getString(R.string.alert_dialog_view_activity, restaurantName))
+                                .show();
+                    }else{
+
+                        new android.app.AlertDialog.Builder(this)
+                                // Add the buttons
+                                .setPositiveButton(R.string.popup_message_choice_yes, (dialog, which) -> {
+                                    // do something like...
+                                    ManageRestaurantChoiceInNormalMode.saveRestaurantChoice(this,null);
+                                    changeButtonColor("#B70400");//red color
+                                })
+                                .setNegativeButton(R.string.popup_message_choice_no, (dialog, which) -> {
+                                    // do nothing stay on the page...
+
+                                })
+                                .setMessage(context.getString(R.string.alert_dialog_view_activity_no_choice_yet))
+                                .show();
+
+
+                    }
+
+
+                }else{
+                    String restaurantPlaceIdInFirebase = document.getDocuments().get(0).getString("restaurantPlaceId");
+                    clickOnButton(currentPlaceId, restaurantPlaceIdInFirebase, myRestaurantName, myRestaurantVicinity);
+                }
+
             }
 
 
@@ -525,7 +672,6 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
     private void changeButtonColor(String newColor) {
 
         Log.d("Debagoo", "ViewPlaceActivity cchangeButtonColor");
-        // isChoosenRestaurantImage.setColorFilter(Color.parseColor(newColor));
         isChoosenRestaurantImage.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(newColor)));
 
     }
@@ -637,6 +783,13 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                             });
                         }
 
+                    }else{
+                        //We create this place in favorites even if it's not near from you
+                        if(getCurrentUser()!=null){
+                            UserFavoriteRestaurantHelper.createUserFavoriteRestaurants(getCurrentUser().getUid(), currentPlaceId, true);
+                            Log.d("Debago", "ViewPlaceActivity onLikeButton : we create far place in favorite restaurant");
+                        }
+
                     }
 
                 }
@@ -647,10 +800,12 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
             if (this.getCurrentUser() != null) {
                 viewPlaceLikeImage.setOnClickListener(view ->RestaurantInNormalModeHelper.getRestaurant(this.getCurrentUser().getUid(),currentPlaceId).addOnCompleteListener(task -> {
                     DocumentSnapshot document = task.getResult();
+
                     if (document != null) {
                         Restaurant restaurant = document.toObject(Restaurant.class);
 
                         if (restaurant != null) {
+
                             int currentRestaurantLike = restaurant.getRestaurantLike();
 
                             Log.d("Debago", "ViewPlaceActivity onLikeButton currentRestaurantLike: " + currentRestaurantLike);
@@ -711,6 +866,10 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                                 });
                             }
 
+                        }else{
+                            //We create this place in favorites even if it's not near from you
+                            UserFavoriteRestaurantHelper.createUserFavoriteRestaurants(getCurrentUser().getUid(), currentPlaceId, true);
+                            Log.d("Debago", "ViewPlaceActivity onLikeButton : we create far place in favorite restaurant");
                         }
 
                     }
@@ -905,7 +1064,17 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
             textViewRecyclerViewEmpty.setVisibility(this.mRecyclerWorkmatesAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
         }
 
+
+
+
+
+
+
+
     }
+
+
+
 
 }
 

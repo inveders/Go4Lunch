@@ -76,7 +76,6 @@ public class ProfileActivity extends BaseActivity {
                 myCurrentGeolocalisation = intent.getStringExtra(KEY_GEOLOCALISATION);
                 latitude = intent.getDoubleExtra(KEY_LATITUDE, 0.0);
                 longitude = intent.getDoubleExtra(KEY_LONGITUDE, 0.0);
-                Log.d("debago", "profile activity latitude :" + latitude);
             }
 
 

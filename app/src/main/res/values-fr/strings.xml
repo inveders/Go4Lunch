@@ -59,7 +59,7 @@
     <string name="workmates_text_choice">" %1$s va manger au restaurant %2$s"</string>
     <string name="workmates_text_joining">" %1$s va manger ici"</string>
     <string name="workmates_text_no_choice">%1$s n\'a pas encore choisi !</string>
-    <string name="search_hint">Recherche...</string>
+    <string name="search_hint">Recherche&#8230;</string>
     <string name="toolbar_name_permission_activity">Autorisations requises</string>
     <string name="granted_text">Go4Lunch a besoin d\'une autorisation pour localiser votre périphérique afin de vous fournir les services requis. Merci d\'autoriser la localisation.</string>
     <string name="grant_permission">Autoriser la localisation</string>
@@ -121,9 +121,10 @@
     <string name="alert_dialog_location_far_from_works_pos_button">OUI, QUITTER LE MODE TRAVAIL</string>
     <string name="alert_dialog_location_far_from_works_neg_button">NON</string>
     <string name="no_restaurant_found">Aucun restaurant trouvé</string>
-    <string name="no_network_to_find_restaurant">Pas de réseau pour actualiser les restaurants, activer la localisation sur votre smartphone</string>
     <string name="app_mode_change_to_work_mode">Mode travail activé</string>
     <string name="app_mode_change_to_normal_mode">Mode normal activé</string>
     <string name="app_mode_forced_mode_no_restaurant_found">Ni vous, ni aucun de vos collègues ne s\'est connecté sur l\'application, au travail. Ceci est requis pour une première utilisation !</string>
     <string name="workmates_no_showed_normal_mode">Vous êtes en MODE NORMAL, passez en MODE TRAVAIL pour voir vos collègues</string>
+    <string name="restaurant_activity_autocomplete_no_near_you">Votre recherche ne correspond pas à un lieu près de vous, voulez-vous quand même voir les détails de ce lieu?</string>
+    <string name="Restaurant_activity_press_clear_button">Merci d\'annuler la recherche en cliquant sur le bouton cleat</string>
 </resources>
