@@ -245,8 +245,8 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     public void fillFirebase(Double lat, Double longi) {
         checkPosition();
-       /* Log.d("debago","RestaurantActivity : in fillFirebase, need permission");
-        new NearbyRestaurantsRepository();*/
+        Log.d("debago","RestaurantActivity : in fillFirebase, need permission");
+
         resultModel.setNearbyRestaurantsInFirebase(lat, longi).observe(this, result -> {
             //  Log.d("debago","in result model firebase :"+result.get(0).getName());
             refreshFragment();

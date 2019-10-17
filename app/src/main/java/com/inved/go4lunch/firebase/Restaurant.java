@@ -165,15 +165,51 @@ public class Restaurant implements Comparable<Restaurant> {
     @Override
     public int compareTo(@NonNull Restaurant o) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            return Comparator.comparing(Restaurant::getRatingApp)
-                    .thenComparing(Restaurant::getOpenForLunch)
-                    .thenComparing(Restaurant::getRestaurantCustomers)
+            return Comparator.comparing(Restaurant::getOpenForLunch)
                     .thenComparing(Restaurant::getDistance)
+                    .thenComparing(Restaurant::getRatingApp)
                     .reversed()
                     .compare(this, o);
         }
 
         return -1;
     }
+
+    /*Comparator for sorting the list by distance*/
+    public static Comparator<Restaurant> compareRestaurantByDistance = (s1, s2) -> {
+
+        String rest1 = s1.getDistance();
+        String rest2 = s2.getDistance();
+
+        /*For ascending order*/
+        //ascending order
+        return rest2.compareTo(rest1);
+
+    };
+
+    /*Comparator for sorting the list by rating*/
+    public static Comparator<Restaurant> compareRestaurantByRating = (s1, s2) -> {
+
+        int rest1 = s1.getRatingApp();
+        int rest2 = s2.getRatingApp();
+
+        /*For ascending order*/
+        //ascending order
+        return rest2-rest1;
+
+    };
+
+    /*Comparator for sorting the list by rating*/
+    public static Comparator<Restaurant> compareRestaurantByRatingAsc = (s1, s2) -> {
+
+        int rest1 = s1.getRatingApp();
+        int rest2 = s2.getRatingApp();
+
+        /*For ascending order*/
+        //ascending order
+        return rest1-rest2;
+
+    };
+
 
 }

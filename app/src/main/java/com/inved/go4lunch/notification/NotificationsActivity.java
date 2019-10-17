@@ -17,6 +17,8 @@ import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.controller.activity.ViewPlaceActivity;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
+import com.inved.go4lunch.utils.ManageAppMode;
+import com.inved.go4lunch.utils.ManageRestaurantChoiceInNormalMode;
 
 import java.util.ArrayList;
 
@@ -74,37 +76,48 @@ public class NotificationsActivity extends BaseActivity {
             UserHelper.getUserWhateverLocation(this.getCurrentUser().getUid()).get().addOnSuccessListener(queryDocumentSnapshots -> {
                 User currentUser = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
 
-                assert currentUser != null;
-                String restaurantName = TextUtils.isEmpty(currentUser.getRestaurantName()) ? getString(R.string.info_no_restaurant_name_found) : currentUser.getRestaurantName();
-                String restaurantVicinity = TextUtils.isEmpty(currentUser.getRestaurantVicinity()) ? getString(R.string.info_no_restaurant_adresse_found) : currentUser.getRestaurantVicinity();
-                String restaurantPlaceId = currentUser.getRestaurantPlaceId();
+                if(!ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_normal))){
+                    assert currentUser != null;
+                    String restaurantName = TextUtils.isEmpty(currentUser.getRestaurantName())|| currentUser.getRestaurantName()==null ? getString(R.string.info_no_restaurant_name_found) : currentUser.getRestaurantName();
+                    String restaurantVicinity = TextUtils.isEmpty(currentUser.getRestaurantVicinity()) ? getString(R.string.info_no_restaurant_adresse_found) : currentUser.getRestaurantVicinity();
+                    String restaurantPlaceId = currentUser.getRestaurantPlaceId();
 
-                UserHelper.getAllWorkmatesJoining(currentUser.getRestaurantPlaceId()).get().addOnCompleteListener(task -> {
-                    ArrayList<String> workmates = new ArrayList<>();
+                    UserHelper.getAllWorkmatesJoining(currentUser.getRestaurantPlaceId()).get().addOnCompleteListener(task -> {
+                        ArrayList<String> workmates = new ArrayList<>();
 
-                    if (task.isSuccessful()) {
-                        if(task.getResult()!=null){
-                            for (QueryDocumentSnapshot document : task.getResult()) {
+                        if (task.isSuccessful()) {
+                            if(task.getResult()!=null){
+                                for (QueryDocumentSnapshot document : task.getResult()) {
 
-                                workmates.add(document.getString("firstname"));
+                                    workmates.add(document.getString("firstname"));
 
-                            }
-                            for (int i = 0; i <workmates.size() ; i++) {
-                                if(workmates.get(i).equals(currentUser.getFirstname())){
-                                    workmates.remove(i);
                                 }
+                                for (int i = 0; i <workmates.size() ; i++) {
+                                    if(workmates.get(i).equals(currentUser.getFirstname())){
+                                        Log.d("debago","Workmates before suppress : "+workmates.get(i));
+                                        workmates.remove(i);
+                                    }
 
+                                }
+                                Log.d("debago","Workmates with me : "+workmates);
                             }
+
+                        } else {
+                            Log.d("debago", "Error getting documents: ", task.getException());
                         }
+                        showNotificationMessageTextworkmates(workmates);
 
-                    } else {
-                        Log.d("debago", "Error getting documents: ", task.getException());
-                    }
-                    showNotificationMessageTextworkmates(workmates);
+                    });
 
-                });
+                    showNotificationMessageText(restaurantName,restaurantVicinity,restaurantPlaceId);
+                }else{
+                    String restaurantName = ManageRestaurantChoiceInNormalMode.getRestaurantChoiceName(this);
+                    String restaurantVicinity = ManageRestaurantChoiceInNormalMode.getRestaurantChoiceAddress(this);
+                    String restaurantPlaceId = ManageRestaurantChoiceInNormalMode.getRestaurantChoice(this);
+                    showNotificationMessageText(restaurantName,restaurantVicinity,restaurantPlaceId);
+                    showNotificationMessageTextworkmates(null);
+                }
 
-                showNotificationMessageText(restaurantName,restaurantVicinity,restaurantPlaceId);
             });
         }
 
@@ -128,23 +141,29 @@ public class NotificationsActivity extends BaseActivity {
 
     public void showNotificationMessageTextworkmates(ArrayList<String> workmates){
 
-        if(workmates.size()==0){
-            notificationMessageWorkmates.setText(getString(R.string.notification_message_no_workmates_with_you));
-        }
-        else{
-            String workmatesList = "";
-            String newligne=System.getProperty("line.separator");
-            StringBuilder stringBuilder = new StringBuilder();
-            for (String s : workmates)
-            {
-                stringBuilder.append(workmatesList)
-                        .append("+=")
-                        .append(s)
-                        .append("+")
-                        .append("\n");
+        Log.d("debago","Workmates with me notif: "+workmates);
+        if(!ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_normal))){
+            if(workmates.size()==0){
+                notificationMessageWorkmates.setText(getString(R.string.notification_message_no_workmates_with_you));
             }
-            notificationMessageWorkmates.setText(getString(R.string.notification_message_workmates,newligne,workmatesList));
+            else{
+                String workmatesList = "";
+                String newligne=System.getProperty("line.separator");
+                StringBuilder sb = new StringBuilder();
+
+                for (String s : workmates)
+                {
+                    sb.append(workmatesList);
+                            sb.append(s);
+                            sb.append("\n");
+                }
+
+                notificationMessageWorkmates.setText(getString(R.string.notification_message_workmates,newligne,sb));
+            }
+        }else{
+            notificationMessageWorkmates.setText(getString(R.string.notification_message_workmates_normal_mode));
         }
+
 
 
     }

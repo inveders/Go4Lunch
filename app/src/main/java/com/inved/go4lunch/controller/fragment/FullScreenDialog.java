@@ -25,11 +25,11 @@ public class FullScreenDialog extends DialogFragment implements View.OnClickList
     private Switch openForLunch;
     private RatingBar ratingBar;
     private TextView distanceValue;
-    private TextView restaurantCustomerValue;
+  //  private TextView restaurantCustomerValue;
 
     private boolean openForLunchChoice=true;
     private int ratingChoice=0;
-    private Double distanceChoice=400.0;
+    private Double distanceChoice=1500.0;
     private int restaurantCustomersChoice=0;
 
 
@@ -63,7 +63,7 @@ public class FullScreenDialog extends DialogFragment implements View.OnClickList
         distanceSeekbar = mView.findViewById(R.id.dialog_seekbar_distance);
         openForLunch = mView.findViewById(R.id.dialog_switch_open_for_lunch);
         workmatesInSeekbar = mView.findViewById(R.id.dialog_seekbar_workmates_in);
-        restaurantCustomerValue= mView.findViewById(R.id.dialog_workmates_in_value);
+       // restaurantCustomerValue= mView.findViewById(R.id.dialog_workmates_in_value);
 
         distanceValue = mView.findViewById(R.id.dialog_distance_value);
 
@@ -81,7 +81,7 @@ public class FullScreenDialog extends DialogFragment implements View.OnClickList
 
     private void actionButton() {
         this.distanceValue.setText(getString(R.string.fullscreen_dialog__value_in_meter,distanceSeekbar.getProgress()));
-        this.restaurantCustomerValue.setText(getString(R.string.fullscreen_dialog__value_workmate_in,workmatesInSeekbar.getProgress()));
+       // this.restaurantCustomerValue.setText(getString(R.string.fullscreen_dialog__value_workmate_in,workmatesInSeekbar.getProgress()));
 
 
         this.distanceSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -114,7 +114,7 @@ public class FullScreenDialog extends DialogFragment implements View.OnClickList
             @Override
             public void onProgressChanged(SeekBar seekBar, int progressValue, boolean fromUser) {
                 progress = progressValue;
-                restaurantCustomerValue.setText(getString(R.string.fullscreen_dialog__value_workmate_in,progress));
+              //  restaurantCustomerValue.setText(getString(R.string.fullscreen_dialog__value_workmate_in,progress));
             }
 
             @Override
@@ -124,7 +124,7 @@ public class FullScreenDialog extends DialogFragment implements View.OnClickList
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                restaurantCustomerValue.setText(getString(R.string.fullscreen_dialog__value_workmate_in,progress));
+               // restaurantCustomerValue.setText(getString(R.string.fullscreen_dialog__value_workmate_in,progress));
                 restaurantCustomersChoice=progress;
 
             }

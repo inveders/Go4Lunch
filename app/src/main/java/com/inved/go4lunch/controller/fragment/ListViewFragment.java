@@ -152,7 +152,9 @@ public class ListViewFragment extends Fragment {
 
                         }
                     }else{
+                        filterButton.hide();
                         textViewNoRestaurantFound.setVisibility(View.VISIBLE);
+
                     }
 
 
@@ -197,6 +199,7 @@ public class ListViewFragment extends Fragment {
                             }
 
                         } else {
+                            filterButton.hide();
                             textViewNoRestaurantFound.setVisibility(View.VISIBLE);
 
                         }
@@ -315,43 +318,112 @@ public class ListViewFragment extends Fragment {
                     restaurantArrayList.clear();
                 }
 
-                RestaurantHelper.getAllRestaurants().get().addOnCompleteListener(task -> {
+                if(!ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_normal))){
+                    RestaurantHelper.getAllRestaurants().get().addOnCompleteListener(task -> {
 
-                    if (task.getResult() != null) {
-                        for (DocumentSnapshot querySnapshot : task.getResult()) {
-                            Restaurant restaurant = querySnapshot.toObject(Restaurant.class);
+                        if (task.getResult() != null) {
+                            for (DocumentSnapshot querySnapshot : task.getResult()) {
+                                Restaurant restaurant = querySnapshot.toObject(Restaurant.class);
 
-                            if (restaurant != null) {
-                                restaurantPlaceId = restaurant.getRestaurantPlaceId();
-                                restaurantCustomers = restaurant.getRestaurantCustomers();
-                                restaurantName = restaurant.getRestaurantName();
-                                rating = restaurant.getRatingApp();
-                                isOpenForLunch = restaurant.getOpenForLunch();
-                                distance = restaurant.getDistance();
-                                openHours = restaurant.getOpenHours();
-                                closeHours = restaurant.getCloseHours();
-                                restaurantAddress = restaurant.getRestaurantAddress();
-                                openMinutes = restaurant.getOpenMinutes();
-                                closeMinutes = restaurant.getCloseMinutes();
+                                if (restaurant != null) {
+                                    restaurantPlaceId = restaurant.getRestaurantPlaceId();
+                                    restaurantCustomers = restaurant.getRestaurantCustomers();
+                                    restaurantName = restaurant.getRestaurantName();
+                                    rating = restaurant.getRatingApp();
+                                    isOpenForLunch = restaurant.getOpenForLunch();
+                                    distance = restaurant.getDistance();
+                                    openHours = restaurant.getOpenHours();
+                                    closeHours = restaurant.getCloseHours();
+                                    restaurantAddress = restaurant.getRestaurantAddress();
+                                    openMinutes = restaurant.getOpenMinutes();
+                                    closeMinutes = restaurant.getCloseMinutes();
 
-                                Restaurant restaurantObject = new Restaurant(restaurantPlaceId, restaurantCustomers, 0, ManageJobPlaceId.getJobPlaceId(App.getInstance().getApplicationContext()),
-                                        restaurantName, rating, isOpenForLunch, distance, openHours, closeHours, restaurantAddress, 0.0, 0.0,
-                                        null, null, openMinutes, closeMinutes);
+                                    Restaurant restaurantObject = new Restaurant(restaurantPlaceId, restaurantCustomers, 0, ManageJobPlaceId.getJobPlaceId(App.getInstance().getApplicationContext()),
+                                            restaurantName, rating, isOpenForLunch, distance, openHours, closeHours, restaurantAddress, 0.0, 0.0,
+                                            null, null, openMinutes, closeMinutes);
 
-                                restaurantArrayList.add(restaurantObject);
+                                    restaurantArrayList.add(restaurantObject);
+                                }
+
                             }
 
+                            if(ratingChoosen==0 && openForLunchChoosen){
+                                Log.d("debago","rating by distance");
+                                Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByDistance);
+                            }else if(distanceChoosen==1500 && openForLunchChoosen){
+                                Log.d("debago","rating by ratingapp");
+                                Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByRating);
+                            }else if(distanceChoosen==1500 && openForLunchChoosen && ratingChoosen==1){
+                                Log.d("debago","rating by ratingapp");
+                                Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByRatingAsc);
+                            }else{
+                                Log.d("debago","other rating");
+                                Collections.sort(restaurantArrayList, Restaurant::compareTo);
+                            }
+
+                            mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(Glide.with(context), restaurantArrayList);
+                            mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
+                            mRecyclerListViewAdapter.setData(restaurantArrayList);
+
+                        } else {
+                            Toast.makeText(getContext(), "No result found", Toast.LENGTH_SHORT).show();
                         }
+                    }).addOnFailureListener(e -> Log.e("debago", "Problem during the sort in work mode"));
+                }else{
+                    if(FirebaseAuth.getInstance().getCurrentUser()!=null){
+                        RestaurantInNormalModeHelper.getAllRestaurants(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnCompleteListener(task -> {
 
-                        Collections.sort(restaurantArrayList, Restaurant::compareTo);
-                        mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(Glide.with(context), restaurantArrayList);
-                        mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
-                        mRecyclerListViewAdapter.setData(restaurantArrayList);
+                            if (task.getResult() != null) {
+                                for (DocumentSnapshot querySnapshot : task.getResult()) {
+                                    Restaurant restaurant = querySnapshot.toObject(Restaurant.class);
 
-                    } else {
-                        Toast.makeText(getContext(), "No result found", Toast.LENGTH_SHORT).show();
+                                    if (restaurant != null) {
+                                        restaurantPlaceId = restaurant.getRestaurantPlaceId();
+                                        restaurantCustomers = restaurant.getRestaurantCustomers();
+                                        restaurantName = restaurant.getRestaurantName();
+                                        rating = restaurant.getRatingApp();
+                                        isOpenForLunch = restaurant.getOpenForLunch();
+                                        distance = restaurant.getDistance();
+                                        openHours = restaurant.getOpenHours();
+                                        closeHours = restaurant.getCloseHours();
+                                        restaurantAddress = restaurant.getRestaurantAddress();
+                                        openMinutes = restaurant.getOpenMinutes();
+                                        closeMinutes = restaurant.getCloseMinutes();
+
+                                        Restaurant restaurantObject = new Restaurant(restaurantPlaceId, restaurantCustomers, 0, ManageJobPlaceId.getJobPlaceId(App.getInstance().getApplicationContext()),
+                                                restaurantName, rating, isOpenForLunch, distance, openHours, closeHours, restaurantAddress, 0.0, 0.0,
+                                                null, null, openMinutes, closeMinutes);
+
+                                        restaurantArrayList.add(restaurantObject);
+                                    }
+
+                                }
+
+                                if(ratingChoosen==0 && openForLunchChoosen){
+                                    Log.d("debago","rating by distance");
+                                    Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByDistance);
+                                }else if(distanceChoosen==1500 && openForLunchChoosen){
+                                    Log.d("debago","rating by ratingapp");
+                                    Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByRating);
+                                }else if(distanceChoosen==1500 && openForLunchChoosen && ratingChoosen==1){
+                                    Log.d("debago","rating by ratingapp");
+                                    Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByRatingAsc);
+                                }else{
+                                    Log.d("debago","other rating");
+                                    Collections.sort(restaurantArrayList, Restaurant::compareTo);
+                                }
+                                mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(Glide.with(context), restaurantArrayList);
+                                mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
+                                mRecyclerListViewAdapter.setData(restaurantArrayList);
+
+                            } else {
+                                Toast.makeText(getContext(), "No result found", Toast.LENGTH_SHORT).show();
+                            }
+                        }).addOnFailureListener(e -> Log.e("debago", "Problem during the sort in normal mode"));
                     }
-                }).addOnFailureListener(e -> Log.e("debago", "Problem during the sort"));
+
+                }
+
             });
 
             if (getFragmentManager() != null) {

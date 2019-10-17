@@ -20,7 +20,7 @@
     <string name="notification_message_workmates">Here is the list of workmates who will be eating with you: %1$s %2$s</string>
     <string name="notification_message_no_workmates_with_you">No workmates are coming to lunch with you at the moment</string>
     <string name="notification_message_text_app">For lunch, you eat at the restaurant %1$s located %2$s with %3$s</string>
-
+    <string name="notification_message_workmates_normal_mode">You are in normal mode, you can\'t see your colleagues</string>
 
     <string name="notification_message_short">Find the details of the information concerning your lunch</string>
     <string name="toolbar_title_notification_activity">Notification</string>
@@ -145,8 +145,8 @@
     <!-- FULLSCREEN DIALOG-->
     <string name="fullscreen_dialog_sort_out_text">SORT OUT</string>
     <string name="fullscreen_dialog_page_title">Find YOUR restaurant !</string>
-    <string name="fullscreen_dialog__by_rating">Rating</string>
-    <string name="fullscreen_dialog__by_open_for_lunch">Open for lunch today ?</string>
+    <string name="fullscreen_dialog__by_rating">Minimum Rating</string>
+    <string name="fullscreen_dialog__by_open_for_lunch">Open ?</string>
     <string name="fullscreen_dialog__by_opening_hours_close">Close hours</string>
     <string name="fullscreen_dialog__by_distance_from_me">Distance from me (m) </string>
     <string name="fullscreen_dialog__by_workmates_in">Number of workmates in</string>

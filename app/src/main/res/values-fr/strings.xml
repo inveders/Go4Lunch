@@ -93,7 +93,7 @@
     <string name="open_hours_until">Ouvert jusqu\'à %dh%2d</string>
     <string name="fullscreen_dialog__by_distance_from_me">Distance</string>
     <string name="fullscreen_dialog__by_price_level">Prix</string>
-    <string name="fullscreen_dialog__by_rating">Note</string>
+    <string name="fullscreen_dialog__by_rating">Note minimum</string>
     <string name="fullscreen_dialog_page_title">Trouvez VOTRE restaurant !</string>
     <string name="fullscreen_dialog_sort_out_text">TRIER</string>
     <string name="fullscreen_dialog__by_opening_hours_close">Heure de fermeture</string>
@@ -104,7 +104,7 @@
     <string name="clear_hint">Effacer</string>
     <string name="fullscreen_dialog_sort_name">TRIER</string>
     <string name="image_content_description">Description de l\'image</string>
-    <string name="fullscreen_dialog__by_open_for_lunch">Ouvert pour le midi ?</string>
+    <string name="fullscreen_dialog__by_open_for_lunch">Ouvert ?</string>
     <string name="fullscreen_dialog__by_workmates_in">Nombre de collègues partants</string>
     <string name="no_opened_hours">Aucun horaire renseigné pour ce jour !</string>
     <string name="open_hours_text_no_minutes">Ouvre à %dh</string>
@@ -127,4 +127,5 @@
     <string name="workmates_no_showed_normal_mode">Vous êtes en MODE NORMAL, passez en MODE TRAVAIL pour voir vos collègues</string>
     <string name="restaurant_activity_autocomplete_no_near_you">Votre recherche ne correspond pas à un lieu près de vous, voulez-vous quand même voir les détails de ce lieu?</string>
     <string name="Restaurant_activity_press_clear_button">Merci d\'annuler la recherche en cliquant sur le bouton cleat</string>
+    <string name="notification_message_workmates_normal_mode">Vous êtes en mode NORMAL, vous ne pouvez pas voir vos collègues</string>
 </resources>
