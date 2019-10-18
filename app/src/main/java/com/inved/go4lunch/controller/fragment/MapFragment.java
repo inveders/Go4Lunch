@@ -1,7 +1,9 @@
 package com.inved.go4lunch.controller.fragment;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
@@ -15,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -41,8 +44,12 @@ import com.inved.go4lunch.utils.ManageAppMode;
 import com.inved.go4lunch.utils.ManageAutocompleteResponse;
 import com.inved.go4lunch.utils.ManageRestaurantChoiceInNormalMode;
 
-
 import java.util.Objects;
+
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_GEOLOCALISATION;
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LATITUDE;
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LOCATION_CHANGED;
+import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LONGITUDE;
 
 
 public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
@@ -51,10 +58,25 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     private GoogleMap mGoogleMap;
     private View mView;
     private Marker mMarker;
+    private double myCurrentLat;
+    private double myCurrentLongi;
 
     private FloatingActionButton mapGeolocalisationButton;
     private Context context= App.getInstance().getApplicationContext();
 
+    //Receive current localisation from Localisation.class
+    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (KEY_LOCATION_CHANGED.equals(intent.getAction())) {
+                intent.getSerializableExtra(KEY_GEOLOCALISATION);
+                myCurrentLat = intent.getDoubleExtra(KEY_LATITUDE,0.0);
+                myCurrentLongi = intent.getDoubleExtra(KEY_LONGITUDE,0.0);
+
+            }
+
+        }
+    };
 
     public MapFragment() {
         //Required empty public constructor
@@ -64,6 +86,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        LocalBroadcastManager.getInstance(App.getInstance().getApplicationContext()).registerReceiver(broadcastReceiver, new IntentFilter(KEY_LOCATION_CHANGED));
         initializeSharedPreferences();
         initializeMap();
 
@@ -73,7 +96,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
 
         mView = inflater.inflate(R.layout.fragment_map, container, false);
 
@@ -176,7 +198,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                             String restaurantPlaceId = restaurant.getRestaurantPlaceId();
                             double latitude = restaurant.getLatitude();
                             double longitude = restaurant.getLongitude();
-                            //Log.d("debago","restaurantPlaceId "+restaurantPlaceId);
                             customizeMarker(restaurantPlaceId, latitude, longitude);
                         }
 
@@ -215,13 +236,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
         int mZoom = 17;
         int mBearing = 4;
-        int mTilt = 30;//45
+        int mTilt = 45;
         if (mMarker != null) {
 
             mMarker.remove();
         }
 
         LatLng latLng = new LatLng(lat, longi);
+        LatLng latLngCurrent = new LatLng(myCurrentLat, myCurrentLongi);
 
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.snippet(restaurantPlaceId);
@@ -253,9 +275,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
                                         }
 
-                                        CameraPosition Liberty = CameraPosition.builder().target(latLng).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
-                                        mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
-                                        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+
+                                        if(myCurrentLat==0.0){
+                                            
+                                            CameraPosition Liberty = CameraPosition.builder().target(latLng).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
+                                            mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
+                                            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                                        }else{
+
+                                            CameraPosition Liberty = CameraPosition.builder().target(latLngCurrent).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
+                                            mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
+                                            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLngCurrent));
+                                        }
+
                                     }
                                 }
                             }
@@ -289,10 +321,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                                         mGoogleMap.addMarker(markerOptions);
 
                                     }
-                                   // Log.d("debago","RestaurantActivity : in mapfragment movecamera, : "+latLng);
-                                    CameraPosition Liberty = CameraPosition.builder().target(latLng).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
-                                    mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
-                                    mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                                    if(myCurrentLat==0.0){
+
+                                        CameraPosition Liberty = CameraPosition.builder().target(latLng).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
+                                        mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
+                                        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                                    }else{
+
+                                        CameraPosition Liberty = CameraPosition.builder().target(latLngCurrent).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
+                                        mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
+                                        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLngCurrent));
+                                    }
                                 }
                             }
                         }
