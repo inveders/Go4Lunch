@@ -334,9 +334,12 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
 
             @Override
             protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-                restaurantArrayListFiltered = (ArrayList<Restaurant>) filterResults.values;
-                // RecyclerViewListViewRestaurant.this.setData(mDataFiltered);
-                notifyDataSetChanged();
+                if(filterResults.values!=null){
+                    restaurantArrayListFiltered = (ArrayList<Restaurant>) filterResults.values;
+                    // RecyclerViewListViewRestaurant.this.setData(mDataFiltered);
+                    notifyDataSetChanged();
+                }
+
             }
         };
     }

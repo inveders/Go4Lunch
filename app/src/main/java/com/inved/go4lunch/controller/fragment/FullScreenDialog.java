@@ -4,6 +4,8 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -78,6 +80,8 @@ public class FullScreenDialog extends DialogFragment implements View.OnClickList
 
         return mView;
     }
+
+
 
     private void actionButton() {
         this.distanceValue.setText(getString(R.string.fullscreen_dialog__value_in_meter,distanceSeekbar.getProgress()));

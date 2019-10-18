@@ -128,4 +128,7 @@
     <string name="restaurant_activity_autocomplete_no_near_you">Votre recherche ne correspond pas à un lieu près de vous, voulez-vous quand même voir les détails de ce lieu?</string>
     <string name="Restaurant_activity_press_clear_button">Merci d\'annuler la recherche en cliquant sur le bouton cleat</string>
     <string name="notification_message_workmates_normal_mode">Vous êtes en mode NORMAL, vous ne pouvez pas voir vos collègues</string>
+    <string name="profile_activity_changing_work">Vous êtes sur le point de changer votre lieu de travail. Attention ! Si vous le faites, vous perdrez tous vos restaurants favoris actuels et vous ne verrez plus vos collègues actuels.</string>
+    <string name="profile_activity_confirm_changing_work">JE CONFIRME</string>
+    <string name="profile_activity_successfull_work_changement">Votre changement de travail est réussi</string>
 </resources>

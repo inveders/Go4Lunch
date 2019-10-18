@@ -7,6 +7,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.inved.go4lunch.utils.App;
+import com.inved.go4lunch.utils.ManageChangingWork;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
 
 
@@ -17,11 +18,15 @@ public class UserHelper {
 
     // --- COLLECTION REFERENCE ---
 
-    private static CollectionReference getUsersCollection(){
+    public static CollectionReference getUsersCollection(){
         return FirebaseFirestore.getInstance().collection(COLLECTION_GENERAL).document(ManageJobPlaceId.getJobPlaceId(App.getInstance().getApplicationContext())).collection(COLLECTION_NAME);
 
     }
 
+    public static CollectionReference getUsersNewCollectionAfterChangingWork(String jobPlaceId){
+        return FirebaseFirestore.getInstance().collection(COLLECTION_GENERAL).document(jobPlaceId).collection(COLLECTION_NAME);
+
+    }
 
 
 
@@ -95,6 +100,18 @@ public class UserHelper {
 
     public static void updateNotificationEnabled(boolean isNotificationEnabled, String uid) {
         UserHelper.getUsersCollection().document(uid).update("notificationEnabled", isNotificationEnabled);
+    }
+
+    public static Task<Void> updateJobAddress(String jobAddress, String uid) {
+        return UserHelper.getUsersCollection().document(uid).update("jobAddress", jobAddress);
+    }
+
+    public static Task<Void> updateJobName(String jobName, String uid) {
+        return UserHelper.getUsersCollection().document(uid).update("jobName", jobName);
+    }
+
+    public static Task<Void> updateJobPlaceId(String jobPlaceId, String uid) {
+        return UserHelper.getUsersCollection().document(uid).update("jobPlaceId", jobPlaceId);
     }
 
     // --- DELETE ---

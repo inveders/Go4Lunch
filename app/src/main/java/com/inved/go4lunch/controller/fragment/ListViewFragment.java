@@ -7,6 +7,8 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -23,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.inved.go4lunch.R;
@@ -45,7 +48,7 @@ import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LOCA
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.PLACE_SEARCH_DATA;
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.TAG;
 
-public class ListViewFragment extends Fragment {
+public class ListViewFragment extends Fragment{
 
     private RecyclerViewListViewRestaurant mRecyclerListViewAdapter;
     private RecyclerView mRecyclerListView;
@@ -110,10 +113,13 @@ public class ListViewFragment extends Fragment {
         filterButton = mView.findViewById(R.id.fragment_list_view_sort_button);
         actionOnFloatingButton();
 
+
+
         ((RestaurantActivity) Objects.requireNonNull(getActivity())).setFragmentRefreshListener(this::getRestaurantNameFromAutocomplete);
 
         return mView;
     }
+
 
 
     private void loadDataFromFirebase() {
@@ -217,6 +223,27 @@ public class ListViewFragment extends Fragment {
 
     }
 
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        MenuItem searchitem=menu.findItem(R.id.action_search);
+        MenuItem clearItem=menu.findItem(R.id.action_clear);
+        if(searchitem!=null){
+            searchitem.setVisible(false);
+        }
+        if(clearItem!=null){
+            clearItem.setVisible(true);
+            clearItem.setOnMenuItemClickListener(menuItem -> {
+
+                ((RestaurantActivity) Objects.requireNonNull(getActivity())).setFragmentRefreshListener(this::getRestaurantNameFromAutocomplete);
+                menu.findItem(R.id.action_search).setVisible(true);
+                menu.findItem(R.id.action_clear).setVisible(false);
+
+                return true;
+            });
+        }
+
+    }
+
 
     private void loadDataFromFirebaseFilter(String mQuery) {
 
@@ -310,7 +337,7 @@ public class ListViewFragment extends Fragment {
         filterButton.setOnClickListener(view -> {
 
             FullScreenDialog dialog = FullScreenDialog.newInstance();
-
+            setHasOptionsMenu(true);
             dialog.setCallback((ratingChoosen, openForLunchChoosen, customersNumberChoosen, distanceChoosen) -> {
 
                 Log.d(TAG, "ListViewFragment restaurant size sort " + restaurantArrayList.size());

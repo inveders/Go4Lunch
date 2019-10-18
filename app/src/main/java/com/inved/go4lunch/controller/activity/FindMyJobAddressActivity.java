@@ -17,10 +17,13 @@ import com.google.android.libraries.places.api.model.TypeFilter;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.firebase.UserHelper;
+import com.inved.go4lunch.utils.ManageChangingWork;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
 
 import java.util.Arrays;
@@ -44,23 +47,26 @@ public class FindMyJobAddressActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        UserHelper.getUserWhateverLocation(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).get().addOnCompleteListener(task -> {
+        if(!ManageChangingWork.getUserWorkDecision(this)){
+            UserHelper.getUserWhateverLocation(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).get().addOnCompleteListener(task -> {
 
-            if(task.isSuccessful()){
-                if(Objects.requireNonNull(task.getResult()).getDocuments().size()==0){
+                if (task.isSuccessful()) {
+                    if (Objects.requireNonNull(task.getResult()).getDocuments().size() == 0) {
 
-                    Log.d("Debago","FindMyJob on create no result finisih inscription "+task.getResult().getDocuments().size());
-                }else{
-                    Log.d("Debago", "FindMyJob on create : oncreate go in restaurantActivity "+task.getResult().getDocuments().get(0).getString("jobPlaceId"));
-                    ManageJobPlaceId.saveJobPlaceId(this, task.getResult().getDocuments().get(0).getString("jobPlaceId"));
-                    startRestaurantActivity();
-                    finish();
+                        Log.d("Debago", "FindMyJob on create no result finisih inscription " + task.getResult().getDocuments().size());
+                    } else {
+                        Log.d("Debago", "FindMyJob on create : oncreate go in restaurantActivity " + task.getResult().getDocuments().get(0).getString("jobPlaceId"));
+                        ManageJobPlaceId.saveJobPlaceId(this, task.getResult().getDocuments().get(0).getString("jobPlaceId"));
+                        startRestaurantActivity();
+                        finish();
+                    }
+
                 }
 
-            }
 
+            });
+        }
 
-        });
 
         Places.initialize(getApplicationContext(), MAP_API_KEY);
         // Initialize the AutocompleteSupportFragment.
@@ -93,9 +99,6 @@ public class FindMyJobAddressActivity extends BaseActivity {
         }
 
 
-
-
-
         btnValidation.setOnClickListener(view -> {
 
             if (TextUtils.isEmpty(jobAddress)) {
@@ -103,32 +106,54 @@ public class FindMyJobAddressActivity extends BaseActivity {
                 Toast.makeText(getApplicationContext(), "Choisissez un lieu", Toast.LENGTH_SHORT).show();
             } else {
 
-                String firebaseAuthUid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
-                UserHelper.getUserWithSameUid(firebaseAuthUid).get().addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
+                if (!ManageChangingWork.getUserWorkDecision(this)) {
+                    //User first work in app
+                    String firebaseAuthUid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
+                    UserHelper.getUserWithSameUid(firebaseAuthUid).get().addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
 
-                        if(task.getResult()!=null){
-                            if (task.getResult().getDocuments().size() != 0) {
+                            if (task.getResult() != null) {
+                                if (task.getResult().getDocuments().size() != 0) {
 
-                                Log.d("Debago", "findMyJobAddress already exist " + task.getResult().getDocuments());
-                                ManageJobPlaceId.saveJobPlaceId(getApplicationContext(), jobPlaceId);
-                                startRestaurantActivity();
-                            } else {
-                                Log.d("Debago", "FindMyJobAddressActivity create user in firestore " + jobAddress + " " + jobName + " " + jobPlaceId);
-                                createUserInFirestore(jobAddress, jobPlaceId, jobName);
-                                startRestaurantActivity();
+                                    Log.d("Debago", "findMyJobAddress already exist " + task.getResult().getDocuments());
+                                    ManageJobPlaceId.saveJobPlaceId(getApplicationContext(), jobPlaceId);
+                                    startRestaurantActivity();
+                                } else {
+                                    Log.d("Debago", "FindMyJobAddressActivity create user in firestore " + jobAddress + " " + jobName + " " + jobPlaceId);
+                                    createUserInFirestore(jobAddress, jobPlaceId, jobName);
+                                    startRestaurantActivity();
+                                }
                             }
+
+
                         }
 
 
+                    });
+                } else {
+                    //User is changing work
+                    if (getCurrentUser() != null) {
+
+                        moveFirestoreDocument(UserHelper.getUsersCollection().document(getCurrentUser().getUid()), UserHelper.getUsersNewCollectionAfterChangingWork(jobPlaceId).document(getCurrentUser().getUid()),jobAddress, jobPlaceId, jobName);
+
                     }
 
-
-                });
+                }
 
 
             }
         });
+    }
+
+    private void updateInformationAfterMoving(String jobAddress, String jobPlaceId, String jobName) {
+
+        if(getCurrentUser()!=null){
+
+            UserHelper.updateJobAddress(jobAddress,getCurrentUser().getUid());
+            UserHelper.updateJobName(jobName,getCurrentUser().getUid());
+            UserHelper.updateJobPlaceId(jobPlaceId,getCurrentUser().getUid());
+        }
+
     }
 
     @Override
@@ -147,7 +172,6 @@ public class FindMyJobAddressActivity extends BaseActivity {
             UserHelper.createUser(uid, firstname, null, urlPicture, null, null, null, jobAddress, jobPlaceId, jobName, null, true).addOnFailureListener(this.onFailureListener());
 
 
-
             FirebaseInstanceId.getInstance().getInstanceId()
                     .addOnCompleteListener(task -> {
                         if (!task.isSuccessful()) {
@@ -156,15 +180,14 @@ public class FindMyJobAddressActivity extends BaseActivity {
                         }
 
                         // Get new Instance ID token
-                        if(task.getResult()!=null){
+                        if (task.getResult() != null) {
                             String token1 = task.getResult().getToken();
-                            if(getCurrentUser()!=null){
-                                Log.d("debago","creating token");
-                                UserHelper.updateUserToken(token1,getCurrentUser().getUid());
+                            if (getCurrentUser() != null) {
+                                UserHelper.updateUserToken(token1, getCurrentUser().getUid());
                                 // Log and toast
-                                String msg = "my token"+ token1;
+                                String msg = "my token" + token1;
                                 Log.d(TAG, msg);
-                                Toast.makeText(FindMyJobAddressActivity.this, msg, Toast.LENGTH_SHORT).show();
+
                             }
 
                         }
@@ -175,13 +198,42 @@ public class FindMyJobAddressActivity extends BaseActivity {
     }
 
 
-
-
     private void startRestaurantActivity() {
         Intent intent = new Intent(this, RestaurantActivity.class);
-        Log.d("Debago", "FindMyJobAddressActivity we go in restaurantActivity");
         startActivity(intent);
     }
 
+    public void moveFirestoreDocument(DocumentReference fromPath, final DocumentReference toPath,String jobAddress,String jobPlaceId,String jobName) {
+        fromPath.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document != null) {
+                    if (document.getData() != null) {
+                        toPath.set(document.getData())
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d(TAG, "DocumentSnapshot successfully written!");
+                                    Toast.makeText(FindMyJobAddressActivity.this, getString(R.string.profile_activity_successfull_work_changement), Toast.LENGTH_SHORT).show();
+
+                                    fromPath.delete()
+                                            .addOnSuccessListener(aVoid1 -> Log.d(TAG, "DocumentSnapshot successfully deleted!"))
+                                            .addOnFailureListener(e -> Log.w(TAG, "Error deleting document", e));
+
+                                    ManageChangingWork.saveUserWorkDecision(this,false);
+                                    ManageJobPlaceId.saveJobPlaceId(this,jobPlaceId);
+                                    updateInformationAfterMoving(jobAddress, jobPlaceId, jobName);
+                                    startRestaurantActivity();
+                                })
+                                .addOnFailureListener(e -> Log.w(TAG, "Error writing document", e));
+                    }
+                } else {
+                    Log.d(TAG, "No such document");
+                }
+            } else {
+                Log.d(TAG, "get failed with ", task.getException());
+            }
+        });
+
+
+    }
 
 }

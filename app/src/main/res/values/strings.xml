@@ -64,6 +64,9 @@
     <string name="popup_message_choice_yes">Yes</string>
     <string name="popup_message_choice_no">No</string>
     <string name="user_settings">USER INFORMATIONS</string>
+    <string name="profile_activity_changing_work">You are about to change your workplace. Attention! If you do, you will lose all your current favorite restaurants and you will no longer see your current colleagues.</string>
+    <string name="profile_activity_confirm_changing_work">I CONFIRM</string>
+    <string name="profile_activity_successfull_work_changement">Your change of job is successful</string>
 
     <!-- RESTAURANT ACTIVITY -->
     <string name="toolbar_title_restaurant_activity">I\'m Hungry!</string>

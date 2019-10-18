@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Switch;
@@ -26,12 +27,14 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.base.BaseActivity;
+import com.inved.go4lunch.controller.activity.FindMyJobAddressActivity;
 import com.inved.go4lunch.controller.activity.MainActivity;
 import com.inved.go4lunch.controller.activity.RestaurantActivity;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.utils.CheckDistanceFromWork;
 import com.inved.go4lunch.utils.ManageAppMode;
+import com.inved.go4lunch.utils.ManageChangingWork;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
 
 import java.util.Objects;
@@ -109,6 +112,8 @@ public class ProfileActivity extends BaseActivity {
         });
 
 
+
+
     }
 
     @Override
@@ -128,6 +133,20 @@ public class ProfileActivity extends BaseActivity {
     // --------------------
     // ACTIONS
     // --------------------
+
+    @OnClick(R.id.profile_activity_text_view_job_name)
+    public void onClickTextViewJobName() {
+        new AlertDialog.Builder(this)
+                .setMessage(R.string.profile_activity_changing_work)
+                .setPositiveButton(R.string.profile_activity_confirm_changing_work, (dialogInterface, i) -> {
+                    ManageChangingWork.saveUserWorkDecision(getApplicationContext(),true);
+                    Intent intent = new Intent(getApplicationContext(), FindMyJobAddressActivity.class);
+                    startActivity(intent);
+
+                })
+                .setNegativeButton(R.string.popup_message_choice_no, null)
+                .show();
+    }
 
     @OnClick(R.id.profile_activity_app_mode_button)
     public void onClickAppModeButton() {
@@ -277,6 +296,7 @@ public class ProfileActivity extends BaseActivity {
                             textViewJobAddress.setText(jobAddress);
                         }
 
+                        Log.d("debago", "profileactivity jobName:" + currentUser.getJobName()+" jobplaceId is : " + ManageJobPlaceId.getJobPlaceId(this));
                         String jobName = currentUser.getJobName();
                         if (TextUtils.isEmpty(jobName) || jobName.equals(getString(R.string.info_no_job_name_found))) {
                             textViewJobName.setHint(getString(R.string.info_no_job_name_found));

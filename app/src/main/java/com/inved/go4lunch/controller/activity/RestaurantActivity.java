@@ -40,6 +40,7 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
@@ -53,6 +54,7 @@ import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
+import com.google.maps.android.SphericalUtil;
 import com.inved.go4lunch.BuildConfig;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.auth.ProfileActivity;
@@ -77,11 +79,14 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.inved.go4lunch.controller.fragment.MapFragment.RESTAURANT_PLACE_ID;
+import static java.lang.Math.cos;
 
 public class RestaurantActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, LocationListener {
 
     public static final String MAP_API_KEY = BuildConfig.GOOGLE_MAPS_API_KEY;
     public static final String MATRIX_API_KEY = BuildConfig.GOOGLE_MATRIX_API_KEY;
+    public static final int NORTH_DEG = 0;
+    public static final int SOUTH_DEG = 180;
 
     //FOR LOCAL BROADCAST MANAGER
 
@@ -301,19 +306,60 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     private void startAutocompleteWidgetShow() {
 
-        RectangularBounds bounds = RectangularBounds.newInstance(
-                new LatLng(latitude, longitude),
-                new LatLng(latitude, longitude));
+        RectangularBounds boundsRect = RectangularBounds.newInstance(
+                new LatLng(calculateBound("SW_LAT"), calculateBound("SW_LNG")),
+                new LatLng(calculateBound("NE_LAT"), calculateBound("NE_LNG")));
 
         Intent intent = new Autocomplete.IntentBuilder(
                 AutocompleteActivityMode.OVERLAY, fields)
-                .setCountry("FR")
+               // .setCountry("FR")
                 .setHint(getString(R.string.Enter_restaurant_name))
-                .setLocationBias(bounds)
-                //  .setLocationRestriction(bounds)
+                .setLocationRestriction(boundsRect)
                 .setTypeFilter(TypeFilter.ESTABLISHMENT)
                 .build(this);
         startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+    }
+
+    private double calculateBound(String lat_long){
+
+        double eartch_circumference =40075.04;
+        double distance_in_meter =15000;
+        double distance_in_km =distance_in_meter/1000;
+        double lat_center = getLatitude();
+        double longi_center = getLongitude();
+
+        double north_south_move = (360*distance_in_km)/eartch_circumference;
+        double east_west_move = (360*distance_in_km)/(eartch_circumference*cos(convertInRadians(lat_center)));
+
+        double north_east_lat =lat_center+north_south_move;
+        double north_east_longi =longi_center+east_west_move;
+        double south_west_lat =lat_center-north_south_move;
+        double south_west_longi =longi_center-east_west_move;
+
+        Log.d("debago", "NE_LAT :"+north_east_lat+"NE_LNG:"+north_east_longi+"SW_LAT :"+south_west_lat+"SW_LAT :"+south_west_longi);
+
+        switch(lat_long) {
+            case "NE_LAT":
+                return north_east_lat;
+
+            case "NE_LNG":
+                return north_east_longi;
+
+            case "SW_LAT":
+                return south_west_lat;
+
+            case "SW_LNG":
+                return south_west_longi;
+
+            default:
+                return 0.0;
+        }
+
+    }
+
+    private double convertInRadians(double degre){
+
+        return Math.PI/(180*degre);
     }
 
     @Override
