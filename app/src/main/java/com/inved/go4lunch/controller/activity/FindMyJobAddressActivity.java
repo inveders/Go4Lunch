@@ -47,7 +47,7 @@ public class FindMyJobAddressActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if(!ManageChangingWork.getUserWorkDecision(this)){
+        if (!ManageChangingWork.getUserWorkDecision(this)) {
             UserHelper.getUserWhateverLocation(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).get().addOnCompleteListener(task -> {
 
                 if (task.isSuccessful()) {
@@ -108,33 +108,29 @@ public class FindMyJobAddressActivity extends BaseActivity {
 
                 if (!ManageChangingWork.getUserWorkDecision(this)) {
                     //User first work in app
-                    String firebaseAuthUid = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
-                    UserHelper.getUserWithSameUid(firebaseAuthUid).get().addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
+                    if(getCurrentUser()!=null){
+                        String firebaseAuthUid = getCurrentUser().getUid();
+                        UserHelper.getUserWithSameUid(firebaseAuthUid).get().addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
 
-                            if (task.getResult() != null) {
-                                if (task.getResult().getDocuments().size() != 0) {
-
-                                    Log.d("Debago", "findMyJobAddress already exist " + task.getResult().getDocuments());
-                                    ManageJobPlaceId.saveJobPlaceId(getApplicationContext(), jobPlaceId);
-                                    startRestaurantActivity();
-                                } else {
-                                    Log.d("Debago", "FindMyJobAddressActivity create user in firestore " + jobAddress + " " + jobName + " " + jobPlaceId);
-                                    createUserInFirestore(jobAddress, jobPlaceId, jobName);
-                                    startRestaurantActivity();
+                                if (task.getResult() != null) {
+                                    if (task.getResult().getDocuments().size() != 0) {
+                                        ManageJobPlaceId.saveJobPlaceId(getApplicationContext(), jobPlaceId);
+                                        startRestaurantActivity();
+                                    } else {
+                                        createUserInFirestore(jobAddress, jobPlaceId, jobName);
+                                        startRestaurantActivity();
+                                    }
                                 }
                             }
+                        });
+                    }
 
-
-                        }
-
-
-                    });
                 } else {
                     //User is changing work
                     if (getCurrentUser() != null) {
 
-                        moveFirestoreDocument(UserHelper.getUsersCollection().document(getCurrentUser().getUid()), UserHelper.getUsersNewCollectionAfterChangingWork(jobPlaceId).document(getCurrentUser().getUid()),jobAddress, jobPlaceId, jobName);
+                        moveFirestoreDocument(UserHelper.getUsersCollection().document(getCurrentUser().getUid()), UserHelper.getUsersNewCollectionAfterChangingWork(jobPlaceId).document(getCurrentUser().getUid()), jobAddress, jobPlaceId, jobName);
 
                     }
 
@@ -147,11 +143,11 @@ public class FindMyJobAddressActivity extends BaseActivity {
 
     private void updateInformationAfterMoving(String jobAddress, String jobPlaceId, String jobName) {
 
-        if(getCurrentUser()!=null){
+        if (getCurrentUser() != null) {
 
-            UserHelper.updateJobAddress(jobAddress,getCurrentUser().getUid());
-            UserHelper.updateJobName(jobName,getCurrentUser().getUid());
-            UserHelper.updateJobPlaceId(jobPlaceId,getCurrentUser().getUid());
+            UserHelper.updateJobAddress(jobAddress, getCurrentUser().getUid());
+            UserHelper.updateJobName(jobName, getCurrentUser().getUid());
+            UserHelper.updateJobPlaceId(jobPlaceId, getCurrentUser().getUid());
         }
 
     }
@@ -203,7 +199,7 @@ public class FindMyJobAddressActivity extends BaseActivity {
         startActivity(intent);
     }
 
-    public void moveFirestoreDocument(DocumentReference fromPath, final DocumentReference toPath,String jobAddress,String jobPlaceId,String jobName) {
+    public void moveFirestoreDocument(DocumentReference fromPath, final DocumentReference toPath, String jobAddress, String jobPlaceId, String jobName) {
         fromPath.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
@@ -218,8 +214,8 @@ public class FindMyJobAddressActivity extends BaseActivity {
                                             .addOnSuccessListener(aVoid1 -> Log.d(TAG, "DocumentSnapshot successfully deleted!"))
                                             .addOnFailureListener(e -> Log.w(TAG, "Error deleting document", e));
 
-                                    ManageChangingWork.saveUserWorkDecision(this,false);
-                                    ManageJobPlaceId.saveJobPlaceId(this,jobPlaceId);
+                                    ManageChangingWork.saveUserWorkDecision(this, false);
+                                    ManageJobPlaceId.saveJobPlaceId(this, jobPlaceId);
                                     updateInformationAfterMoving(jobAddress, jobPlaceId, jobName);
                                     startRestaurantActivity();
                                 })

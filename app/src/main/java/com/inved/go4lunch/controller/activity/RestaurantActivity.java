@@ -258,7 +258,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         });
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -312,7 +311,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
         Intent intent = new Autocomplete.IntentBuilder(
                 AutocompleteActivityMode.OVERLAY, fields)
-               // .setCountry("FR")
                 .setHint(getString(R.string.Enter_restaurant_name))
                 .setLocationRestriction(boundsRect)
                 .setTypeFilter(TypeFilter.ESTABLISHMENT)
@@ -798,7 +796,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
                     .setMessage(R.string.alert_dialog_location_far_from_works_text);
 
             // Create the AlertDialog
-            // AlertDialog dialog = builder.create();
 
             if (distance > 2 && appMode.equals(App.getResourses().getString(R.string.app_mode_work))) {
 

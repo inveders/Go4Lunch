@@ -16,6 +16,7 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.SET_ALARM"/>
 
     <uses-permission android:name="android.permission.CALL_PHONE" />
 
@@ -116,7 +117,17 @@
             </intent-filter>
         </service>
 
-        <receiver android:name=".utils.MyAlarm">
+        <!-- ALARM SERVICE -->
+        <service android:name=".utils.MyAlarmService"
+            android:exported="false">
+
+        </service>
+
+        <receiver android:name=".utils.MyAlarmBroadcast"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
         </receiver>
     </application>
 

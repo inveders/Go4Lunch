@@ -62,7 +62,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     private double myCurrentLongi;
 
     private FloatingActionButton mapGeolocalisationButton;
-    private Context context= App.getInstance().getApplicationContext();
+    private Context context = App.getInstance().getApplicationContext();
 
     //Receive current localisation from Localisation.class
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -70,8 +70,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         public void onReceive(Context context, Intent intent) {
             if (KEY_LOCATION_CHANGED.equals(intent.getAction())) {
                 intent.getSerializableExtra(KEY_GEOLOCALISATION);
-                myCurrentLat = intent.getDoubleExtra(KEY_LATITUDE,0.0);
-                myCurrentLongi = intent.getDoubleExtra(KEY_LONGITUDE,0.0);
+                myCurrentLat = intent.getDoubleExtra(KEY_LATITUDE, 0.0);
+                myCurrentLongi = intent.getDoubleExtra(KEY_LONGITUDE, 0.0);
 
             }
 
@@ -170,26 +170,26 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         } else {
 
 
-                if(ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_work))||ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_forced_work))){
-                    RestaurantHelper.getAllRestaurants().get().addOnSuccessListener(queryDocumentSnapshots -> {
+            if (ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_work)) || ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_forced_work))) {
+                RestaurantHelper.getAllRestaurants().get().addOnSuccessListener(queryDocumentSnapshots -> {
 
-                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                            Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
+                    for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                        Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
 
-                            String restaurantPlaceId = restaurant.getRestaurantPlaceId();
-                            double latitude = restaurant.getLatitude();
-                            double longitude = restaurant.getLongitude();
+                        String restaurantPlaceId = restaurant.getRestaurantPlaceId();
+                        double latitude = restaurant.getLatitude();
+                        double longitude = restaurant.getLongitude();
 
-                            customizeMarker(restaurantPlaceId, latitude, longitude);
-                        }
+                        customizeMarker(restaurantPlaceId, latitude, longitude);
+                    }
 
-                    }).addOnFailureListener(e -> {
+                }).addOnFailureListener(e -> {
 
-                    });
+                });
 
 
-            }else{
-                if(FirebaseAuth.getInstance().getCurrentUser()!=null){
+            } else {
+                if (FirebaseAuth.getInstance().getCurrentUser() != null) {
                     RestaurantInNormalModeHelper.getAllRestaurants(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnSuccessListener(queryDocumentSnapshots -> {
 
                         for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
@@ -248,57 +248,47 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.snippet(restaurantPlaceId);
 
-        if(FirebaseAuth.getInstance().getCurrentUser()!=null){
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
 
-                if(ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_work))||ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_forced_work))){
+            if (ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_work)) || ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_forced_work))) {
 
-                    RestaurantHelper.getRestaurant(restaurantPlaceId).addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult();
-                            if (document != null) {
-                                Restaurant restaurant = document.toObject(Restaurant.class);
+                RestaurantHelper.getRestaurant(restaurantPlaceId).addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document != null) {
+                            Restaurant restaurant = document.toObject(Restaurant.class);
 
-                                if (restaurant != null) {
-                                    if (document.exists()) {
+                            if (restaurant != null) {
+                                if (document.exists()) {
 
-                                        markerOptions.position(latLng);
+                                    markerOptions.position(latLng);
 
-                                        //creating and getting restaurant information
-                                        int numberCustomers = restaurant.getRestaurantCustomers();
-                                        if (numberCustomers > 0) {
-                                            markerOptions.icon(bitmapDescriptorFromVectorSelected(getContext()));
-                                            mGoogleMap.addMarker(markerOptions);
+                                    //creating and getting restaurant information
+                                    int numberCustomers = restaurant.getRestaurantCustomers();
+                                    if (numberCustomers > 0) {
+                                        markerOptions.icon(bitmapDescriptorFromVectorSelected(getContext()));
+                                        mGoogleMap.addMarker(markerOptions);
 
-                                        } else {
-                                            markerOptions.icon(bitmapDescriptorFromVectorNotSelected(getContext()));
-                                            mGoogleMap.addMarker(markerOptions);
-
-                                        }
-
-
-                                        if(myCurrentLat==0.0){
-                                            
-                                            CameraPosition Liberty = CameraPosition.builder().target(latLng).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
-                                            mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
-                                            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                                        }else{
-
-                                            CameraPosition Liberty = CameraPosition.builder().target(latLngCurrent).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
-                                            mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
-                                            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLngCurrent));
-                                        }
+                                    } else {
+                                        markerOptions.icon(bitmapDescriptorFromVectorNotSelected(getContext()));
+                                        mGoogleMap.addMarker(markerOptions);
 
                                     }
+                                    CameraPosition Liberty = CameraPosition.builder().target(latLng).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
+                                    mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
+                                    mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+
                                 }
                             }
-
-
                         }
-                    });
 
 
-            }else{
-                RestaurantInNormalModeHelper.getRestaurant(FirebaseAuth.getInstance().getCurrentUser().getUid(),restaurantPlaceId).addOnCompleteListener(task -> {
+                    }
+                });
+
+
+            } else {
+                RestaurantInNormalModeHelper.getRestaurant(FirebaseAuth.getInstance().getCurrentUser().getUid(), restaurantPlaceId).addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
                         if (document != null) {
@@ -312,21 +302,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                                     //creating and getting restaurant information
                                     //int numberCustomers = restaurant.getRestaurantCustomers();
 
-                                    if(restaurantPlaceId.equals(ManageRestaurantChoiceInNormalMode.getRestaurantChoice(App.getInstance().getApplicationContext()))){
+                                    if (restaurantPlaceId.equals(ManageRestaurantChoiceInNormalMode.getRestaurantChoice(App.getInstance().getApplicationContext()))) {
                                         markerOptions.icon(bitmapDescriptorFromVectorSelected(getContext()));
                                         mGoogleMap.addMarker(markerOptions);
-                                    }
-                                    else {
+                                    } else {
                                         markerOptions.icon(bitmapDescriptorFromVectorNotSelected(getContext()));
                                         mGoogleMap.addMarker(markerOptions);
 
                                     }
-                                    if(myCurrentLat==0.0){
+                                    if (myCurrentLat == 0.0) {
 
                                         CameraPosition Liberty = CameraPosition.builder().target(latLng).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
                                         mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
                                         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-                                    }else{
+                                    } else {
 
                                         CameraPosition Liberty = CameraPosition.builder().target(latLngCurrent).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
                                         mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
@@ -341,12 +330,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                 });
             }
         }
-
-
-
-
-
-
 
 
         if (mGoogleMap != null) {

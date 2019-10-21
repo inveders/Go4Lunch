@@ -147,11 +147,6 @@ public class Restaurant implements Comparable<Restaurant> {
         this.restaurantPlaceId = restaurantPlaceId;
     }
 
-    public void setJobPlaceId(String jobPlaceId) {
-        this.jobPlaceId = jobPlaceId;
-    }
-
-
     public void setRestaurantName(String restaurantName) {
         this.restaurantName = restaurantName;
     }

@@ -25,7 +25,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.inved.go4lunch.R;
@@ -133,6 +132,7 @@ public class ListViewFragment extends Fragment{
 
                 if (task.getResult() != null) {
                     if(task.getResult().size()>0){
+                        textViewNoRestaurantFound.setVisibility(View.INVISIBLE);
                         for (DocumentSnapshot querySnapshot : task.getResult()) {
                             Restaurant restaurant = querySnapshot.toObject(Restaurant.class);
 
@@ -162,10 +162,7 @@ public class ListViewFragment extends Fragment{
                         textViewNoRestaurantFound.setVisibility(View.VISIBLE);
 
                     }
-
-
                 }
-
 
                 mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(Glide.with(context), restaurantArrayList);
                 mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
@@ -178,6 +175,7 @@ public class ListViewFragment extends Fragment{
 
                     if (task.getResult() != null) {
                         if (task.getResult().size() > 0) {
+                            textViewNoRestaurantFound.setVisibility(View.INVISIBLE);
                             for (DocumentSnapshot querySnapshot : task.getResult()) {
                                 Restaurant restaurant = querySnapshot.toObject(Restaurant.class);
 

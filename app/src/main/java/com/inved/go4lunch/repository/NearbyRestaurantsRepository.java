@@ -75,10 +75,8 @@ public class NearbyRestaurantsRepository {
 
     public MutableLiveData<List<Result>> getNearbySearchMutableLiveData(Double myCurrentLat, Double myCurrentLongi) {
 
-        Log.d("debago", "NearbyRestaurantRepository, in retrofit search ");
         GoogleNearbySearchApi googleNearbySearchApi = RetrofitServiceNearbySearch.getGoogleNearbySearchApi();
 
-        // Log.d("debago","latitude : "+myCurrentLat);
         String location = "" + myCurrentLat + "," + myCurrentLongi + "";
         int radius = 400;
         String type = "restaurant";
@@ -93,10 +91,10 @@ public class NearbyRestaurantsRepository {
                     if (placeSearch.getResults() != null) {
                         results = (ArrayList<Result>) placeSearch.getResults();
                         mutableLiveData.setValue(results);
-                        Log.d("debago", "NearbyRestaurantRepository, result size " + results.size());
+                       // Log.d("debago", "NearbyRestaurantRepository, result size " + results.size());
                         if (results.size()>0) {
                             if (appMode.equals(App.getResourses().getString(R.string.app_mode_normal))) {
-                                Log.d("debago", "NearbyRestaurantRepository, i'm in normal mode " + results);
+                             //   Log.d("debago", "NearbyRestaurantRepository, i'm in normal mode " + results);
 
                                 RestaurantInNormalModeHelper.getRestaurant(currentUser, results.get(0).getPlaceId()).addOnCompleteListener(task -> {
                                     if (task.getResult() != null) {
@@ -124,7 +122,7 @@ public class NearbyRestaurantsRepository {
                             }
 
                             if (appMode.equals(App.getResourses().getString(R.string.app_mode_forced_work))) {
-                                Log.d("debago", "NearbyRestaurantRepository, i'm in forced work mode");
+                             //   Log.d("debago", "NearbyRestaurantRepository, i'm in forced work mode");
                                 updateFirebaseWithRestaurantsFromMyWorkIfExist();
                             }
                             if (appMode.equals(App.getResourses().getString(R.string.app_mode_work))) {
@@ -132,8 +130,12 @@ public class NearbyRestaurantsRepository {
                                 setNearbyRestaurantsInFirebase(results, myCurrentLat, myCurrentLongi);
                             }
                         } else {
-                            deleteAllRestaurantInNormalMode(results, myCurrentLat, myCurrentLongi);
-                            Toast.makeText(context, App.getResourses().getString(R.string.no_restaurant_found), Toast.LENGTH_SHORT).show();
+
+                            if (appMode.equals(App.getResourses().getString(R.string.app_mode_normal))) {
+                                deleteAllRestaurantInNormalMode(results, myCurrentLat, myCurrentLongi);
+                                Toast.makeText(context, App.getResourses().getString(R.string.no_restaurant_found), Toast.LENGTH_SHORT).show();
+                            }
+
                         }
 
 

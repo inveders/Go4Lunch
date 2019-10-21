@@ -126,7 +126,11 @@ public class NotificationsActivity extends BaseActivity {
 
     public void showNotificationMessageText(String restaurantName,String restaurantVicinity,String placeId) {
 
-        if(restaurantName.equals(getString(R.string.info_no_restaurant_name_found))){
+        if(restaurantName==null){
+            notificationMessageText.setText(getString(R.string.restaurant_no_choosen));
+            notificationMessageWorkmates.setVisibility(View.INVISIBLE);
+        }
+        else if(restaurantName.equals(getString(R.string.info_no_restaurant_name_found))){
             notificationMessageText.setText(getString(R.string.restaurant_no_choosen));
             notificationMessageWorkmates.setVisibility(View.INVISIBLE);
         }

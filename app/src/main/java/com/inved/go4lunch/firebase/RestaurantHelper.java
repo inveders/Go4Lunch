@@ -16,7 +16,9 @@ public class RestaurantHelper {
     // --- COLLECTION REFERENCE ---
 
     private static CollectionReference getRestaurantsCollection() {
-        return FirebaseFirestore.getInstance().collection(COLLECTION_GENERAL).document(ManageJobPlaceId.getJobPlaceId(App.getInstance().getApplicationContext())).collection(COLLECTION_NAME);
+        return FirebaseFirestore.getInstance().collection(COLLECTION_GENERAL)
+                .document(ManageJobPlaceId.getJobPlaceId(App.getInstance()
+                .getApplicationContext())).collection(COLLECTION_NAME);
 
     }
 
@@ -72,7 +74,9 @@ public class RestaurantHelper {
     }
 
     public static void updateRestaurantCustomers(int restaurantCustomers, String id) {
-        RestaurantHelper.getRestaurantsCollection().document(id).update("restaurantCustomers", restaurantCustomers);
+        RestaurantHelper.getRestaurantsCollection()
+                .document(id)
+                .update("restaurantCustomers", restaurantCustomers);
     }
 
     public static void updateRestaurantOpenForLunch(boolean openForLunch, String id) {
