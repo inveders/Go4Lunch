@@ -5,14 +5,11 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
-import com.inved.go4lunch.R;
-import com.inved.go4lunch.model.matrix.Element;
+import com.inved.go4lunch.BuildConfig;
 import com.inved.go4lunch.model.matrix.Matrix;
 import com.inved.go4lunch.model.matrix.Row;
 import com.inved.go4lunch.retrofit.GoogleMatrixApi;
 import com.inved.go4lunch.retrofit.RetrofitServiceMatrix;
-import com.inved.go4lunch.utils.App;
-import com.inved.go4lunch.utils.ManageJobPlaceId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +22,7 @@ public class RepositoryMatrix {
 
     private ArrayList<Row> results = new ArrayList<>();
     private MutableLiveData<List<Row>> mutableLiveData = new MutableLiveData<>();
+    private static final String MATRIX_API_KEY = BuildConfig.GOOGLE_MATRIX_API_KEY;
 
     public RepositoryMatrix() {
     }
@@ -34,8 +32,8 @@ public class RepositoryMatrix {
         GoogleMatrixApi googleMatrixApi = RetrofitServiceMatrix.getGoogleMatrixApi();
 
         String units = "metric";
-        String google_key = "AIzaSyDGlWlfgLFt-CyCh9m8B7mQU8HMc6VT1xw";
-        Call<Matrix> call = googleMatrixApi.getDistanceBetweenTwoPlaces(origins,"place_id:"+destinations,units, google_key);
+
+        Call<Matrix> call = googleMatrixApi.getDistanceBetweenTwoPlaces(origins,"place_id:"+destinations,units, MATRIX_API_KEY);
 
         call.enqueue(new Callback<Matrix>() {
             @Override

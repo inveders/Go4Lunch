@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -24,20 +23,16 @@ import com.inved.go4lunch.utils.App;
 import com.inved.go4lunch.utils.ManageAppMode;
 import com.inved.go4lunch.view.WorkmatesAdapter;
 
-import butterknife.BindView;
-
 public class PeopleFragment extends Fragment implements WorkmatesAdapter.Listener{
 
     private RecyclerView mRecyclerWorkmates;
     private String appMode = ManageAppMode.getAppMode(App.getInstance().getApplicationContext());
-
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View mView = inflater.inflate(R.layout.fragment_people, container, false);
-
 
         //RecyclerView initialization
         mRecyclerWorkmates = mView.findViewById(R.id.fragment_people_recycler_view);
@@ -48,9 +43,7 @@ public class PeopleFragment extends Fragment implements WorkmatesAdapter.Listene
         }else{
             mRecyclerWorkmates.setVisibility(View.INVISIBLE);
             textViewNoWorkmatesInNormalMode.setVisibility(View.VISIBLE);
-
         }
-
 
         return mView;
 

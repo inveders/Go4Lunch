@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Switch;
@@ -32,7 +30,6 @@ import com.inved.go4lunch.controller.activity.MainActivity;
 import com.inved.go4lunch.controller.activity.RestaurantActivity;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
-import com.inved.go4lunch.utils.CheckDistanceFromWork;
 import com.inved.go4lunch.utils.ManageAppMode;
 import com.inved.go4lunch.utils.ManageChangingWork;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
@@ -97,14 +94,11 @@ public class ProfileActivity extends BaseActivity {
 
         notificationSwitch.setOnCheckedChangeListener((compoundButton, bChecked) -> {
             if (bChecked) {
-                //Toast.makeText(ProfileActivity.this, getString(R.string.notification_enabling), Toast.LENGTH_SHORT).show();
-
                 if (getCurrentUser() != null) {
                     UserHelper.updateNotificationEnabled(true, getCurrentUser().getUid());
                 }
 
             } else {
-                // Toast.makeText(ProfileActivity.this, getString(R.string.notification_desabling), Toast.LENGTH_SHORT).show();
                 if (getCurrentUser() != null) {
                     UserHelper.updateNotificationEnabled(false, getCurrentUser().getUid());
                 }
@@ -156,7 +150,6 @@ public class ProfileActivity extends BaseActivity {
         } else {
             if (latitude != 0.0) {
                 RestaurantActivity restaurantActivity = new RestaurantActivity();
-                Log.d("debago", "mycurrentgeoloc :" + myCurrentGeolocalisation + " latitude :" + latitude);
                 restaurantActivity.checkDistanceFromWork(myCurrentGeolocalisation, ManageJobPlaceId.getJobPlaceId(this), latitude, longitude);
 
             } else {
@@ -176,12 +169,7 @@ public class ProfileActivity extends BaseActivity {
     public void onClickDeleteButton() {
         new AlertDialog.Builder(this)
                 .setMessage(R.string.popup_message_confirmation_delete_account)
-                .setPositiveButton(R.string.popup_message_choice_yes, (dialogInterface, i) -> {
-                    deleteUserFromFirebase();
-
-                    //  startMainActivity();
-
-                })
+                .setPositiveButton(R.string.popup_message_choice_yes, (dialogInterface, i) -> deleteUserFromFirebase())
                 .setNegativeButton(R.string.popup_message_choice_no, null)
                 .show();
     }
@@ -207,7 +195,6 @@ public class ProfileActivity extends BaseActivity {
                             .delete(getApplicationContext())
                             .addOnCompleteListener(task1 -> {
                                 if (task1.isSuccessful()) {
-                                    Log.d("debago", "User account deleted.");
                                     startMainActivity();
                                     finish();
                                 }
@@ -218,7 +205,6 @@ public class ProfileActivity extends BaseActivity {
                 });
 
     }
-
 
     // 3 - Update User Firstname and lastname
     private void updateNameInFirebase() {
@@ -273,7 +259,6 @@ public class ProfileActivity extends BaseActivity {
                         //    String firstname = TextUtils.isEmpty(currentUser.getFirstname()) ? getString(R.string.info_no_firstname_found) : currentUser.getFirstname();
                         //  String lastname = TextUtils.isEmpty(currentUser.getLastname()) ? getString(R.string.info_no_lastname_found) : currentUser.getLastname();
 
-
                         assert currentUser != null;
                         String firstname = currentUser.getFirstname();
                         if (TextUtils.isEmpty(firstname) || firstname.equals(getString(R.string.info_no_firstname_found))) {
@@ -296,7 +281,6 @@ public class ProfileActivity extends BaseActivity {
                             textViewJobAddress.setText(jobAddress);
                         }
 
-                        Log.d("debago", "profileactivity jobName:" + currentUser.getJobName()+" jobplaceId is : " + ManageJobPlaceId.getJobPlaceId(this));
                         String jobName = currentUser.getJobName();
                         if (TextUtils.isEmpty(jobName) || jobName.equals(getString(R.string.info_no_job_name_found))) {
                             textViewJobName.setHint(getString(R.string.info_no_job_name_found));

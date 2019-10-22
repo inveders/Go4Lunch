@@ -6,10 +6,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import java.util.Calendar;
 import android.os.Build;
-import android.util.Log;
-import android.widget.Toast;
+
+import java.util.Calendar;
 
 public class App extends Application {
 
@@ -28,7 +27,6 @@ public class App extends Application {
     public void launchAlarm(){
         Context ctx = getApplicationContext();
         AlarmManager alarmManager= (AlarmManager) ctx.getSystemService(ALARM_SERVICE);
-        Toast.makeText(ctx, "Alarm Triggered", Toast.LENGTH_SHORT).show();
         Intent myItent=new Intent(ctx, MyAlarmService.class);
         PendingIntent alarmIntent = PendingIntent.getService(ctx,REQUEST_CODE,myItent,PendingIntent.FLAG_CANCEL_CURRENT);
 

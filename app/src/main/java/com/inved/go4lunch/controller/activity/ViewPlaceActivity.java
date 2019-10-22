@@ -295,25 +295,20 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                 if (document != null) {
                     String restaurantPlaceIdInFirebase = document.getDocuments().get(0).getString("restaurantPlaceId");
 
-                    //  Log.d("Debago", "ViewPlaceActivity initialization: restaurantqInFirebase " + restaurantPlaceIdInFirebase + " et mCurrentPLace " + mCurrentPlaceId);
-
                     if (ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_normal))) {
                         if (ManageRestaurantChoiceInNormalMode.getRestaurantChoice(this) == null || !ManageRestaurantChoiceInNormalMode.getRestaurantChoice(this).equals(mCurrentPlaceId)) {
-                            //      Log.d("Debagoo", "ViewPlaceActivity initialization: couleur rouge");
+
                             isChoosenRestaurantImage.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#B70400")));//red color
 
                         } else {
-                            //    Log.d("Debagoo", "ViewPlaceActivity initialization: couleur verte");
+
                             isChoosenRestaurantImage.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#4CAF50")));//green color
 
                         }
                     } else {
                         if (TextUtils.isEmpty(restaurantPlaceIdInFirebase) || !restaurantPlaceIdInFirebase.equals(mCurrentPlaceId)) {
-                            //      Log.d("Debagoo", "ViewPlaceActivity initialization: couleur rouge");
                             isChoosenRestaurantImage.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#B70400")));//red color
-
                         } else {
-                            //    Log.d("Debagoo", "ViewPlaceActivity initialization: couleur verte");
                             isChoosenRestaurantImage.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#4CAF50")));//green color
 
                         }
@@ -345,14 +340,12 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                         new android.app.AlertDialog.Builder(this)
                                 // Add the buttons
                                 .setPositiveButton(R.string.popup_message_choice_yes, (dialog, which) -> {
-                                    // do something like...
                                     ManageRestaurantChoiceInNormalMode.saveRestaurantChoice(this, currentPlaceId);
                                     ManageRestaurantChoiceInNormalMode.saveRestaurantName(this, myRestaurantName);
                                     ManageRestaurantChoiceInNormalMode.saveRestaurantAddress(this, myRestaurantVicinity);
                                     changeButtonColor("#4CAF50");//green color
                                 })
                                 .setNegativeButton(R.string.popup_message_choice_no, (dialog, which) -> {
-                                    // do nothing stay on the page...
 
                                 })
                                 .setMessage(context.getString(R.string.alert_dialog_view_activity, restaurantName))
@@ -362,14 +355,12 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                         new android.app.AlertDialog.Builder(this)
                                 // Add the buttons
                                 .setPositiveButton(R.string.popup_message_choice_yes, (dialog, which) -> {
-                                    // do something like...
                                     ManageRestaurantChoiceInNormalMode.saveRestaurantChoice(this, null);
                                     ManageRestaurantChoiceInNormalMode.saveRestaurantName(this, null);
                                     ManageRestaurantChoiceInNormalMode.saveRestaurantAddress(this, null);
                                     changeButtonColor("#B70400");//red color
                                 })
                                 .setNegativeButton(R.string.popup_message_choice_no, (dialog, which) -> {
-                                    // do nothing stay on the page...
 
                                 })
                                 .setMessage(context.getString(R.string.alert_dialog_view_activity_no_choice_yet))
@@ -396,7 +387,6 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
 
         if (TextUtils.isEmpty(restaurantPlaceIdInFirebase)) { //if there is no restaurant in my firebase
-            //  Log.d("Debagoo", "ViewPlaceActivity clickbutton cas1 if there is no restaurant in my firebase: restaurantqInFirebase " + restaurantPlaceIdInFirebase);
             //We retrieve the new restaurant to increment customers's number
 
             RestaurantHelper.getRestaurant(mCurrentPlaceId).addOnCompleteListener(task -> {
@@ -425,17 +415,14 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
             });
 
             changeButtonColor("#4CAF50");//green color
-            //  Log.d("Debagoo", "ViewPlaceActivity choose restaurant cas1 bis: je fais un nouveau choix");
 
         } else if (!restaurantPlaceIdInFirebase.equals(mCurrentPlaceId)) { //if there is one restaurant in my firebase but different of actual view place
-            //  Log.d("Debagoo", "ViewPlaceActivity click button cas 2, if there is one restaurant in my firebase but different of actual view place restaurantInFirebase :" + restaurantPlaceIdInFirebase + " et currentplaceID " + mCurrentPlaceId);
 
             new AlertDialog.Builder(context)
                     .setMessage(context.getString(R.string.alert_dialog_view_activity, restaurantName))
                     .setPositiveButton(R.string.popup_message_choice_yes, (dialogInterface, i) -> {
 
                         //We retrieve the old restaurant to decrease customers's number
-                        //  Log.d("Debagoo", "ViewPlaceActivity click button retrieve, restaurantInFirebase :" + restaurantPlaceIdInFirebase);
 
                         RestaurantHelper.getRestaurant(restaurantPlaceIdInFirebase).addOnCompleteListener(task -> {
                             DocumentSnapshot document = task.getResult();
@@ -494,7 +481,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
 
         } else { //if there is one restaurant in my firebase and he is the same than actual view place
-            //   Log.d("Debagoo", "ViewPlaceActivity click button cas 3,if there is one restaurant in my firebase and he is the same than actual view place restaurantInFirebase :" + restaurantPlaceIdInFirebase + " et currentplaceID " + mCurrentPlaceId);
+
             new AlertDialog.Builder(context)
                     .setMessage(context.getString(R.string.alert_dialog_view_activity_no_choice_yet))
                     .setPositiveButton(R.string.popup_message_choice_yes, (dialogInterface, i) -> {
@@ -524,11 +511,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                                 }
                             }
                         });
-
-
                         changeButtonColor("#B70400");//red color
-
-                        Log.d("Debagoo", "ViewPlaceActivity choose restaurant cas3 bis: je désélectionne mon choix");
                     })
                     .setNegativeButton(R.string.popup_message_choice_no, null)
                     .show();
@@ -540,7 +523,6 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     private void changeButtonColor(String newColor) {
 
-        Log.d("Debagoo", "ViewPlaceActivity cchangeButtonColor");
         isChoosenRestaurantImage.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(newColor)));
 
     }
@@ -593,8 +575,6 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                     if (restaurant != null) {
                         int currentRestaurantLike = restaurant.getRestaurantLike();
 
-                        Log.d("Debago", "ViewPlaceActivity onLikeButton currentRestaurantLike: " + currentRestaurantLike);
-
                         if (getCurrentUser() != null) {
                             UserFavoriteRestaurantHelper.getCurrentRestaurantPlaceId(getCurrentUser().getUid(), currentPlaceId).get().addOnCompleteListener(task1 -> {
 
@@ -608,13 +588,13 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                                             int newRestaurantLike;
 
                                             Boolean isRestaurantLiked = task1.getResult().getDocuments().get(0).getBoolean("liked");
-                                            Log.d("Debago", "ViewPlaceActivity onLikeButton isRestaurantLiked " + isRestaurantLiked + " task.getresult is " + task1.getResult());
+
                                             //We want to decrement
                                             if (isRestaurantLiked != null) {
                                                 if (isRestaurantLiked) {
                                                     changeLikeButtonColor(getString(R.string.changeButtonColor_Orange));
                                                     newRestaurantLike = currentRestaurantLike - 1;
-                                                    Log.d("Debago", "ViewPlaceActivity onLikeButton : we decrement");
+
                                                     UserFavoriteRestaurantHelper.updateFavoriteRestaurantLiked((getCurrentUser()).getUid(), currentPlaceId, false);
 
                                                 }
@@ -622,7 +602,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                                                 else {
                                                     changeLikeButtonColor(getString(R.string.changeButtonColor_Yellow));
                                                     newRestaurantLike = currentRestaurantLike + 1;
-                                                    Log.d("Debago", "ViewPlaceActivity onLikeButton : we increment");
+
                                                     UserFavoriteRestaurantHelper.updateFavoriteRestaurantLiked(getCurrentUser().getUid(), currentPlaceId, true);
                                                 }
 
@@ -637,17 +617,14 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                                         else {
 
                                             UserFavoriteRestaurantHelper.createUserFavoriteRestaurants(getCurrentUser().getUid(), currentPlaceId, true);
-                                            Log.d("Debago", "ViewPlaceActivity onLikeButton : we create favorite restaurant in Database");
+
                                             changeLikeButtonColor(getString(R.string.changeButtonColor_Yellow));
                                             RestaurantHelper.updateRestaurantLike(1, currentPlaceId);
                                             actionOnLikeButton(currentPlaceId);
                                         }
                                     }
 
-                                } else {
-                                    Log.d("Debago", "View Place task is not successful");
                                 }
-
                             });
                         }
 
@@ -655,7 +632,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                         //We create this place in favorites even if it's not near from you
                         if (getCurrentUser() != null) {
                             UserFavoriteRestaurantHelper.createUserFavoriteRestaurants(getCurrentUser().getUid(), currentPlaceId, true);
-                            Log.d("Debago", "ViewPlaceActivity onLikeButton : we create far place in favorite restaurant");
+
                         }
 
                     }
@@ -676,8 +653,6 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
                             int currentRestaurantLike = restaurant.getRestaurantLike();
 
-                            Log.d("Debago", "ViewPlaceActivity onLikeButton currentRestaurantLike: " + currentRestaurantLike);
-
                             if (getCurrentUser() != null) {
                                 UserFavoriteRestaurantHelper.getCurrentRestaurantPlaceId(getCurrentUser().getUid(), currentPlaceId).get().addOnCompleteListener(task1 -> {
 
@@ -691,13 +666,13 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                                                 int newRestaurantLike;
 
                                                 Boolean isRestaurantLiked = task1.getResult().getDocuments().get(0).getBoolean("liked");
-                                                Log.d("Debago", "ViewPlaceActivity onLikeButton isRestaurantLiked " + isRestaurantLiked + " task.getresult is " + task1.getResult());
+
                                                 //We want to decrement
                                                 if (isRestaurantLiked != null) {
                                                     if (isRestaurantLiked) {
                                                         changeLikeButtonColor(getString(R.string.changeButtonColor_Orange));
                                                         newRestaurantLike = currentRestaurantLike - 1;
-                                                        Log.d("Debago", "ViewPlaceActivity onLikeButton : we decrement");
+
                                                         UserFavoriteRestaurantHelper.updateFavoriteRestaurantLiked((getCurrentUser()).getUid(), currentPlaceId, false);
 
                                                     }
@@ -705,7 +680,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                                                     else {
                                                         changeLikeButtonColor(getString(R.string.changeButtonColor_Yellow));
                                                         newRestaurantLike = currentRestaurantLike + 1;
-                                                        Log.d("Debago", "ViewPlaceActivity onLikeButton : we increment");
+
                                                         UserFavoriteRestaurantHelper.updateFavoriteRestaurantLiked(getCurrentUser().getUid(), currentPlaceId, true);
                                                     }
 
@@ -720,24 +695,19 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                                             else {
 
                                                 UserFavoriteRestaurantHelper.createUserFavoriteRestaurants(getCurrentUser().getUid(), currentPlaceId, true);
-                                                Log.d("Debago", "ViewPlaceActivity onLikeButton : we create favorite restaurant in Database");
                                                 changeLikeButtonColor(getString(R.string.changeButtonColor_Yellow));
                                                 RestaurantInNormalModeHelper.updateRestaurantLike(this.getCurrentUser().getUid(), 1, currentPlaceId);
                                                 actionOnLikeButton(currentPlaceId);
                                             }
                                         }
 
-                                    } else {
-                                        Log.d("Debago", "View Place task is not successful");
                                     }
-
                                 });
                             }
 
                         } else {
                             //We create this place in favorites even if it's not near from you
                             UserFavoriteRestaurantHelper.createUserFavoriteRestaurants(getCurrentUser().getUid(), currentPlaceId, true);
-                            Log.d("Debago", "ViewPlaceActivity onLikeButton : we create far place in favorite restaurant");
                         }
 
                     }

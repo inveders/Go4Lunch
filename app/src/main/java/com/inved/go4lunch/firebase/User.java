@@ -53,5 +53,4 @@ public class User {
 
     public void setRestaurantPlaceId(String restaurantPlaceId) { this.restaurantPlaceId = restaurantPlaceId; }
     public void setRestaurantName(String restaurantName) { this.restaurantName = restaurantName; }
-    public void setJobPlaceId(String jobPlaceId) { this.jobPlaceId = jobPlaceId; }
 }

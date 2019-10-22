@@ -22,8 +22,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -45,7 +43,6 @@ import java.util.Objects;
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_GEOLOCALISATION;
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LOCATION_CHANGED;
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.PLACE_SEARCH_DATA;
-import static com.inved.go4lunch.controller.activity.RestaurantActivity.TAG;
 
 public class ListViewFragment extends Fragment{
 
@@ -112,8 +109,6 @@ public class ListViewFragment extends Fragment{
         filterButton = mView.findViewById(R.id.fragment_list_view_sort_button);
         actionOnFloatingButton();
 
-
-
         ((RestaurantActivity) Objects.requireNonNull(getActivity())).setFragmentRefreshListener(this::getRestaurantNameFromAutocomplete);
 
         return mView;
@@ -164,7 +159,7 @@ public class ListViewFragment extends Fragment{
                     }
                 }
 
-                mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(Glide.with(context), restaurantArrayList);
+                mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(restaurantArrayList);
                 mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
                 mRecyclerListViewAdapter.setData(restaurantArrayList);
             }).addOnFailureListener(e -> Log.e("debago", "Problem during the load data"));
@@ -210,7 +205,7 @@ public class ListViewFragment extends Fragment{
                     }
 
 
-                    mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(Glide.with(context), restaurantArrayList);
+                    mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(restaurantArrayList);
                     mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
                     mRecyclerListViewAdapter.setData(restaurantArrayList);
                 }).addOnFailureListener(e -> Log.e("debago", "Problem during the load data"));
@@ -282,7 +277,7 @@ public class ListViewFragment extends Fragment{
                 }
 
 
-                mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(Glide.with(context), restaurantArrayList);
+                mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(restaurantArrayList);
                 mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
                 mRecyclerListViewAdapter.setData(restaurantArrayList);
             }).addOnFailureListener(e -> Log.e("debago", "Problem during the filter"));
@@ -320,7 +315,7 @@ public class ListViewFragment extends Fragment{
                     }
 
 
-                    mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(Glide.with(context), restaurantArrayList);
+                    mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(restaurantArrayList);
                     mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
                     mRecyclerListViewAdapter.setData(restaurantArrayList);
                 }).addOnFailureListener(e -> Log.e("debago", "Problem during the filter"));
@@ -338,7 +333,6 @@ public class ListViewFragment extends Fragment{
             setHasOptionsMenu(true);
             dialog.setCallback((ratingChoosen, openForLunchChoosen, customersNumberChoosen, distanceChoosen) -> {
 
-                Log.d(TAG, "ListViewFragment restaurant size sort " + restaurantArrayList.size());
                 if (restaurantArrayList.size() > 0) {
                     restaurantArrayList.clear();
                 }
@@ -373,20 +367,16 @@ public class ListViewFragment extends Fragment{
                             }
 
                             if(ratingChoosen==0 && openForLunchChoosen){
-                                Log.d("debago","rating by distance");
                                 Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByDistance);
                             }else if(distanceChoosen==1500 && openForLunchChoosen){
-                                Log.d("debago","rating by ratingapp");
                                 Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByRating);
                             }else if(distanceChoosen==1500 && openForLunchChoosen && ratingChoosen==1){
-                                Log.d("debago","rating by ratingapp");
                                 Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByRatingAsc);
                             }else{
-                                Log.d("debago","other rating");
                                 Collections.sort(restaurantArrayList, Restaurant::compareTo);
                             }
 
-                            mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(Glide.with(context), restaurantArrayList);
+                            mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(restaurantArrayList);
                             mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
                             mRecyclerListViewAdapter.setData(restaurantArrayList);
 
@@ -425,19 +415,15 @@ public class ListViewFragment extends Fragment{
                                 }
 
                                 if(ratingChoosen==0 && openForLunchChoosen){
-                                    Log.d("debago","rating by distance");
                                     Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByDistance);
                                 }else if(distanceChoosen==1500 && openForLunchChoosen){
-                                    Log.d("debago","rating by ratingapp");
                                     Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByRating);
                                 }else if(distanceChoosen==1500 && openForLunchChoosen && ratingChoosen==1){
-                                    Log.d("debago","rating by ratingapp");
                                     Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByRatingAsc);
                                 }else{
-                                    Log.d("debago","other rating");
                                     Collections.sort(restaurantArrayList, Restaurant::compareTo);
                                 }
-                                mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(Glide.with(context), restaurantArrayList);
+                                mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(restaurantArrayList);
                                 mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
                                 mRecyclerListViewAdapter.setData(restaurantArrayList);
 

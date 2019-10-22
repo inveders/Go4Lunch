@@ -2,7 +2,6 @@ package com.inved.go4lunch.controller.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -52,16 +51,14 @@ public class MainActivity extends BaseActivity {
 
         // Start appropriate activity
         if (this.isCurrentUserLogged()) {
-        //    Log.d("Debago", "MainActivity : user is already log");
 
             UserHelper.getUserWhateverLocation(Objects.requireNonNull(getCurrentUser()).getUid()).get().addOnCompleteListener(task -> {
 
                 if(task.isSuccessful()){
                     if(Objects.requireNonNull(task.getResult()).getDocuments().size()==0){
                         startFindMyJobAddressActivity();
-                        Log.d("Debago","no result finisih inscription "+task.getResult().getDocuments().size());
                     }else{
-                        //Log.d("Debago", "MainActivity : oncreate go in restaurantActivity "+task.getResult().getDocuments().get(0).getString("jobPlaceId"));
+
                         ManageJobPlaceId.saveJobPlaceId(this, task.getResult().getDocuments().get(0).getString("jobPlaceId"));
                         startRestaurantActivity();
                         finish();
@@ -69,17 +66,11 @@ public class MainActivity extends BaseActivity {
 
                 }else {
                     startFindMyJobAddressActivity();
-                    Log.d("Debago","no result finisih inscription");
                 }
-
-
             });
-
 
         }
         animation = AnimationUtils.loadAnimation(this, R.anim.fadein);
-
-
     }
 
     @Override
@@ -92,8 +83,6 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // this.updateUIWhenGoogleResuming();
-
     }
 
 
@@ -190,15 +179,13 @@ public class MainActivity extends BaseActivity {
         IdpResponse response = IdpResponse.fromResultIntent(data);
 
         if (requestCode == RC_SIGN_IN) {
-          //  Log.d("Debago", "MainActivity : SIGNIN");
+
             if (resultCode == RESULT_OK) { // SUCCESS
                 showSnackBar(this.coordinatorLayout, getString(R.string.connection_succeed));
 
-
-
                 this.startPermissionActivity();
                 finish();
-                //this.startRestaurantActivity();
+
             } else { // ERRORS
                 if (response == null) {
                     showSnackBar(this.coordinatorLayout, getString(R.string.error_authentication_canceled));

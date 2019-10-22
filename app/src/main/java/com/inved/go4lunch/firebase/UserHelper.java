@@ -7,7 +7,6 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.inved.go4lunch.utils.App;
-import com.inved.go4lunch.utils.ManageChangingWork;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
 
 
@@ -102,16 +101,16 @@ public class UserHelper {
         UserHelper.getUsersCollection().document(uid).update("notificationEnabled", isNotificationEnabled);
     }
 
-    public static Task<Void> updateJobAddress(String jobAddress, String uid) {
-        return UserHelper.getUsersCollection().document(uid).update("jobAddress", jobAddress);
+    public static void updateJobAddress(String jobAddress, String uid) {
+        UserHelper.getUsersCollection().document(uid).update("jobAddress", jobAddress);
     }
 
-    public static Task<Void> updateJobName(String jobName, String uid) {
-        return UserHelper.getUsersCollection().document(uid).update("jobName", jobName);
+    public static void updateJobName(String jobName, String uid) {
+        UserHelper.getUsersCollection().document(uid).update("jobName", jobName);
     }
 
-    public static Task<Void> updateJobPlaceId(String jobPlaceId, String uid) {
-        return UserHelper.getUsersCollection().document(uid).update("jobPlaceId", jobPlaceId);
+    public static void updateJobPlaceId(String jobPlaceId, String uid) {
+        UserHelper.getUsersCollection().document(uid).update("jobPlaceId", jobPlaceId);
     }
 
     // --- DELETE ---

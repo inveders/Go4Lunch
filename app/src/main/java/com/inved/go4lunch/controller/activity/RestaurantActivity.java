@@ -40,7 +40,6 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
@@ -54,7 +53,6 @@ import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
-import com.google.maps.android.SphericalUtil;
 import com.inved.go4lunch.BuildConfig;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.auth.ProfileActivity;
@@ -84,9 +82,6 @@ import static java.lang.Math.cos;
 public class RestaurantActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, LocationListener {
 
     public static final String MAP_API_KEY = BuildConfig.GOOGLE_MAPS_API_KEY;
-    public static final String MATRIX_API_KEY = BuildConfig.GOOGLE_MATRIX_API_KEY;
-    public static final int NORTH_DEG = 0;
-    public static final int SOUTH_DEG = 180;
 
     //FOR LOCAL BROADCAST MANAGER
 
@@ -250,12 +245,8 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     public void fillFirebase(Double lat, Double longi) {
         checkPosition();
-        Log.d("debago","RestaurantActivity : in fillFirebase, need permission");
 
-        resultModel.setNearbyRestaurantsInFirebase(lat, longi).observe(this, result -> {
-            //  Log.d("debago","in result model firebase :"+result.get(0).getName());
-            refreshFragment();
-        });
+        resultModel.setNearbyRestaurantsInFirebase(lat, longi).observe(this, result -> refreshFragment());
     }
 
     @Override
@@ -334,8 +325,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         double south_west_lat =lat_center-north_south_move;
         double south_west_longi =longi_center-east_west_move;
 
-        Log.d("debago", "NE_LAT :"+north_east_lat+"NE_LNG:"+north_east_longi+"SW_LAT :"+south_west_lat+"SW_LAT :"+south_west_longi);
-
         switch(lat_long) {
             case "NE_LAT":
                 return north_east_lat;
@@ -382,15 +371,11 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
                         RestaurantInNormalModeHelper.getRestaurant(this.getCurrentUser().getUid(), place.getId()).addOnSuccessListener(documentSnapshot -> {
 
                             if (documentSnapshot.getString("restaurantPlaceId") == null) {
-                                Log.d("debago", "Restaurant activity we have null response the search to direectly open view place activity");
+
                                 if (place.getId() != null) {
 
                                     dialogToGoInViewPlaceIfAutocomplete(place.getId());
-                                } else {
-                                    Log.d("debago", "restaurant activity, autocomplete palce id is null");
-
                                 }
-
                             }
 
                         });
@@ -405,9 +390,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
                                if (place.getId() != null) {
 
                                     dialogToGoInViewPlaceIfAutocomplete(place.getId());
-                                } else {
-                                    Log.d("debago", "restaurant activity, autocomplete place id is null");
-
                                 }
 
                             }
@@ -574,13 +556,9 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
-        // userInformationFromFirebase();
-
-
     }
 
     private void userInformationFromFirebase() {
-
 
         if (this.getCurrentUser() != null) {
 
@@ -634,7 +612,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         longitude = location.getLongitude();
         sendLocationDataToFragments();
 
-
     }
 
 
@@ -648,7 +625,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
         fillFirebase(getLatitude(), getLongitude());
         this.checkDistanceFromWork(currentGeolocalisation, ManageJobPlaceId.getJobPlaceId(this), getLatitude(), getLongitude());
-
 
     }
 
@@ -770,7 +746,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     //Handle two modes for user : work mode and normal mode to be located everywhere
     public void checkDistanceFromWork(String origins, String destinations, Double lat, Double longi) {
 
-        //Log.d("debago","origins :"+origins+" et destination :"+destinations);
         resultModel.getMatrixDistance(origins, destinations).observe(this, result -> {
 
             int distance;
@@ -785,14 +760,8 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
             AlertDialog.Builder builder = new AlertDialog.Builder(this)
                     // Add the buttons
-                    .setPositiveButton(R.string.alert_dialog_location_far_from_works_pos_button, (dialog, which) -> {
-                        // do something like...
-                        changeMode(false, lat, longi);
-                    })
-                    .setNegativeButton(R.string.alert_dialog_location_far_from_works_neg_button, (dialog, which) -> {
-                        // do something like...
-                        changeMode(true, lat, longi);
-                    })
+                    .setPositiveButton(R.string.alert_dialog_location_far_from_works_pos_button, (dialog, which) -> changeMode(false, lat, longi))
+                    .setNegativeButton(R.string.alert_dialog_location_far_from_works_neg_button, (dialog, which) -> changeMode(true, lat, longi))
                     .setMessage(R.string.alert_dialog_location_far_from_works_text);
 
             // Create the AlertDialog

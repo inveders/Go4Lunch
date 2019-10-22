@@ -47,19 +47,20 @@ public class FindMyJobAddressActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (!ManageChangingWork.getUserWorkDecision(this)) {
+        if (ManageChangingWork.getUserWorkDecision(this)) {
             UserHelper.getUserWhateverLocation(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).get().addOnCompleteListener(task -> {
 
                 if (task.isSuccessful()) {
-                    if (Objects.requireNonNull(task.getResult()).getDocuments().size() == 0) {
-
-                        Log.d("Debago", "FindMyJob on create no result finisih inscription " + task.getResult().getDocuments().size());
-                    } else {
-                        Log.d("Debago", "FindMyJob on create : oncreate go in restaurantActivity " + task.getResult().getDocuments().get(0).getString("jobPlaceId"));
-                        ManageJobPlaceId.saveJobPlaceId(this, task.getResult().getDocuments().get(0).getString("jobPlaceId"));
-                        startRestaurantActivity();
-                        finish();
+                    if(task.getResult()!=null){
+                        if (task.getResult().getDocuments().size() == 0) {
+                            Log.d(TAG, "Result");
+                        } else {
+                            ManageJobPlaceId.saveJobPlaceId(this, task.getResult().getDocuments().get(0).getString("jobPlaceId"));
+                            startRestaurantActivity();
+                            finish();
+                        }
                     }
+
 
                 }
 
@@ -102,11 +103,10 @@ public class FindMyJobAddressActivity extends BaseActivity {
         btnValidation.setOnClickListener(view -> {
 
             if (TextUtils.isEmpty(jobAddress)) {
-                Log.d(TAG, "Job Address est nul " + jobAddress);
                 Toast.makeText(getApplicationContext(), "Choisissez un lieu", Toast.LENGTH_SHORT).show();
             } else {
 
-                if (!ManageChangingWork.getUserWorkDecision(this)) {
+                if (ManageChangingWork.getUserWorkDecision(this)) {
                     //User first work in app
                     if(getCurrentUser()!=null){
                         String firebaseAuthUid = getCurrentUser().getUid();
@@ -167,7 +167,6 @@ public class FindMyJobAddressActivity extends BaseActivity {
             ManageJobPlaceId.saveJobPlaceId(this, jobPlaceId);
             UserHelper.createUser(uid, firstname, null, urlPicture, null, null, null, jobAddress, jobPlaceId, jobName, null, true).addOnFailureListener(this.onFailureListener());
 
-
             FirebaseInstanceId.getInstance().getInstanceId()
                     .addOnCompleteListener(task -> {
                         if (!task.isSuccessful()) {
@@ -180,14 +179,9 @@ public class FindMyJobAddressActivity extends BaseActivity {
                             String token1 = task.getResult().getToken();
                             if (getCurrentUser() != null) {
                                 UserHelper.updateUserToken(token1, getCurrentUser().getUid());
-                                // Log and toast
-                                String msg = "my token" + token1;
-                                Log.d(TAG, msg);
 
                             }
-
                         }
-
                     });
 
         }

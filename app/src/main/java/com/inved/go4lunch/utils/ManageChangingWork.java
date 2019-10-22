@@ -17,6 +17,6 @@ public class ManageChangingWork {
 
     public static boolean getUserWorkDecision(Context context){
         SharedPreferences sharedPreferences = context.getSharedPreferences(KEY_CHANGE_WORK, Context.MODE_PRIVATE);
-        return sharedPreferences.getBoolean(KEY_CAHNGE_WORK_DATA,false);
+        return !sharedPreferences.getBoolean(KEY_CAHNGE_WORK_DATA, false);
     }
 }

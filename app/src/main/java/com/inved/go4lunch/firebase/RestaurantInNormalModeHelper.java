@@ -44,7 +44,7 @@ public class RestaurantInNormalModeHelper {
         // 1 - Create Obj
 
         Restaurant restaurantInNormalModeToCreate = new Restaurant(restaurantPlaceId, restaurantCustomers, restaurantLike, jobPlaceId, restaurantName, ratingApp, openForLunch, distance
-                , openHours, closeHours, restaurantAddress, latitude, longitude, website, phoneNumber, openMinutes, closeMinutes);
+                ,openHours, closeHours, restaurantAddress, latitude, longitude, website, phoneNumber, openMinutes, closeMinutes);
         RestaurantInNormalModeHelper.getRestaurantsInNormalModeCollection(uid).document(restaurantPlaceId).set(restaurantInNormalModeToCreate);
     }
 
@@ -96,10 +96,6 @@ public class RestaurantInNormalModeHelper {
     public static void updateRestaurantCloseMinutes(String uid, int closeMinutes, String restaurantPlaceId) {
         RestaurantInNormalModeHelper.getRestaurantsInNormalModeCollection(uid).document(restaurantPlaceId).update("closeMinutes", closeMinutes);
 
-    }
-
-    public static void updateRestaurantCustomers(String uid, int restaurantCustomers, String id) {
-        RestaurantInNormalModeHelper.getRestaurantsInNormalModeCollection(uid).document(id).update("restaurantCustomers", restaurantCustomers);
     }
 
     public static void updateRestaurantLike(String uid,int restaurantLike, String id) {

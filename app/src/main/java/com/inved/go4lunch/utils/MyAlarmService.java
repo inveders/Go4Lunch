@@ -25,7 +25,6 @@ public class MyAlarmService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.e("debago", "in alarm SERVICE");
 
         //Null restaurant in work mode name for user
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
