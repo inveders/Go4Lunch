@@ -4,7 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -16,7 +18,6 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.TypeFilter;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -27,7 +28,6 @@ import com.inved.go4lunch.utils.ManageChangingWork;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
 
 import java.util.Arrays;
-import java.util.Objects;
 
 import butterknife.BindView;
 
@@ -39,6 +39,8 @@ public class FindMyJobAddressActivity extends BaseActivity {
     String jobPlaceId;
     String jobName;
 
+    //Progress bar
+    private ProgressBar mProgressBar;
 
     @BindView(R.id.activity_find_job_address_btn_validation)
     Button btnValidation;
@@ -47,25 +49,32 @@ public class FindMyJobAddressActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (ManageChangingWork.getUserWorkDecision(this)) {
-            UserHelper.getUserWhateverLocation(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).get().addOnCompleteListener(task -> {
+        //Progress bar
+        mProgressBar = findViewById(R.id.progressBar);
 
-                if (task.isSuccessful()) {
-                    if(task.getResult()!=null){
-                        if (task.getResult().getDocuments().size() == 0) {
-                            Log.d(TAG, "Result");
-                        } else {
-                            ManageJobPlaceId.saveJobPlaceId(this, task.getResult().getDocuments().get(0).getString("jobPlaceId"));
-                            startRestaurantActivity();
-                            finish();
+        if (ManageChangingWork.getUserWorkDecision(this)) {
+            showProgressBar();
+            if(getCurrentUser()!=null){
+                UserHelper.getUserWhateverLocation(getCurrentUser().getUid()).get().addOnCompleteListener(task -> {
+
+                    if (task.isSuccessful()) {
+                        if(task.getResult()!=null){
+                            if (task.getResult().getDocuments().size() == 0) {
+                                hideProgressBar();
+                            } else {
+                                ManageJobPlaceId.saveJobPlaceId(this, task.getResult().getDocuments().get(0).getString("jobPlaceId"));
+                                startRestaurantActivity();
+                                finish();
+                            }
                         }
+
+
                     }
 
 
-                }
+                });
+            }
 
-
-            });
         }
 
 
@@ -103,14 +112,13 @@ public class FindMyJobAddressActivity extends BaseActivity {
         btnValidation.setOnClickListener(view -> {
 
             if (TextUtils.isEmpty(jobAddress)) {
-                Toast.makeText(getApplicationContext(), "Choisissez un lieu", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.choose_place), Toast.LENGTH_SHORT).show();
             } else {
 
                 if (ManageChangingWork.getUserWorkDecision(this)) {
                     //User first work in app
                     if(getCurrentUser()!=null){
-                        String firebaseAuthUid = getCurrentUser().getUid();
-                        UserHelper.getUserWithSameUid(firebaseAuthUid).get().addOnCompleteListener(task -> {
+                        UserHelper.getUserWithSameUid(getCurrentUser().getUid()).get().addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
 
                                 if (task.getResult() != null) {
@@ -155,6 +163,15 @@ public class FindMyJobAddressActivity extends BaseActivity {
     @Override
     public int getFragmentLayout() {
         return R.layout.activity_find_job_address;
+    }
+
+    private void showProgressBar(){
+        mProgressBar.setVisibility(View.VISIBLE);
+
+    }
+
+    private void hideProgressBar(){
+        mProgressBar.setVisibility(View.GONE);
     }
 
     private void createUserInFirestore(String jobAddress, String jobPlaceId, String jobName) {

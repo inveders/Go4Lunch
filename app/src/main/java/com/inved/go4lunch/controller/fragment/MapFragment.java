@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -43,8 +44,6 @@ import com.inved.go4lunch.utils.ManageAppMode;
 import com.inved.go4lunch.utils.ManageAutocompleteResponse;
 import com.inved.go4lunch.utils.ManageRestaurantChoiceInNormalMode;
 
-import java.util.Objects;
-
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_GEOLOCALISATION;
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LATITUDE;
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LOCATION_CHANGED;
@@ -59,6 +58,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     private Marker mMarker;
     private double myCurrentLat;
     private double myCurrentLongi;
+    //Progress bar
+    private ProgressBar mProgressBar;
 
     private FloatingActionButton mapGeolocalisationButton;
     private Context context = App.getInstance().getApplicationContext();
@@ -87,7 +88,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
         LocalBroadcastManager.getInstance(App.getInstance().getApplicationContext()).registerReceiver(broadcastReceiver, new IntentFilter(KEY_LOCATION_CHANGED));
         initializeSharedPreferences();
-        initializeMap();
+
 
 
     }
@@ -96,16 +97,25 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        mView = inflater.inflate(R.layout.fragment_map, container, false);
 
+
+        mView = inflater.inflate(R.layout.fragment_map, container, false);
+        //Progress bar
+        mProgressBar = mView.findViewById(R.id.progressBar);
         mapGeolocalisationButton = mView.findViewById(R.id.fragment_map_gps_geolocalisation_button);
 
         actionOnFloatingButton();
 
-        ((RestaurantActivity) Objects.requireNonNull(getActivity())).setMapFragmentRefreshListener(this::initializeMap);
+        if(getActivity()!=null){
+            ((RestaurantActivity) getActivity()).setMapFragmentRefreshListener(this::initializeMap);
+        }
+
+        initializeMap();
 
         return mView;
     }
+
+
 
     private void actionOnFloatingButton() {
         mapGeolocalisationButton.setOnClickListener(view ->
@@ -149,21 +159,28 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
+    }
 
-        initializeMap();
+    private void showProgressBar(){
+        mProgressBar.setVisibility(View.VISIBLE);
+
+    }
+
+    private void hideProgressBar(){
+        mProgressBar.setVisibility(View.GONE);
     }
 
     private void initializeMap() {
 
-
+        showProgressBar();
         String sharedPreferenceRestaurantPlaceId = ManageAutocompleteResponse.getStringAutocomplete((context), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID);
 
         if (sharedPreferenceRestaurantPlaceId != null) {
             double latitude = ManageAutocompleteResponse.getDoubleAutocomplete(context, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE);
             double longitude = ManageAutocompleteResponse.getDoubleAutocomplete(context, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE);
-            //   LatLng latLngSharedPreferences = new LatLng(latitude, longitude);
             customizeMarker(sharedPreferenceRestaurantPlaceId, latitude, longitude);
             initializeSharedPreferences();
+
 
 
         } else {
@@ -199,6 +216,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                             double longitude = restaurant.getLongitude();
                             customizeMarker(restaurantPlaceId, latitude, longitude);
                         }
+                        hideProgressBar();
 
                     }).addOnFailureListener(e -> {
 
@@ -214,7 +232,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
     private void initializeSharedPreferences() {
 
-        ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(context), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID, null);
+        ManageAutocompleteResponse.saveAutocompleteStringResponse(context, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID, null);
 
     }
 
@@ -299,7 +317,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                                     markerOptions.position(latLng);
 
                                     //creating and getting restaurant information
-                                    //int numberCustomers = restaurant.getRestaurantCustomers();
 
                                     if (restaurantPlaceId.equals(ManageRestaurantChoiceInNormalMode.getRestaurantChoice(App.getInstance().getApplicationContext()))) {
                                         markerOptions.icon(bitmapDescriptorFromVectorSelected(getContext()));

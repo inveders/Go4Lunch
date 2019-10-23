@@ -314,7 +314,6 @@ public class ListViewFragment extends Fragment{
 
                     }
 
-
                     mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(restaurantArrayList);
                     mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
                     mRecyclerListViewAdapter.setData(restaurantArrayList);
@@ -366,13 +365,18 @@ public class ListViewFragment extends Fragment{
 
                             }
 
-                            if(ratingChoosen==0 && openForLunchChoosen){
+                            if(ratingChoosen==1 && !openForLunchChoosen){
                                 Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByDistance);
-                            }else if(distanceChoosen==1500 && openForLunchChoosen){
+                            }else if(distanceChoosen==1500.0 && !openForLunchChoosen){
                                 Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByRating);
-                            }else if(distanceChoosen==1500 && openForLunchChoosen && ratingChoosen==1){
-                                Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByRatingAsc);
-                            }else{
+                            }else if(distanceChoosen==1500.0 && ratingChoosen==1){
+                                Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByOpenForLunch);
+                            }else if(openForLunchChoosen &&ratingChoosen!=1){
+                                Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByOpenForLunch);
+                                Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByRating);
+                                Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByDistance);
+                            }
+                            else{
                                 Collections.sort(restaurantArrayList, Restaurant::compareTo);
                             }
 
@@ -414,13 +418,19 @@ public class ListViewFragment extends Fragment{
 
                                 }
 
-                                if(ratingChoosen==0 && openForLunchChoosen){
+
+                                if(ratingChoosen==1 && !openForLunchChoosen){
                                     Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByDistance);
-                                }else if(distanceChoosen==1500 && openForLunchChoosen){
+                                }else if(distanceChoosen==1500.0 && !openForLunchChoosen){
                                     Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByRating);
-                                }else if(distanceChoosen==1500 && openForLunchChoosen && ratingChoosen==1){
-                                    Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByRatingAsc);
-                                }else{
+                                }else if(distanceChoosen==1500.0 && ratingChoosen==1){
+                                    Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByOpenForLunch);
+                                }else if(openForLunchChoosen &&ratingChoosen!=1){
+                                    Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByOpenForLunch);
+                                    Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByRating);
+                                    Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByDistance);
+                                }
+                                else{
                                     Collections.sort(restaurantArrayList, Restaurant::compareTo);
                                 }
                                 mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(restaurantArrayList);

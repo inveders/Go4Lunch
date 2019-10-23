@@ -10,6 +10,9 @@
     tools:openDrawer="start"
     tools:context="com.inved.go4lunch.controller.activity.RestaurantActivity">
 
+
+
+
     <!-- 1 | RestaurantActivity RootView -->
     <RelativeLayout
         android:layout_width="match_parent"
@@ -33,6 +36,8 @@
             android:layout_height="match_parent"
             android:layout_above="@id/activity_restaurant_bottom_navigation"
             android:layout_below="@+id/activity_restaurant_toolbar"/>
+
+
 
         <!-- Viewpager for our fragments -->
         <androidx.viewpager.widget.ViewPager
@@ -76,13 +81,15 @@
         android:layout_marginBottom="20dp"
         android:clickable="true"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:focusable="true">
 
         <ImageView
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_gravity="center"
-            android:src="@drawable/ic_logo_go4lunch" />
+            android:src="@drawable/ic_logo_go4lunch"
+            android:contentDescription="@string/image_content_description" />
 
     </LinearLayout>
 

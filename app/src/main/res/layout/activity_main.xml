@@ -23,7 +23,8 @@
             android:layout_margin="@dimen/default_large_margin"
             android:scaleType="centerCrop"
 
-            android:background="@drawable/ic_logo_go4lunch" />
+            android:background="@drawable/ic_logo_go4lunch"
+            android:contentDescription="@string/image_content_description" />
 
         <!-- TITLE GO4LUNCH -->
         <TextView
@@ -47,6 +48,14 @@
             android:background="@color/whiteColor"
             android:layout_margin="@dimen/default_margin"/>
 
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            />
+
         <!-- BUTTONS CONTAINER -->
         <LinearLayout
             android:layout_width="match_parent"
@@ -54,6 +63,8 @@
             android:gravity="bottom"
             android:orientation="vertical"
             android:layout_margin="@dimen/default_large_margin">
+
+
 
             <!-- BUTTON LOGIN FACEBOOK -->
             <Button

@@ -131,4 +131,6 @@
     <string name="profile_activity_changing_work">Vous êtes sur le point de changer votre lieu de travail. Attention ! Si vous le faites, vous perdrez tous vos restaurants favoris actuels et vous ne verrez plus vos collègues actuels.</string>
     <string name="profile_activity_confirm_changing_work">JE CONFIRME</string>
     <string name="profile_activity_successfull_work_changement">Votre changement de travail est réussi</string>
+    <string name="please_wait">Veuillez patienter&#8230;</string>
+    <string name="choose_place">Choisissez un lieu</string>
 </resources>

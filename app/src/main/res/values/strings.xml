@@ -127,6 +127,7 @@
 
     <!-- FIND JOB ADDRESS ACTIVITY-->
     <string name="job_address_question">Where are you working ?</string>
+    <string name="choose_place">Choose a place</string>
     <string name="valider">CONFIRM</string>
     <string name="toolbar_title_find_job_address_activity">Find your job address</string>
 
@@ -182,6 +183,6 @@
 
     <string name="app_mode_forced_mode_no_restaurant_found">Neither you nor any of your colleagues have logged in to the application at work. This is required for first use!</string>
     <string name="fullscreen_dialog__by_price_level">Price</string>
-
+    <string name="please_wait">Please wait&#8230;</string>
 
 </resources>

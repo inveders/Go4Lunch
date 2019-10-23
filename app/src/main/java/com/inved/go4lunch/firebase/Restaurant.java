@@ -195,16 +195,13 @@ public class Restaurant implements Comparable<Restaurant> {
     };
 
     /*Comparator for sorting the list by rating*/
-    public static Comparator<Restaurant> compareRestaurantByRatingAsc = (s1, s2) -> {
+    public static Comparator<Restaurant> compareRestaurantByOpenForLunch = (s1, s2) -> {
 
-        int rest1 = s1.getRatingApp();
-        int rest2 = s2.getRatingApp();
+        boolean rest1 = s1.getOpenForLunch();
+        boolean rest2 = s2.getOpenForLunch();
 
-        /*For ascending order*/
-        //ascending order
-        return rest1-rest2;
+        return Boolean.compare(rest2, rest1);
 
     };
-
 
 }

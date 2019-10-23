@@ -26,8 +26,8 @@ public class FullScreenDialog extends DialogFragment implements View.OnClickList
     private TextView distanceValue;
   //  private TextView restaurantCustomerValue;
 
-    private boolean openForLunchChoice=true;
-    private int ratingChoice=0;
+    private boolean openForLunchChoice=false;
+    private int ratingChoice=1;
     private Double distanceChoice=1500.0;
     private int restaurantCustomersChoice=0;
 

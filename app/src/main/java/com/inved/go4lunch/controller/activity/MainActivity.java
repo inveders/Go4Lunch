@@ -2,9 +2,12 @@ package com.inved.go4lunch.controller.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ProgressBar;
 
 import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -26,7 +29,6 @@ import butterknife.OnClick;
 
 public class MainActivity extends BaseActivity {
 
-
     //FOR DESIGN
     @BindView(R.id.coordinatorLayout)
     CoordinatorLayout coordinatorLayout;
@@ -34,6 +36,9 @@ public class MainActivity extends BaseActivity {
     Button facebookLogin;
     @BindView(R.id.login_google_button)
     Button googleLogin;
+
+    //Progress bar
+    private ProgressBar mProgressBar;
 
     Animation animation;
     //FOR DATA
@@ -49,25 +54,33 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //Progress bar
+        mProgressBar = findViewById(R.id.progressBar);
+
         // Start appropriate activity
         if (this.isCurrentUserLogged()) {
+            showProgressBar();
 
-            UserHelper.getUserWhateverLocation(Objects.requireNonNull(getCurrentUser()).getUid()).get().addOnCompleteListener(task -> {
+            if(getCurrentUser()!=null){
+                UserHelper.getUserWhateverLocation(getCurrentUser().getUid()).get().addOnCompleteListener(task -> {
 
-                if(task.isSuccessful()){
-                    if(Objects.requireNonNull(task.getResult()).getDocuments().size()==0){
+                    if(task.isSuccessful()){
+                        if(task.getResult()!=null){
+                            if(task.getResult().getDocuments().size()==0){
+                                startFindMyJobAddressActivity();
+                            }else{
+
+                                ManageJobPlaceId.saveJobPlaceId(this, task.getResult().getDocuments().get(0).getString("jobPlaceId"));
+                                startRestaurantActivity();
+                                finish();
+                            }
+                        }
+
+                    }else {
                         startFindMyJobAddressActivity();
-                    }else{
-
-                        ManageJobPlaceId.saveJobPlaceId(this, task.getResult().getDocuments().get(0).getString("jobPlaceId"));
-                        startRestaurantActivity();
-                        finish();
                     }
-
-                }else {
-                    startFindMyJobAddressActivity();
-                }
-            });
+                });
+            }
 
         }
         animation = AnimationUtils.loadAnimation(this, R.anim.fadein);
@@ -85,7 +98,11 @@ public class MainActivity extends BaseActivity {
         super.onResume();
     }
 
+    private void showProgressBar(){
+        Log.d("debago","show progress bar ");
+        mProgressBar.setVisibility(View.VISIBLE);
 
+    }
 
     // --------------------
     // ACTIONS
@@ -189,10 +206,12 @@ public class MainActivity extends BaseActivity {
             } else { // ERRORS
                 if (response == null) {
                     showSnackBar(this.coordinatorLayout, getString(R.string.error_authentication_canceled));
-                } else if (Objects.requireNonNull(response.getError()).getErrorCode() == ErrorCodes.NO_NETWORK) {
+                } else if (Objects.requireNonNull(response.getError()).getErrorCode() != ErrorCodes.NO_NETWORK) {
+                    if (response.getError().getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
+                        showSnackBar(this.coordinatorLayout, getString(R.string.error_unknown_error));
+                    }
+                } else {
                     showSnackBar(this.coordinatorLayout, getString(R.string.error_no_internet));
-                } else if (response.getError().getErrorCode() == ErrorCodes.UNKNOWN_ERROR) {
-                    showSnackBar(this.coordinatorLayout, getString(R.string.error_unknown_error));
                 }
             }
         }

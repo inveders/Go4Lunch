@@ -14,7 +14,9 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,12 +44,9 @@ import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.api.model.TypeFilter;
-import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
@@ -72,7 +71,6 @@ import com.inved.go4lunch.utils.ManageAppMode;
 import com.inved.go4lunch.utils.ManageAutocompleteResponse;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -91,15 +89,11 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     private static final int AUTOCOMPLETE_REQUEST_CODE = 645;
 
     //FOR LOCATION
-    protected PlacesClient placesClient;
     Location location; // location
     // The minimum distance to change Updates in meters
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 1500; // 1000 meters for tests, after come back to 10 meters
     // The minimum time between updates in milliseconds
     private static final long MIN_TIME_BW_UPDATES = 1000 * 60; // 1 minute*/
-
-    //AUTOCOMPLETE
-    AutocompleteSessionToken token;
 
     List<Place.Field> fields;
 
@@ -119,6 +113,9 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     BottomNavigationView bottomNavigationView;
     ViewPager viewPager;
 
+
+
+
     //Localisation
 
     public static final String KEY_LOCATION_CHANGED = "DATA_ACTION";
@@ -129,6 +126,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     //Declaration for Navigation Drawer
     private Toolbar toolbar;
     private DrawerLayout drawerLayout;
+
 
 
     public FragmentRefreshListener getFragmentRefreshListener() {
@@ -161,6 +159,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     @Override
     public int getFragmentLayout() {
+
         return R.layout.activity_restaurant;
     }
 
@@ -170,7 +169,13 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         super.onCreate(savedInstanceState);
 
 
+        //initializeRestaurantActivity();
+
+
         this.configureToolBar();
+
+
+        checkLocation();
         //Bottom Navigation View
         bottomNavigationView = findViewById(R.id.activity_restaurant_bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
@@ -196,29 +201,16 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         this.configureDrawerLayout();
         this.configureNavigationView();
 
-        this.checkLocation();
-        // Initialize Places.
-        if (!Places.isInitialized()) {
-            Places.initialize(getApplicationContext(), MAP_API_KEY);
-        }
-
-        fields = Arrays.asList(Place.Field.NAME, Place.Field.ID, Place.Field.LAT_LNG);
-
-        // Create a new Places client instance.
-        placesClient = Places.createClient(this);
-        token = AutocompleteSessionToken.newInstance();
-
-
         this.userInformationFromFirebase();
-
-        //Localisation
-
         //Check data
         //Assign the value to declared resultModel variable
         resultModel = ViewModelProviders.of(this).get(ResultModel.class);
 
 
+
     }
+
+
 
     @SuppressLint("MissingPermission")
     private void checkLocation() {
@@ -245,9 +237,11 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     public void fillFirebase(Double lat, Double longi) {
         checkPosition();
-
         resultModel.setNearbyRestaurantsInFirebase(lat, longi).observe(this, result -> refreshFragment());
+
+
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -278,7 +272,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     }
 
 
-
     private void refreshFragment() {
 
         if (getFragmentRefreshListener() != null) {
@@ -288,6 +281,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         if (getMapFragmentRefreshListener() != null) {
             getMapFragmentRefreshListener().onMapRefresh();
         }
+
 
 
     }
@@ -309,23 +303,23 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
     }
 
-    private double calculateBound(String lat_long){
+    private double calculateBound(String lat_long) {
 
-        double eartch_circumference =40075.04;
-        double distance_in_meter =15000;
-        double distance_in_km =distance_in_meter/1000;
+        double eartch_circumference = 40075.04;
+        double distance_in_meter = 15000;
+        double distance_in_km = distance_in_meter / 1000;
         double lat_center = getLatitude();
         double longi_center = getLongitude();
 
-        double north_south_move = (360*distance_in_km)/eartch_circumference;
-        double east_west_move = (360*distance_in_km)/(eartch_circumference*cos(convertInRadians(lat_center)));
+        double north_south_move = (360 * distance_in_km) / eartch_circumference;
+        double east_west_move = (360 * distance_in_km) / (eartch_circumference * cos(convertInRadians(lat_center)));
 
-        double north_east_lat =lat_center+north_south_move;
-        double north_east_longi =longi_center+east_west_move;
-        double south_west_lat =lat_center-north_south_move;
-        double south_west_longi =longi_center-east_west_move;
+        double north_east_lat = lat_center + north_south_move;
+        double north_east_longi = longi_center + east_west_move;
+        double south_west_lat = lat_center - north_south_move;
+        double south_west_longi = longi_center - east_west_move;
 
-        switch(lat_long) {
+        switch (lat_long) {
             case "NE_LAT":
                 return north_east_lat;
 
@@ -344,9 +338,9 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     }
 
-    private double convertInRadians(double degre){
+    private double convertInRadians(double degre) {
 
-        return Math.PI/(180*degre);
+        return Math.PI / (180 * degre);
     }
 
     @Override
@@ -381,20 +375,20 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
                         });
                     }
 
-                }else{
+                } else {
 
-                        //We check if the autocomplete placeId is in our firebase.
-                        RestaurantHelper.getRestaurant(place.getId()).addOnSuccessListener(documentSnapshot -> {
+                    //We check if the autocomplete placeId is in our firebase.
+                    RestaurantHelper.getRestaurant(place.getId()).addOnSuccessListener(documentSnapshot -> {
 
-                            if (documentSnapshot.getString("restaurantPlaceId") == null) {
-                               if (place.getId() != null) {
+                        if (documentSnapshot.getString("restaurantPlaceId") == null) {
+                            if (place.getId() != null) {
 
-                                    dialogToGoInViewPlaceIfAutocomplete(place.getId());
-                                }
-
+                                dialogToGoInViewPlaceIfAutocomplete(place.getId());
                             }
 
-                        });
+                        }
+
+                    });
 
                 }
 
@@ -422,7 +416,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         startActivity(intent);
     }
 
-    private void dialogToGoInViewPlaceIfAutocomplete(String autocompletePlace){
+    private void dialogToGoInViewPlaceIfAutocomplete(String autocompletePlace) {
 
         new AlertDialog.Builder(this)
                 // Add the buttons
@@ -444,7 +438,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     @Override
     public void onResume() {
         super.onResume();
-        userInformationFromFirebase();
     }
 
     //Navigation drawer
