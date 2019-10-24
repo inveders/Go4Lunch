@@ -76,10 +76,8 @@ public class NearbyRestaurantsRepository {
 
         String location;
         if (ManageAppMode.getAppMode(context).equals(App.getResourses().getString(R.string.app_mode_normal))) {
-            Log.d("debago", "location normal mode");
             location = "" + myCurrentLat + "," + myCurrentLongi + "";
         } else {
-            Log.d("debago", "location work mode");
             location = ManagePosition.getPosition(context, ManagePosition.KEY_POSITION_JOB_LAT_LNG_DATA);
         }
 
@@ -97,7 +95,7 @@ public class NearbyRestaurantsRepository {
                         results = (ArrayList<Result>) placeSearch.getResults();
 
                         if (results.size() > 0) {
-                            Log.d("debago", "result more than 0");
+
                             if (appMode.equals(App.getResourses().getString(R.string.app_mode_normal))) {
 
                                 RestaurantInNormalModeHelper.getAllRestaurants(currentUser).get().addOnCompleteListener(task -> {
@@ -219,7 +217,7 @@ public class NearbyRestaurantsRepository {
                 if (task.getResult() != null) {
                     if (task.getResult().size() > 0) {
                         for (DocumentSnapshot querySnapshot : task.getResult()) {
-                            //We delete each existing restaurant before recreating all
+                            //We update all restaurants
                             fetchPlaceDetailRequest(querySnapshot.getString("restaurantPlaceId"));
                         }
                     } else {
@@ -353,14 +351,12 @@ public class NearbyRestaurantsRepository {
 
         return null;
 
-
     }
 
     @SuppressWarnings("ConstantConditions")
     private int openHoursCalcul(OpeningHours openingHours) {
 
         if (openingHours != null) {
-
             //if getpriod.size equal to 7
             if (openingHours.getPeriods().size() == 7) {
 
@@ -376,26 +372,29 @@ public class NearbyRestaurantsRepository {
 
                         if ((openingHours.getPeriods().get(i).getOpen().getDay().toString()).equals(stringCurrentDay)) {
 
+
                             //Current hour is less than open hour
                             if (currentHour < openingHours.getPeriods().get(i).getOpen().getTime().getHours()) {
                                 int myOccurrence = 0;
                                 //We check if there is other same day in the list
                                 for (int y = 0; y < openingHours.getPeriods().size(); y++) {
                                     if ((openingHours.getPeriods().get(y).getOpen().getDay().toString()).equals(stringCurrentDay)) {
+
                                         if (y != i) {
                                             myOccurrence = y;
                                         }
 
                                     }
                                 }
+
                                 //if I have a second even day I check wich is near from my current hour
                                 if (myOccurrence != 0) {
                                     int hourOne = openingHours.getPeriods().get(i).getOpen().getTime().getHours();
                                     int hourTwo = openingHours.getPeriods().get(myOccurrence).getOpen().getTime().getHours();
-                                    if (hourOne - currentHour >= 0 && hourOne - currentHour <= hourTwo - currentHour) {
+                                                if (hourOne - currentHour >= 0 && Math.abs(hourOne - currentHour) <= Math.abs(hourTwo - currentHour)) {
+
                                         return openingHours.getPeriods().get(i).getOpen().getTime().getHours();
                                     } else {
-
                                         return openingHours.getPeriods().get(myOccurrence).getOpen().getTime().getHours();
                                     }
                                 }
@@ -404,8 +403,10 @@ public class NearbyRestaurantsRepository {
                                     return openingHours.getPeriods().get(i).getOpen().getTime().getHours();
                                 }
                             } else if (currentHour > openingHours.getPeriods().get(i).getOpen().getTime().getHours()) {
+
                                 if (openingHours.getPeriods().get(i).getClose() != null) {
                                     if (currentHour < openingHours.getPeriods().get(i).getClose().getTime().getHours()) {
+
                                         return openingHours.getPeriods().get(i).getOpen().getTime().getHours();
                                     }
                                 }
@@ -478,7 +479,7 @@ public class NearbyRestaurantsRepository {
                                 if (myOccurrence != 0) {
                                     int hourOne = openingHours.getPeriods().get(i).getOpen().getTime().getHours();
                                     int hourTwo = openingHours.getPeriods().get(myOccurrence).getOpen().getTime().getHours();
-                                    if (hourOne - currentHour >= 0 && hourOne - currentHour <= hourTwo - currentHour) {
+                                    if (hourOne - currentHour >= 0 && Math.abs(hourOne - currentHour) <= Math.abs(hourTwo - currentHour)) {
                                         return openingHours.getPeriods().get(i).getOpen().getTime().getMinutes();
                                     } else {
 
@@ -563,7 +564,7 @@ public class NearbyRestaurantsRepository {
                                 if (myOccurrence != 0) {
                                     int hourOne = openingHours.getPeriods().get(i).getOpen().getTime().getHours();
                                     int hourTwo = openingHours.getPeriods().get(myOccurrence).getOpen().getTime().getHours();
-                                    if (hourOne - currentHour >= 0 && hourOne - currentHour <= hourTwo - currentHour) {
+                                    if (hourOne - currentHour >= 0 && Math.abs(hourOne - currentHour) <= Math.abs(hourTwo - currentHour)) {
                                         return openingHours.getPeriods().get(i).getClose().getTime().getHours();
                                     } else {
 
@@ -649,7 +650,7 @@ public class NearbyRestaurantsRepository {
                                 if (myOccurrence != 0) {
                                     int hourOne = openingHours.getPeriods().get(i).getOpen().getTime().getHours();
                                     int hourTwo = openingHours.getPeriods().get(myOccurrence).getOpen().getTime().getHours();
-                                    if (hourOne - currentHour >= 0 && hourOne - currentHour <= hourTwo - currentHour) {
+                                    if (hourOne - currentHour >= 0 && Math.abs(hourOne - currentHour) <= Math.abs(hourTwo - currentHour)) {
                                         return openingHours.getPeriods().get(i).getClose().getTime().getMinutes();
                                     } else {
 
@@ -735,7 +736,7 @@ public class NearbyRestaurantsRepository {
             openMinutes = openMinutesCalcul(place.getOpeningHours());
             closeMinutes = closeMinutesCalcul(place.getOpeningHours());
             closeHours = closeHoursCalcul(place.getOpeningHours());
-
+            Log.d("debago", "place detail opening hours, open hours: " + openHours + "h" + openMinutes + " current hour is: " + currentHour);
             openForLunch = openHours <= 12 && closeHours >= 13;
 
             if (appMode.equals(App.getResourses().getString(R.string.app_mode_work)) || appMode.equals(App.getResourses().getString(R.string.app_mode_forced_work))) {

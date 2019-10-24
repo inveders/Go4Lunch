@@ -110,7 +110,11 @@ public class RecyclerViewListViewRestaurantSorted extends RecyclerView.Adapter<R
                 if (opening_close_hours != -1) {
                     if (opening_close_hours == 0) {
                         holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.opening_hours_midnight));
-                    } else {
+                    }
+                    else if(opening_close_hours<hourOfDay){
+                        holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.closed_restaurant));
+                    }
+                    else {
                         if (opening_close_minutes == 0) {
                             holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.open_hours_until_no_minutes, opening_close_hours));
                         } else {
@@ -120,7 +124,6 @@ public class RecyclerViewListViewRestaurantSorted extends RecyclerView.Adapter<R
                 } else {
                     holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.no_opened_hours));
                 }
-
             }
 
 

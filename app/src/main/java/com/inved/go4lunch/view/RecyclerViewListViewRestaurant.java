@@ -124,19 +124,16 @@ public class RecyclerViewListViewRestaurant extends FirestoreRecyclerAdapter<Res
             }
         });
 
-
         String name = restaurant.getRestaurantName();
         holder.mRestaurantName.setText(name);
 
         holder.mDistance.setText(App.getResourses().getString(R.string.distance_text, restaurant.getDistance()));
-
 
         holder.mRestaurantAdress.setText(restaurant.getRestaurantAddress());
 
         holder.mNumberRates.setText(String.valueOf(restaurant.getRestaurantCustomers()));
         int numberWorkmatesInRestaurant = restaurant.getRestaurantCustomers();
         holder.mNumberRates.setText(App.getResourses().getString(R.string.workmates_in_restaurant, numberWorkmatesInRestaurant));
-
 
         //OPENING HOURS
         int opening_open_hours = restaurant.getOpenHours();
@@ -165,7 +162,11 @@ public class RecyclerViewListViewRestaurant extends FirestoreRecyclerAdapter<Res
             if (opening_close_hours != -1) {
                 if (opening_close_hours == 0) {
                     holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.opening_hours_midnight));
-                } else {
+                }
+                else if(opening_close_hours<hourOfDay){
+                    holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.closed_restaurant));
+                }
+                else {
                     if (opening_close_minutes == 0) {
                         holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.open_hours_until_no_minutes, opening_close_hours));
                     } else {

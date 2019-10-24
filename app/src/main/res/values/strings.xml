@@ -89,7 +89,7 @@
     <string name="fragment_listview_item_dot">·</string>
 
     <string name="opening_hours_midnight">Open until midnight</string>
-    <string name="Closed_restaurant">Closed</string>
+    <string name="closed_restaurant">Closed</string>
     <string name="workmates_in_restaurant" translatable="false">( %d )</string>
     <string name="open_hours_text">Opening to %1dh%2d</string>
     <string name="open_hours_until">Open until %1dh%2d</string>

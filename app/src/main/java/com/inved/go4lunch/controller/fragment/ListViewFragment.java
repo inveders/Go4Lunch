@@ -302,7 +302,6 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
     @Override
     public void onResume() {
         super.onResume();
-        Log.d("debago", "ListView on resume");
         getRestaurantNameFromAutocomplete();
 
     }
@@ -310,7 +309,6 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
     private void getRestaurantNameFromAutocomplete() {
 
         String restaurantNameFromAutocomplete = ManageAutocompleteResponse.getStringAutocomplete((context), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME);
-        Log.d("debago","RestaurantName from autocomplete : "+restaurantNameFromAutocomplete);
         if (restaurantNameFromAutocomplete != null) {
 
             if (restaurantNameFromAutocomplete.isEmpty()) {
@@ -332,11 +330,7 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
     }
 
     private void initializeSharedPreferences() {
-
-        Log.d("debago","init sharedpreferences");
         ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(getContext()), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME, null);
-
-
     }
 
     //FIRESTORE RECYCLER VIEW

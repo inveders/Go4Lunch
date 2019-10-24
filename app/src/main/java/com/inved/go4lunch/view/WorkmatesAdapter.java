@@ -65,9 +65,6 @@ public class WorkmatesAdapter extends FirestoreRecyclerAdapter<User, WorkmatesVi
         super.onDataChanged();
         this.callback.onDataChanged();
 
-        //Fill the Recycler View
-//        notifyDataSetChanged();
-
     }
 
 

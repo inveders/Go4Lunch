@@ -312,7 +312,8 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
         final MenuItem clearItem = menu.findItem(R.id.action_clear);
         clearItem.setOnMenuItemClickListener(menuItem -> {
-            ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(this), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME, "");
+            ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(this), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME, null);
+            ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(this), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID, null);
             refreshFragment();
 
             menu.findItem(R.id.action_search).setVisible(true);
@@ -366,6 +367,9 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
             if (resultCode == RESULT_OK) {
 
                 if (data != null) {
+
+
+
                     Place place = Autocomplete.getPlaceFromIntent(data);
 
                     // Define a Place ID.
@@ -420,8 +424,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
                                             if (documentSnapshot.getString("restaurantPlaceId") == null) {
 
                                                 dialogToGoInViewPlaceIfAutocomplete(placeId);
-                                            }else{
-                                                refreshFragment();
                                             }
 
                                         });
@@ -432,8 +434,9 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
                                     RestaurantHelper.getRestaurant(placeId).addOnSuccessListener(documentSnapshot -> {
 
                                         if (documentSnapshot.getString("restaurantPlaceId") == null) {
-
                                             dialogToGoInViewPlaceIfAutocomplete(placeId);
+                                            ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(this), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME, null);
+                                            ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(this), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID, null);
 
                                         }else{
                                             refreshFragment();

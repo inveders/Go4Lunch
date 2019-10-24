@@ -8,7 +8,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +19,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -31,10 +29,6 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.net.FetchPlaceRequest;
-import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -48,25 +42,19 @@ import com.inved.go4lunch.firebase.RestaurantInNormalModeHelper;
 import com.inved.go4lunch.utils.App;
 import com.inved.go4lunch.utils.ManageAppMode;
 import com.inved.go4lunch.utils.ManageAutocompleteResponse;
-import com.inved.go4lunch.utils.ManageJobPlaceId;
 import com.inved.go4lunch.utils.ManagePosition;
 import com.inved.go4lunch.utils.ManageRestaurantChoiceInNormalMode;
-
-import java.util.Collections;
-import java.util.List;
 
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_GEOLOCALISATION;
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LATITUDE;
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LOCATION_CHANGED;
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LONGITUDE;
-import static com.inved.go4lunch.controller.activity.RestaurantActivity.MAP_API_KEY;
 import static com.inved.go4lunch.utils.ManagePosition.KEY_POSITION_DATA;
 import static com.inved.go4lunch.utils.ManagePosition.KEY_POSITION_JOB_LAT_LNG_DATA;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     public static final String RESTAURANT_PLACE_ID = "PLACE_ID";
-    private static final String TAG ="debago" ;
     private GoogleMap mGoogleMap;
     private View mView;
     private Marker mMarker;
@@ -160,8 +148,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     @Override
     public void onResume() {
         super.onResume();
+        if(ManageAutocompleteResponse.getStringAutocomplete((context), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID)!=null){
+            initializeMap();
+        }
 
-        initializeMap();
 
 
     }
@@ -191,15 +181,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         showProgressBar();
         String sharedPreferenceRestaurantPlaceId = ManageAutocompleteResponse.getStringAutocomplete((context), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID);
 
-        Log.d("debago","autocomplete place id 1 : "+sharedPreferenceRestaurantPlaceId);
 
         if (sharedPreferenceRestaurantPlaceId != null) {
-            Log.d("debago","autocomplete place id 2 : "+sharedPreferenceRestaurantPlaceId);
+
             double latitude = ManageAutocompleteResponse.getDoubleAutocomplete(context, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE);
             double longitude = ManageAutocompleteResponse.getDoubleAutocomplete(context, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE);
             customizeMarker(sharedPreferenceRestaurantPlaceId, latitude, longitude);
 
-            movecamera();
+            moveCameraAutocompleChoice(latitude,longitude);
             //initializeSharedPreferences();
 
 
@@ -221,7 +210,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
                     }
 
-                    movecamera();
+                    MoveCamera();
 
                 }).addOnFailureListener(e -> {
 
@@ -242,7 +231,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
                         }
 
-                        movecamera();
+                        MoveCamera();
                     }).addOnFailureListener(e -> {
 
                     });
@@ -255,7 +244,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     }
 
     private void initializeSharedPreferences() {
-        Log.d("debago","init sharedpreferences mapfragment");
         ManageAutocompleteResponse.saveAutocompleteStringResponse(context, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID, null);
     }
 
@@ -269,7 +257,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
 
     private void customizeMarker(String restaurantPlaceId, double lat, double longi) {
-
 
         if (mGoogleMap != null) {
             mGoogleMap.clear();
@@ -371,7 +358,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
     }
 
-    private void movecamera() {
+    private void MoveCamera() {
 
         int mZoom = 15;
         int mBearing = 4;
@@ -412,6 +399,27 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
 
             }
+
+        }
+
+        hideProgressBar();
+
+    }
+
+    private void moveCameraAutocompleChoice(double lat,double lng) {
+
+        int mZoom = 18;
+        int mBearing = 4;
+        int mTilt = 35;
+
+        LatLng autocompleLatLng = new LatLng(lat,lng);
+
+        if(mGoogleMap!=null){
+
+
+                    CameraPosition Liberty = CameraPosition.builder().target(autocompleLatLng).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
+                    mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
+                    mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(autocompleLatLng));
 
         }
 

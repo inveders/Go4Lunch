@@ -73,7 +73,7 @@
     <string name="user_settings">INFORMATIONS SUR L\'UTILISATEUR</string>
     <string name="notification_message_no_workmates_here">Aucun collègue ici pour l\'instant</string>
     <string name="alert_dialog_view_activity_no_choice_yet">Etes-vous sur de ne plus vouloir manger ici ?</string>
-    <string name="Closed_restaurant">Fermé</string>
+    <string name="closed_restaurant">Fermé</string>
     <string name="Enter_restaurant_name">Entrez le nom d\'un restaurant</string>
     <string name="job_address_question">Où travaillez-vous ?</string>
     <string name="valider">VALIDER</string>
