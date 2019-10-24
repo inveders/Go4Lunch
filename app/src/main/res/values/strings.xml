@@ -63,6 +63,7 @@
     <string name="popup_message_confirmation_delete_account">Are you sure you want to delete your account?</string>
     <string name="popup_message_choice_yes">Yes</string>
     <string name="popup_message_choice_no">No</string>
+    <string name="popup_message_choice_OK">OK</string>
     <string name="user_settings">USER INFORMATIONS</string>
     <string name="profile_activity_changing_work">You are about to change your workplace. Attention! If you do, you will lose all your current favorite restaurants and you will no longer see your current colleagues.</string>
     <string name="profile_activity_confirm_changing_work">I CONFIRM</string>
@@ -74,6 +75,8 @@
     <string name="Enter_restaurant_name">Enter a restaurant name</string>
     <string name="restaurant_activity_autocomplete_no_near_you">Your search does not match a place near you, do you still want to see the details of that place?</string>
     <string name="Restaurant_activity_press_clear_button">Please, press clear button</string>
+    <string name="restaurant_activity_autocomplete_no_restaurant">Your search is not a restaurant, please you can only access to restaurant informations</string>
+
 
     <!-- FRAGMENT RESTAURANT LISTVIEW -->
     <string name="fragment_listview_item_image">restaurant image</string>

@@ -12,10 +12,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.PhotoMetadata;
@@ -29,8 +30,6 @@ import com.inved.go4lunch.firebase.Restaurant;
 import com.inved.go4lunch.utils.App;
 import com.inved.go4lunch.utils.ManageAppMode;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
@@ -38,21 +37,22 @@ import java.util.List;
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.MAP_API_KEY;
 import static com.inved.go4lunch.controller.fragment.MapFragment.RESTAURANT_PLACE_ID;
 
-public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<RecyclerViewListViewRestaurant.ViewHolder> {
-
-
-    @Nullable
-    private ArrayList<Restaurant> restaurantArrayList;
-    private ArrayList<Restaurant> restaurantArrayListFiltered;
+public class RecyclerViewListViewRestaurant extends FirestoreRecyclerAdapter<Restaurant, RecyclerViewListViewRestaurant.ViewHolder> {
 
     private String placeId;
+    private Listener callback;
 
-    public RecyclerViewListViewRestaurant(@Nullable ArrayList<Restaurant> restaurantArrayList) {
-
-        this.restaurantArrayList = restaurantArrayList;
-
+    public interface Listener {
+        void onDataChanged();
     }
 
+
+
+    public RecyclerViewListViewRestaurant(@NonNull FirestoreRecyclerOptions<Restaurant> options, Listener callback) {
+
+        super(options);
+        this.callback = callback;
+    }
 
     @NonNull
     @Override
@@ -64,112 +64,9 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerViewListViewRestaurant.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull RecyclerViewListViewRestaurant.ViewHolder holder, final int position, @NonNull Restaurant restaurant) {
 
-        if (restaurantArrayList != null) {
-            String name = restaurantArrayList.get(position).getRestaurantName();
-            holder.mRestaurantName.setText(name);
-            placeId = restaurantArrayList.get(position).getRestaurantPlaceId();
-            holder.mDistance.setText(App.getResourses().getString(R.string.distance_text, restaurantArrayList.get(position).getDistance()));
-
-        }
-
-        if (restaurantArrayList != null) {
-            holder.mRestaurantAdress.setText(restaurantArrayList.get(position).getRestaurantAddress());
-
-            holder.mNumberRates.setText(String.valueOf(restaurantArrayList.get(position).getRestaurantCustomers()));
-            int numberWorkmatesInRestaurant = restaurantArrayList.get(position).getRestaurantCustomers();
-            holder.mNumberRates.setText(App.getResourses().getString(R.string.workmates_in_restaurant, numberWorkmatesInRestaurant));
-
-
-        }
-
-        //OPENING HOURS
-        if (restaurantArrayList != null) {
-            int opening_open_hours = restaurantArrayList.get(position).getOpenHours();
-            int opening_open_minutes = restaurantArrayList.get(position).getOpenMinutes();
-            int opening_close_hours = restaurantArrayList.get(position).getCloseHours();
-            int opening_close_minutes = restaurantArrayList.get(position).getCloseMinutes();
-
-            Calendar calendar = Calendar.getInstance();
-            int hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
-
-            if(opening_open_hours==0 && opening_close_hours==0){
-                holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.no_opened_hours));
-            }
-            else if (hourOfDay < opening_open_hours) {
-                if (opening_close_hours != -1) {
-                    if (opening_open_minutes == 0) {
-                        holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.open_hours_text_no_minutes, opening_open_hours));
-                    } else {
-                        holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.open_hours_text, opening_open_hours, opening_open_minutes));
-                    }
-
-                } else {
-                    holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.no_opened_hours));
-
-                }
-            } else {
-                if (opening_close_hours != -1) {
-                    if (opening_close_hours == 0) {
-                        holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.opening_hours_midnight));
-                    } else {
-                        if (opening_close_minutes == 0) {
-                            holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.open_hours_until_no_minutes, opening_close_hours));
-                        } else {
-                            holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.open_hours_until, opening_close_hours, opening_close_minutes));
-                        }
-                    }
-                } else {
-                    holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.no_opened_hours));
-                }
-
-            }
-
-
-        }
-
-
-        //CLICK ON A RESTAURANT
-        holder.mConstraintLayoutItem.setOnClickListener(view -> {
-
-            if (restaurantArrayList.get(position).getRestaurantPlaceId() != null) {
-                placeId = restaurantArrayList.get(position).getRestaurantPlaceId();
-
-                // Launch View Place Activity
-                Intent intent = new Intent(view.getContext(), ViewPlaceActivity.class);
-                intent.putExtra(RESTAURANT_PLACE_ID, placeId);
-                view.getContext().startActivity(intent);
-            } else {
-                Toast.makeText(view.getContext(), App.getResourses().getString(R.string.no_restaurant_found), Toast.LENGTH_SHORT).show();
-            }
-
-        });
-
-        //RATING
-        int ratingValue = restaurantArrayList.get(position).getRatingApp();
-
-        switch (ratingValue) {
-            case 1:
-                holder.mStarFirst.setVisibility(View.INVISIBLE);
-                holder.mStarSecond.setVisibility(View.INVISIBLE);
-                holder.mStarThird.setVisibility(View.VISIBLE);
-                break;
-            case 2:
-                holder.mStarFirst.setVisibility(View.INVISIBLE);
-                holder.mStarSecond.setVisibility(View.VISIBLE);
-                holder.mStarThird.setVisibility(View.VISIBLE);
-                break;
-            case 3:
-                holder.mStarFirst.setVisibility(View.VISIBLE);
-                holder.mStarSecond.setVisibility(View.VISIBLE);
-                holder.mStarThird.setVisibility(View.VISIBLE);
-                break;
-            default:
-                holder.mStarFirst.setVisibility(View.INVISIBLE);
-                holder.mStarSecond.setVisibility(View.INVISIBLE);
-                holder.mStarThird.setVisibility(View.INVISIBLE);
-        }
+        placeId = restaurant.getRestaurantPlaceId();
 
         //PHOTO
         // Initialize Places.
@@ -227,9 +124,106 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
             }
         });
 
+
+        String name = restaurant.getRestaurantName();
+        holder.mRestaurantName.setText(name);
+
+        holder.mDistance.setText(App.getResourses().getString(R.string.distance_text, restaurant.getDistance()));
+
+
+        holder.mRestaurantAdress.setText(restaurant.getRestaurantAddress());
+
+        holder.mNumberRates.setText(String.valueOf(restaurant.getRestaurantCustomers()));
+        int numberWorkmatesInRestaurant = restaurant.getRestaurantCustomers();
+        holder.mNumberRates.setText(App.getResourses().getString(R.string.workmates_in_restaurant, numberWorkmatesInRestaurant));
+
+
+        //OPENING HOURS
+        int opening_open_hours = restaurant.getOpenHours();
+        int opening_open_minutes = restaurant.getOpenMinutes();
+        int opening_close_hours = restaurant.getCloseHours();
+        int opening_close_minutes = restaurant.getCloseMinutes();
+
+        Calendar calendar = Calendar.getInstance();
+        int hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
+
+        if (opening_open_hours == 0 && opening_close_hours == 0) {
+            holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.no_opened_hours));
+        } else if (hourOfDay < opening_open_hours) {
+            if (opening_close_hours != -1) {
+                if (opening_open_minutes == 0) {
+                    holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.open_hours_text_no_minutes, opening_open_hours));
+                } else {
+                    holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.open_hours_text, opening_open_hours, opening_open_minutes));
+                }
+
+            } else {
+                holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.no_opened_hours));
+
+            }
+        } else {
+            if (opening_close_hours != -1) {
+                if (opening_close_hours == 0) {
+                    holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.opening_hours_midnight));
+                } else {
+                    if (opening_close_minutes == 0) {
+                        holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.open_hours_until_no_minutes, opening_close_hours));
+                    } else {
+                        holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.open_hours_until, opening_close_hours, opening_close_minutes));
+                    }
+                }
+            } else {
+                holder.mRestaurantOpenInformation.setText(App.getResourses().getString(R.string.no_opened_hours));
+            }
+
+        }
+
+
+        //CLICK ON A RESTAURANT
+        holder.mConstraintLayoutItem.setOnClickListener(view -> {
+
+            if (restaurant.getRestaurantPlaceId() != null) {
+                placeId = restaurant.getRestaurantPlaceId();
+
+                // Launch View Place Activity
+                Intent intent = new Intent(view.getContext(), ViewPlaceActivity.class);
+                intent.putExtra(RESTAURANT_PLACE_ID, placeId);
+                view.getContext().startActivity(intent);
+            } else {
+                Toast.makeText(view.getContext(), App.getResourses().getString(R.string.no_restaurant_found), Toast.LENGTH_SHORT).show();
+            }
+
+        });
+
+        //RATING
+        int ratingValue = restaurant.getRatingApp();
+
+        switch (ratingValue) {
+            case 1:
+                holder.mStarFirst.setVisibility(View.INVISIBLE);
+                holder.mStarSecond.setVisibility(View.INVISIBLE);
+                holder.mStarThird.setVisibility(View.VISIBLE);
+                break;
+            case 2:
+                holder.mStarFirst.setVisibility(View.INVISIBLE);
+                holder.mStarSecond.setVisibility(View.VISIBLE);
+                holder.mStarThird.setVisibility(View.VISIBLE);
+                break;
+            case 3:
+                holder.mStarFirst.setVisibility(View.VISIBLE);
+                holder.mStarSecond.setVisibility(View.VISIBLE);
+                holder.mStarThird.setVisibility(View.VISIBLE);
+                break;
+            default:
+                holder.mStarFirst.setVisibility(View.INVISIBLE);
+                holder.mStarSecond.setVisibility(View.INVISIBLE);
+                holder.mStarThird.setVisibility(View.INVISIBLE);
+        }
+
+
     }
 
-    @Override
+  /*  @Override
     public int getItemCount() {
 
         if (restaurantArrayListFiltered != null) {
@@ -239,16 +233,16 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
             return 0;
         }
 
-    }
+    }*/
 
-    public void setData(ArrayList<Restaurant> restaurantArrayList) {
+   /* public void setData(ArrayList<Restaurant> restaurantArrayList) {
 
         this.restaurantArrayList = restaurantArrayList;
         this.restaurantArrayListFiltered = restaurantArrayList;
         //Fill the Recycler View
         notifyDataSetChanged();
 
-    }
+    }*/
 
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -288,6 +282,13 @@ public class RecyclerViewListViewRestaurant extends RecyclerView.Adapter<Recycle
             }
 
         }
+
+    }
+
+    @Override
+    public void onDataChanged() {
+        super.onDataChanged();
+        this.callback.onDataChanged();
 
     }
 

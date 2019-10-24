@@ -14,9 +14,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +32,7 @@ import androidx.viewpager.widget.ViewPager;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationRequest;
@@ -44,9 +43,13 @@ import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.api.model.TypeFilter;
+import com.google.android.libraries.places.api.net.FetchPlaceRequest;
+import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
@@ -70,11 +73,17 @@ import com.inved.go4lunch.utils.App;
 import com.inved.go4lunch.utils.ManageAppMode;
 import com.inved.go4lunch.utils.ManageAutocompleteResponse;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
+import com.inved.go4lunch.utils.ManagePosition;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 import static com.inved.go4lunch.controller.fragment.MapFragment.RESTAURANT_PLACE_ID;
+import static com.inved.go4lunch.utils.ManagePosition.KEY_POSITION_DATA;
+import static com.inved.go4lunch.utils.ManagePosition.KEY_POSITION_JOB_LAT_LNG_DATA;
 import static java.lang.Math.cos;
 
 public class RestaurantActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, LocationListener {
@@ -89,13 +98,18 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     private static final int AUTOCOMPLETE_REQUEST_CODE = 645;
 
     //FOR LOCATION
+
     Location location; // location
     // The minimum distance to change Updates in meters
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 1500; // 1000 meters for tests, after come back to 10 meters
     // The minimum time between updates in milliseconds
     private static final long MIN_TIME_BW_UPDATES = 1000 * 60; // 1 minute*/
 
-    List<Place.Field> fields;
+    //AUTOCOMPLETE
+    AutocompleteSessionToken token;
+    protected PlacesClient placesClient;
+    List<Place.Field> fieldsAutocomplete;
+
 
     double latitude; // latitude
     double longitude; // longitude
@@ -108,12 +122,9 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     TextView navEmail;
     ImageView navProfileImage;
 
-
     //Declaration for fragments
     BottomNavigationView bottomNavigationView;
     ViewPager viewPager;
-
-
 
 
     //Localisation
@@ -128,13 +139,13 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     private DrawerLayout drawerLayout;
 
 
-
     public FragmentRefreshListener getFragmentRefreshListener() {
         return fragmentRefreshListener;
     }
 
     public void setFragmentRefreshListener(FragmentRefreshListener fragmentRefreshListener) {
         this.fragmentRefreshListener = fragmentRefreshListener;
+
     }
 
     private FragmentRefreshListener fragmentRefreshListener;
@@ -168,10 +179,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-        //initializeRestaurantActivity();
-
-
+        initializeJobLatLng();
         this.configureToolBar();
 
 
@@ -182,6 +190,17 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
         //NavigationDrawer
         logout = findViewById(R.id.activity_main_drawer_logout);
+
+        // Initialize Places.
+        if (!Places.isInitialized()) {
+            Places.initialize(getApplicationContext(), MAP_API_KEY);
+        }
+
+        fieldsAutocomplete = Arrays.asList(Place.Field.NAME, Place.Field.ID, Place.Field.LAT_LNG);
+
+        // Create a new Places client instance.
+        placesClient = Places.createClient(this);
+        token = AutocompleteSessionToken.newInstance();
 
         //Viewpager
         viewPager = findViewById(R.id.viewpager_fragment); //Init Viewpager
@@ -207,9 +226,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         resultModel = ViewModelProviders.of(this).get(ResultModel.class);
 
 
-
     }
-
 
 
     @SuppressLint("MissingPermission")
@@ -240,6 +257,43 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         resultModel.setNearbyRestaurantsInFirebase(lat, longi).observe(this, result -> refreshFragment());
 
 
+    }
+
+    private void initializeJobLatLng(){
+        // Define a Place ID.
+        String placeId = ManageJobPlaceId.getJobPlaceId(this);
+
+        // Initialize Places.
+        Places.initialize(App.getInstance().getApplicationContext(), MAP_API_KEY);
+
+        // Create a new Places client instance.
+        PlacesClient placesClient = Places.createClient(App.getInstance().getApplicationContext());
+
+        // Specify the fields to return.
+        List<Place.Field> placeFields = Collections.singletonList(Place.Field.LAT_LNG);
+
+        // Construct a request object, passing the place ID and fields array.
+        FetchPlaceRequest request = FetchPlaceRequest.builder(placeId, placeFields)
+                .build();
+
+        // Add a listener to handle the response.
+        placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
+            Place place = response.getPlace();
+            if(place.getLatLng()!=null){
+                double latitude = place.getLatLng().latitude;
+                double longitude = place.getLatLng().longitude;
+
+                ManagePosition.savePosition(this,latitude + "," + longitude,KEY_POSITION_JOB_LAT_LNG_DATA);
+            }
+
+        }).addOnFailureListener((exception) -> {
+            if (exception instanceof ApiException) {
+                ApiException apiException = (ApiException) exception;
+                int statusCode = apiException.getStatusCode();
+                // Handle error with given status code.
+                Log.e(TAG, "Place not found: " + exception.getMessage()+""+statusCode);
+            }
+        });
     }
 
 
@@ -283,7 +337,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         }
 
 
-
     }
 
     //PLACE AUTOCOMPLETE
@@ -295,12 +348,134 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
                 new LatLng(calculateBound("NE_LAT"), calculateBound("NE_LNG")));
 
         Intent intent = new Autocomplete.IntentBuilder(
-                AutocompleteActivityMode.OVERLAY, fields)
+                AutocompleteActivityMode.OVERLAY, fieldsAutocomplete)
                 .setHint(getString(R.string.Enter_restaurant_name))
                 .setLocationRestriction(boundsRect)
                 .setTypeFilter(TypeFilter.ESTABLISHMENT)
                 .build(this);
         startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+
+                if (data != null) {
+                    Place place = Autocomplete.getPlaceFromIntent(data);
+
+                    // Define a Place ID.
+                    String placeId = place.getId();
+
+                    if(placeId!=null){
+                        // Initialize Places.
+                        Places.initialize(App.getInstance().getApplicationContext(), MAP_API_KEY);
+
+                        // Create a new Places client instance.
+                        PlacesClient placesClient = Places.createClient(App.getInstance().getApplicationContext());
+
+                        // Specify the fields to return.
+                        List<Place.Field> placeFields = Collections.singletonList(Place.Field.TYPES);
+
+                        // Construct a request object, passing the place ID and fields array.
+                        FetchPlaceRequest request = FetchPlaceRequest.builder(placeId, placeFields)
+                                .build();
+
+                        // Add a listener to handle the response.
+                        placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
+
+                            Place placeType = response.getPlace();
+
+                            List<String> typeList = new ArrayList<>();
+                            if (placeType.getTypes() != null) {
+                                for (int i = 0; i < placeType.getTypes().size(); i++) {
+
+                                    typeList.add(placeType.getTypes().get(i).toString());
+
+                                }
+                            }
+                            if (typeList.contains("RESTAURANT")) {
+                                ManageAutocompleteResponse.saveAutocompleteStringResponse(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID, placeId);
+                                ManageAutocompleteResponse.saveAutocompleteStringResponse(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME, place.getName());
+
+                                ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE, Objects.requireNonNull(place.getLatLng()).latitude);
+                                ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE, place.getLatLng().longitude);
+
+                            }
+
+                            if (ManageAutocompleteResponse.getStringAutocomplete((this), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID) == null) {
+                                Log.d("debago","Restaurant 1 ");
+                                dialogToInformThatIsNotRestaurant();
+                            } else {
+                                if (ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_normal))) {
+                                    Log.d("debago","Restaurant 2 ");
+                                    if (getCurrentUser() != null) {
+                                        //We check if the autocomplete placeId is in our firebase normal mode.
+                                        RestaurantInNormalModeHelper.getRestaurant(this.getCurrentUser().getUid(), placeId).addOnSuccessListener(documentSnapshot -> {
+
+                                            if (documentSnapshot.getString("restaurantPlaceId") == null) {
+
+                                                dialogToGoInViewPlaceIfAutocomplete(placeId);
+                                            }else{
+                                                refreshFragment();
+                                            }
+
+                                        });
+                                    }
+
+                                } else {
+                                    //We check if the autocomplete placeId is in our firebase work mode.
+                                    RestaurantHelper.getRestaurant(placeId).addOnSuccessListener(documentSnapshot -> {
+
+                                        if (documentSnapshot.getString("restaurantPlaceId") == null) {
+
+                                            dialogToGoInViewPlaceIfAutocomplete(placeId);
+
+                                        }else{
+                                            refreshFragment();
+                                        }
+
+                                    });
+
+                                }
+                            }
+
+                        }).addOnFailureListener((exception) -> {
+                            if (exception instanceof ApiException) {
+                                ApiException apiException = (ApiException) exception;
+                                int statusCode = apiException.getStatusCode();
+                                // Handle error with given status code.
+                                Log.e(TAG, "Place not found: " + exception.getMessage()+""+statusCode);
+                            }
+                        });
+
+                    }
+
+
+
+
+
+                }
+
+
+            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+
+                if (data != null) {
+                    Status status = Autocomplete.getStatusFromIntent(data);
+                    if (status.getStatusMessage() != null) {
+                        Log.i(TAG, status.getStatusMessage());
+                    }
+                }
+
+            } else if (resultCode == RESULT_CANCELED) {
+
+                Log.i(TAG, "User canceled the operation");
+            }
+        }
     }
 
     private double calculateBound(String lat_long) {
@@ -339,74 +514,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     }
 
     private double convertInRadians(double degre) {
-
         return Math.PI / (180 * degre);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                assert data != null;
-                Place place = Autocomplete.getPlaceFromIntent(data);
-
-                ManageAutocompleteResponse.saveAutocompleteStringResponse(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID, place.getId());
-                ManageAutocompleteResponse.saveAutocompleteStringResponse(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME, place.getName());
-
-                ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LATITUDE, Objects.requireNonNull(place.getLatLng()).latitude);
-                ManageAutocompleteResponse.saveAutocompleteLongResponseFromDouble(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE, place.getLatLng().longitude);
-
-
-                if (ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_normal))) {
-                    if (getCurrentUser() != null) {
-                        //We check if the autocomplete placeId is in our firebase.
-                        RestaurantInNormalModeHelper.getRestaurant(this.getCurrentUser().getUid(), place.getId()).addOnSuccessListener(documentSnapshot -> {
-
-                            if (documentSnapshot.getString("restaurantPlaceId") == null) {
-
-                                if (place.getId() != null) {
-
-                                    dialogToGoInViewPlaceIfAutocomplete(place.getId());
-                                }
-                            }
-
-                        });
-                    }
-
-                } else {
-
-                    //We check if the autocomplete placeId is in our firebase.
-                    RestaurantHelper.getRestaurant(place.getId()).addOnSuccessListener(documentSnapshot -> {
-
-                        if (documentSnapshot.getString("restaurantPlaceId") == null) {
-                            if (place.getId() != null) {
-
-                                dialogToGoInViewPlaceIfAutocomplete(place.getId());
-                            }
-
-                        }
-
-                    });
-
-                }
-
-
-            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
-
-                if (data != null) {
-                    Status status = Autocomplete.getStatusFromIntent(data);
-                    if (status.getStatusMessage() != null) {
-                        Log.i(TAG, status.getStatusMessage());
-                    }
-                }
-
-            } else if (resultCode == RESULT_CANCELED) {
-
-                Log.i(TAG, "User canceled the operation");
-            }
-        }
     }
 
     private void startViewPlaceActivity(String autocompletePlaceId) {
@@ -432,6 +540,17 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
                 .setMessage(getString(R.string.restaurant_activity_autocomplete_no_near_you))
                 .show();
 
+    }
+
+    private void dialogToInformThatIsNotRestaurant() {
+
+        new AlertDialog.Builder(this)
+                // Add the buttons
+                .setNeutralButton(R.string.popup_message_choice_OK, (dialog, which) -> {
+                    // do something like...
+                })
+                .setMessage(getString(R.string.restaurant_activity_autocomplete_no_restaurant))
+                .show();
     }
 
 
@@ -510,8 +629,9 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         //check if gps is enabled or not and then request user to enable it
         LocationRequest locationRequest = LocationRequest.create();
         locationRequest.setInterval(10000);
-        locationRequest.setFastestInterval(5000);
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        //  locationRequest.setFastestInterval(5000);
+        locationRequest.setSmallestDisplacement(200);
+        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
 
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
 
@@ -600,9 +720,9 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     @Override
     public void onLocationChanged(Location location) {
-
         latitude = location.getLatitude();
         longitude = location.getLongitude();
+        ManagePosition.savePosition(this, latitude + "," + longitude,KEY_POSITION_DATA);
         sendLocationDataToFragments();
 
     }

@@ -107,4 +107,10 @@ public class RestaurantHelper {
         RestaurantHelper.getRestaurantsCollection().document(id).update("closeMinutes", closeMinutes);
 
     }
+
+    // --- DELETE ---
+
+    public static void deleteRestaurants(String restaurantPlaceId) {
+        RestaurantHelper.getRestaurantsCollection().document(restaurantPlaceId).delete();
+    }
 }

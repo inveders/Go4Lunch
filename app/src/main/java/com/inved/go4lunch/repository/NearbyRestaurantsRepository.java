@@ -2,6 +2,7 @@ package com.inved.go4lunch.repository;
 
 import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
@@ -25,6 +26,7 @@ import com.inved.go4lunch.utils.App;
 import com.inved.go4lunch.utils.ListDay;
 import com.inved.go4lunch.utils.ManageAppMode;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
+import com.inved.go4lunch.utils.ManagePosition;
 import com.inved.go4lunch.utils.UnitConversion;
 
 import java.math.RoundingMode;
@@ -72,7 +74,15 @@ public class NearbyRestaurantsRepository {
 
         GoogleNearbySearchApi googleNearbySearchApi = RetrofitServiceNearbySearch.getGoogleNearbySearchApi();
 
-        String location = "" + myCurrentLat + "," + myCurrentLongi + "";
+        String location;
+        if (ManageAppMode.getAppMode(context).equals(App.getResourses().getString(R.string.app_mode_normal))) {
+            Log.d("debago", "location normal mode");
+            location = "" + myCurrentLat + "," + myCurrentLongi + "";
+        } else {
+            Log.d("debago", "location work mode");
+            location = ManagePosition.getPosition(context, ManagePosition.KEY_POSITION_JOB_LAT_LNG_DATA);
+        }
+
         int radius = 1500;
         String type = "restaurant";
         Call<PlaceSearch> call = googleNearbySearchApi.getNearbyRestaurants(location, radius, type, MAP_API_KEY);
@@ -85,8 +95,9 @@ public class NearbyRestaurantsRepository {
                 if (placeSearch != null) {
                     if (placeSearch.getResults() != null) {
                         results = (ArrayList<Result>) placeSearch.getResults();
-                        mutableLiveData.setValue(results);
+
                         if (results.size() > 0) {
+                            Log.d("debago", "result more than 0");
                             if (appMode.equals(App.getResourses().getString(R.string.app_mode_normal))) {
 
                                 RestaurantInNormalModeHelper.getAllRestaurants(currentUser).get().addOnCompleteListener(task -> {
@@ -110,13 +121,37 @@ public class NearbyRestaurantsRepository {
                                 });
 
                             }
+                            if (appMode.equals(App.getResourses().getString(R.string.app_mode_forced_work)) || appMode.equals(App.getResourses().getString(R.string.app_mode_work))) {
+                                RestaurantHelper.getAllRestaurants().get().addOnCompleteListener(task -> {
+                                    if (task.isSuccessful()) {
 
-                            if (appMode.equals(App.getResourses().getString(R.string.app_mode_forced_work))) {
-                                updateFirebaseWithRestaurantsFromMyWorkIfExist();
+                                        if (task.getResult() != null) {
+                                            if (!task.getResult().getDocuments().isEmpty()) {
+
+                                                for (DocumentSnapshot querySnapshot : task.getResult()) {
+                                                    if (Objects.equals(querySnapshot.getString("restaurantPlaceId"), results.get(0).getPlaceId())) {
+
+                                                        Log.d("debago", "we update restaurants ");
+                                                        updateFirebaseWithRestaurantsFromMyWorkIfExist();
+                                                    }
+                                                }
+
+
+                                            } else {
+                                                Log.d("debago", "we delete restaurants ");
+                                                deleteAllRestaurantInWorkMode(results, myCurrentLat, myCurrentLongi);
+                                            }
+
+
+                                        } else {
+                                            Log.d("debago", "location work mode we set nearby restaurant ");
+                                            setNearbyRestaurantsInFirebase(results, myCurrentLat, myCurrentLongi);
+                                        }
+
+                                    }
+                                });
                             }
-                            if (appMode.equals(App.getResourses().getString(R.string.app_mode_work))) {
-                                setNearbyRestaurantsInFirebase(results, myCurrentLat, myCurrentLongi);
-                            }
+
                         } else {
 
                             if (appMode.equals(App.getResourses().getString(R.string.app_mode_normal))) {
@@ -125,7 +160,7 @@ public class NearbyRestaurantsRepository {
 
                         }
 
-
+                        mutableLiveData.setValue(results);
                     }
                 }
 
@@ -149,7 +184,6 @@ public class NearbyRestaurantsRepository {
             String restaurantPlaceId = myResult.getPlaceId();
             String restaurantName = myResult.getName();
             String restaurantAddress = myResult.getVicinity();
-            //isOpen=myResult.getOpeningHours().getOpenNow();
 
             int rating;
             if (myResult.getRating() != null) {
@@ -188,6 +222,8 @@ public class NearbyRestaurantsRepository {
                             //We delete each existing restaurant before recreating all
                             fetchPlaceDetailRequest(querySnapshot.getString("restaurantPlaceId"));
                         }
+                    } else {
+                        Toast.makeText(context, App.getResourses().getString(R.string.app_mode_forced_mode_no_restaurant_found), Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -205,6 +241,27 @@ public class NearbyRestaurantsRepository {
                         for (DocumentSnapshot querySnapshot : task.getResult()) {
                             //We delete each existing restaurant before recreating all
                             RestaurantInNormalModeHelper.deleteRestaurantsInNormalMode(currentUser, querySnapshot.getString("restaurantPlaceId"));
+                        }
+                        setNearbyRestaurantsInFirebase(results, myCurrentLat, myCurrentLongi);
+                    } else {
+                        setNearbyRestaurantsInFirebase(results, myCurrentLat, myCurrentLongi);
+                    }
+                }
+
+            }
+        });
+    }
+
+    private void deleteAllRestaurantInWorkMode(ArrayList<Result> results, Double
+            myCurrentLat, Double myCurrentLongi) {
+        RestaurantHelper.getAllRestaurants().get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+
+                if (task.getResult() != null) {
+                    if (!task.getResult().getDocuments().isEmpty()) {
+                        for (DocumentSnapshot querySnapshot : task.getResult()) {
+                            //We delete each existing restaurant before recreating all
+                            RestaurantHelper.deleteRestaurants(querySnapshot.getString("restaurantPlaceId"));
                         }
                         setNearbyRestaurantsInFirebase(results, myCurrentLat, myCurrentLongi);
                     } else {
@@ -240,7 +297,8 @@ public class NearbyRestaurantsRepository {
                                              String distance, String restaurantAddress) {
         //Create restaurant in firebase if it doesn't exist
 
-        if (appMode.equals(App.getResourses().getString(R.string.app_mode_work))) {
+        if (appMode.equals(App.getResourses().getString(R.string.app_mode_work)) || appMode.equals(App.getResourses().getString(R.string.app_mode_forced_work))) {
+
             RestaurantHelper.getRestaurant(restaurantPlaceId).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();

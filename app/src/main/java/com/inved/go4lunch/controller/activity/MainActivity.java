@@ -46,7 +46,6 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public int getFragmentLayout() {
-
         return R.layout.activity_main;
     }
 

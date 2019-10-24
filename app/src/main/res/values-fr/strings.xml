@@ -133,4 +133,6 @@
     <string name="profile_activity_successfull_work_changement">Votre changement de travail est réussi</string>
     <string name="please_wait">Veuillez patienter&#8230;</string>
     <string name="choose_place">Choisissez un lieu</string>
+    <string name="restaurant_activity_autocomplete_no_restaurant">Votre recherche n\'est pas un restaurant, vous n\'avez accès qu\'aux informations concernant les restaurants</string>
+    <string name="popup_message_choice_OK">OK</string>
 </resources>

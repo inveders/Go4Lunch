@@ -22,9 +22,12 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.Query;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.controller.activity.RestaurantActivity;
 import com.inved.go4lunch.firebase.Restaurant;
@@ -35,6 +38,7 @@ import com.inved.go4lunch.utils.ManageAppMode;
 import com.inved.go4lunch.utils.ManageAutocompleteResponse;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
 import com.inved.go4lunch.view.RecyclerViewListViewRestaurant;
+import com.inved.go4lunch.view.RecyclerViewListViewRestaurantSorted;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,9 +48,10 @@ import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_GEOL
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LOCATION_CHANGED;
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.PLACE_SEARCH_DATA;
 
-public class ListViewFragment extends Fragment{
+public class ListViewFragment extends Fragment implements RecyclerViewListViewRestaurant.Listener {
 
     private RecyclerViewListViewRestaurant mRecyclerListViewAdapter;
+    private RecyclerViewListViewRestaurantSorted mRecyclerListViewSortedAdapter;
     private RecyclerView mRecyclerListView;
     private TextView textViewNoRestaurantFound;
     private String myLastGeolocalisation = null;
@@ -85,6 +90,8 @@ public class ListViewFragment extends Fragment{
     };
 
 
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -109,121 +116,32 @@ public class ListViewFragment extends Fragment{
         filterButton = mView.findViewById(R.id.fragment_list_view_sort_button);
         actionOnFloatingButton();
 
+
         ((RestaurantActivity) Objects.requireNonNull(getActivity())).setFragmentRefreshListener(this::getRestaurantNameFromAutocomplete);
 
         return mView;
     }
 
 
-
     private void loadDataFromFirebase() {
 
-        if (restaurantArrayList.size() > 0) {
-            restaurantArrayList.clear();
-        }
-
         if (ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_work)) || ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_forced_work))) {
-            RestaurantHelper.getAllRestaurants().get().addOnCompleteListener(task -> {
-
-                if (task.getResult() != null) {
-                    if(task.getResult().size()>0){
-                        textViewNoRestaurantFound.setVisibility(View.INVISIBLE);
-                        for (DocumentSnapshot querySnapshot : task.getResult()) {
-                            Restaurant restaurant = querySnapshot.toObject(Restaurant.class);
-
-                            if (restaurant != null) {
-                                restaurantPlaceId = restaurant.getRestaurantPlaceId();
-                                restaurantCustomers = restaurant.getRestaurantCustomers();
-                                restaurantName = restaurant.getRestaurantName();
-                                rating = restaurant.getRatingApp();
-                                isOpenForLunch = restaurant.getOpenForLunch();
-                                distance = restaurant.getDistance();
-                                openHours = restaurant.getOpenHours();
-                                closeHours = restaurant.getCloseHours();
-                                restaurantAddress = restaurant.getRestaurantAddress();
-                                openMinutes = restaurant.getOpenMinutes();
-                                closeMinutes = restaurant.getCloseMinutes();
-
-                                Restaurant restaurantObject = new Restaurant(restaurantPlaceId, restaurantCustomers, 0, ManageJobPlaceId.getJobPlaceId(App.getInstance().getApplicationContext()),
-                                        restaurantName, rating, isOpenForLunch, distance, openHours, closeHours, restaurantAddress, 0.0, 0.0,
-                                        null, null, openMinutes, closeMinutes);
-
-                                restaurantArrayList.add(restaurantObject);
-                            }
-
-                        }
-                    }else{
-                        filterButton.hide();
-                        textViewNoRestaurantFound.setVisibility(View.VISIBLE);
-
-                    }
-                }
-
-                mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(restaurantArrayList);
-                mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
-                mRecyclerListViewAdapter.setData(restaurantArrayList);
-            }).addOnFailureListener(e -> Log.e("debago", "Problem during the load data"));
+            displayAllRestaurantsInWorkMode();
         } else {
-            if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-                RestaurantInNormalModeHelper.getAllRestaurants(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnCompleteListener(task -> {
-
-
-                    if (task.getResult() != null) {
-                        if (task.getResult().size() > 0) {
-                            textViewNoRestaurantFound.setVisibility(View.INVISIBLE);
-                            for (DocumentSnapshot querySnapshot : task.getResult()) {
-                                Restaurant restaurant = querySnapshot.toObject(Restaurant.class);
-
-                                if (restaurant != null) {
-                                    restaurantPlaceId = restaurant.getRestaurantPlaceId();
-                                    restaurantCustomers = restaurant.getRestaurantCustomers();
-                                    restaurantName = restaurant.getRestaurantName();
-                                    rating = restaurant.getRatingApp();
-                                    isOpenForLunch = restaurant.getOpenForLunch();
-                                    distance = restaurant.getDistance();
-                                    openHours = restaurant.getOpenHours();
-                                    closeHours = restaurant.getCloseHours();
-                                    restaurantAddress = restaurant.getRestaurantAddress();
-                                    openMinutes = restaurant.getOpenMinutes();
-                                    closeMinutes = restaurant.getCloseMinutes();
-
-
-                                    Restaurant restaurantObject = new Restaurant(restaurantPlaceId, restaurantCustomers, 0, ManageJobPlaceId.getJobPlaceId(App.getInstance().getApplicationContext()),
-                                            restaurantName, rating, isOpenForLunch, distance, openHours, closeHours, restaurantAddress, 0.0, 0.0,
-                                            null, null, openMinutes, closeMinutes);
-
-                                    restaurantArrayList.add(restaurantObject);
-                                }
-
-                            }
-
-                        } else {
-                            filterButton.hide();
-                            textViewNoRestaurantFound.setVisibility(View.VISIBLE);
-
-                        }
-                    }
-
-
-                    mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(restaurantArrayList);
-                    mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
-                    mRecyclerListViewAdapter.setData(restaurantArrayList);
-                }).addOnFailureListener(e -> Log.e("debago", "Problem during the load data"));
-            }
-
+            displayAllRestaurantsInNormalMode();
         }
-
 
     }
 
+
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        MenuItem searchitem=menu.findItem(R.id.action_search);
-        MenuItem clearItem=menu.findItem(R.id.action_clear);
-        if(searchitem!=null){
+        MenuItem searchitem = menu.findItem(R.id.action_search);
+        MenuItem clearItem = menu.findItem(R.id.action_clear);
+        if (searchitem != null) {
             searchitem.setVisible(false);
         }
-        if(clearItem!=null){
+        if (clearItem != null) {
             clearItem.setVisible(true);
             clearItem.setOnMenuItemClickListener(menuItem -> {
 
@@ -240,85 +158,10 @@ public class ListViewFragment extends Fragment{
 
     private void loadDataFromFirebaseFilter(String mQuery) {
 
-        if (restaurantArrayList.size() > 0) {
-            restaurantArrayList.clear();
-        }
-
         if (ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_work)) || ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_forced_work))) {
-            RestaurantHelper.getFilterRestaurant(mQuery).get().addOnCompleteListener(task -> {
-
-                if (task.getResult() != null) {
-                    for (DocumentSnapshot querySnapshot : task.getResult()) {
-                        Restaurant restaurant = querySnapshot.toObject(Restaurant.class);
-
-                        if (restaurant != null) {
-                            restaurantPlaceId = restaurant.getRestaurantPlaceId();
-                            restaurantCustomers = restaurant.getRestaurantCustomers();
-                            restaurantName = restaurant.getRestaurantName();
-                            rating = restaurant.getRatingApp();
-                            isOpenForLunch = restaurant.getOpenForLunch();
-                            distance = restaurant.getDistance();
-                            openHours = restaurant.getOpenHours();
-                            closeHours = restaurant.getCloseHours();
-                            restaurantAddress = restaurant.getRestaurantAddress();
-                            openMinutes = restaurant.getOpenMinutes();
-                            closeMinutes = restaurant.getCloseMinutes();
-
-
-                            Restaurant restaurantObject = new Restaurant(restaurantPlaceId, restaurantCustomers, 0, ManageJobPlaceId.getJobPlaceId(App.getInstance().getApplicationContext()),
-                                    restaurantName, rating, isOpenForLunch, distance, openHours, closeHours, restaurantAddress, 0.0, 0.0,
-                                    null, null, openMinutes, closeMinutes);
-
-                            restaurantArrayList.add(restaurantObject);
-                        }
-
-                    }
-
-                }
-
-
-                mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(restaurantArrayList);
-                mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
-                mRecyclerListViewAdapter.setData(restaurantArrayList);
-            }).addOnFailureListener(e -> Log.e("debago", "Problem during the filter"));
+            displayFilterRestaurantsInWorkMode(mQuery);
         } else {
-            if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-                RestaurantInNormalModeHelper.getFilterRestaurant(FirebaseAuth.getInstance().getCurrentUser().getUid(), mQuery).get().addOnCompleteListener(task -> {
-
-                    if (task.getResult() != null) {
-                        for (DocumentSnapshot querySnapshot : task.getResult()) {
-                            Restaurant restaurant = querySnapshot.toObject(Restaurant.class);
-
-                            if (restaurant != null) {
-                                restaurantPlaceId = restaurant.getRestaurantPlaceId();
-                                restaurantCustomers = restaurant.getRestaurantCustomers();
-                                restaurantName = restaurant.getRestaurantName();
-                                rating = restaurant.getRatingApp();
-                                isOpenForLunch = restaurant.getOpenForLunch();
-                                distance = restaurant.getDistance();
-                                openHours = restaurant.getOpenHours();
-                                closeHours = restaurant.getCloseHours();
-                                restaurantAddress = restaurant.getRestaurantAddress();
-                                openMinutes = restaurant.getOpenMinutes();
-                                closeMinutes = restaurant.getCloseMinutes();
-
-
-                                Restaurant restaurantObject = new Restaurant(restaurantPlaceId, restaurantCustomers, 0, ManageJobPlaceId.getJobPlaceId(App.getInstance().getApplicationContext()),
-                                        restaurantName, rating, isOpenForLunch, distance, openHours, closeHours, restaurantAddress, 0.0, 0.0,
-                                        null, null, openMinutes, closeMinutes);
-
-                                restaurantArrayList.add(restaurantObject);
-                            }
-
-                        }
-
-                    }
-
-                    mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(restaurantArrayList);
-                    mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
-                    mRecyclerListViewAdapter.setData(restaurantArrayList);
-                }).addOnFailureListener(e -> Log.e("debago", "Problem during the filter"));
-            }
+            displayFilterRestaurantInNormalMode(mQuery);
         }
 
     }
@@ -380,9 +223,9 @@ public class ListViewFragment extends Fragment{
                                 Collections.sort(restaurantArrayList, Restaurant::compareTo);
                             }
 
-                            mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(restaurantArrayList);
-                            mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
-                            mRecyclerListViewAdapter.setData(restaurantArrayList);
+                            mRecyclerListViewSortedAdapter = new RecyclerViewListViewRestaurantSorted(restaurantArrayList);
+                            mRecyclerListView.setAdapter(mRecyclerListViewSortedAdapter);
+                            mRecyclerListViewSortedAdapter.setData(restaurantArrayList);
 
                         } else {
                             Toast.makeText(getContext(), "No result found", Toast.LENGTH_SHORT).show();
@@ -433,9 +276,9 @@ public class ListViewFragment extends Fragment{
                                 else{
                                     Collections.sort(restaurantArrayList, Restaurant::compareTo);
                                 }
-                                mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(restaurantArrayList);
-                                mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
-                                mRecyclerListViewAdapter.setData(restaurantArrayList);
+                                mRecyclerListViewSortedAdapter = new RecyclerViewListViewRestaurantSorted(restaurantArrayList);
+                                mRecyclerListView.setAdapter(mRecyclerListViewSortedAdapter);
+                                mRecyclerListViewSortedAdapter.setData(restaurantArrayList);
 
                             } else {
                                 Toast.makeText(getContext(), "No result found", Toast.LENGTH_SHORT).show();
@@ -459,7 +302,7 @@ public class ListViewFragment extends Fragment{
     @Override
     public void onResume() {
         super.onResume();
-
+        Log.d("debago", "ListView on resume");
         getRestaurantNameFromAutocomplete();
 
     }
@@ -467,20 +310,19 @@ public class ListViewFragment extends Fragment{
     private void getRestaurantNameFromAutocomplete() {
 
         String restaurantNameFromAutocomplete = ManageAutocompleteResponse.getStringAutocomplete((context), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME);
-
+        Log.d("debago","RestaurantName from autocomplete : "+restaurantNameFromAutocomplete);
         if (restaurantNameFromAutocomplete != null) {
 
             if (restaurantNameFromAutocomplete.isEmpty()) {
                 loadDataFromFirebase();
             } else {
                 loadDataFromFirebaseFilter(restaurantNameFromAutocomplete);
-                initializeSharedPreferences();
+              //  initializeSharedPreferences();
             }
         } else {
             loadDataFromFirebase();
         }
     }
-
 
     @Override
     public void onDetach() {
@@ -491,10 +333,77 @@ public class ListViewFragment extends Fragment{
 
     private void initializeSharedPreferences() {
 
+        Log.d("debago","init sharedpreferences");
         ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(getContext()), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME, null);
 
 
     }
 
+    //FIRESTORE RECYCLER VIEW
+
+    private void displayAllRestaurantsInWorkMode() {
+
+        mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(generateOptionsForAdapter(RestaurantHelper.getAllRestaurants()), this);
+        //Choose how to display the list in the RecyclerView (vertical or horizontal)
+        mRecyclerListView.setHasFixedSize(true); //REVOIR CELA
+        mRecyclerListView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
+        mRecyclerListView.addItemDecoration(new DividerItemDecoration(mRecyclerListView.getContext(), DividerItemDecoration.VERTICAL));
+        mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
+    }
+
+    private void displayAllRestaurantsInNormalMode() {
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(generateOptionsForAdapter(RestaurantInNormalModeHelper.getAllRestaurants(FirebaseAuth.getInstance().getCurrentUser().getUid())), this);
+            //Choose how to display the list in the RecyclerView (vertical or horizontal)
+            mRecyclerListView.setHasFixedSize(true); //REVOIR CELA
+            mRecyclerListView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
+            mRecyclerListView.addItemDecoration(new DividerItemDecoration(mRecyclerListView.getContext(), DividerItemDecoration.VERTICAL));
+            mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
+        }
+
+    }
+
+    private void displayFilterRestaurantsInWorkMode(String mQuery) {
+
+        mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(generateOptionsForAdapter(RestaurantHelper.getFilterRestaurant(mQuery)), this);
+        //Choose how to display the list in the RecyclerView (vertical or horizontal)
+        mRecyclerListView.setHasFixedSize(true); //REVOIR CELA
+        mRecyclerListView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
+        mRecyclerListView.addItemDecoration(new DividerItemDecoration(mRecyclerListView.getContext(), DividerItemDecoration.VERTICAL));
+        mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
+    }
+
+    private void displayFilterRestaurantInNormalMode(String mQuery) {
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(generateOptionsForAdapter(RestaurantInNormalModeHelper.getFilterRestaurant(FirebaseAuth.getInstance().getCurrentUser().getUid(), mQuery)), this);
+            //Choose how to display the list in the RecyclerView (vertical or horizontal)
+            mRecyclerListView.setHasFixedSize(true); //REVOIR CELA
+            mRecyclerListView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
+            mRecyclerListView.addItemDecoration(new DividerItemDecoration(mRecyclerListView.getContext(), DividerItemDecoration.VERTICAL));
+            mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
+        }
+
+    }
+
+    // Create options for RecyclerView from a Query
+    private FirestoreRecyclerOptions<Restaurant> generateOptionsForAdapter(Query query) {
+        return new FirestoreRecyclerOptions.Builder<Restaurant>()
+                .setQuery(query, Restaurant.class)
+                .setLifecycleOwner(this)
+                .build();
+    }
+
+    // --------------------
+    // CALLBACK
+    // --------------------
+
+    @Override
+    public void onDataChanged() {
+        // 7 - Show TextView in case RecyclerView is empty
+        textViewNoRestaurantFound.setVisibility(this.mRecyclerListViewAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
+        if (this.mRecyclerListViewAdapter.getItemCount() == 0) filterButton.hide();
+        else filterButton.show();
+
+    }
 
 }
