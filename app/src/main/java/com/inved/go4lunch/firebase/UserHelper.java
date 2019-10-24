@@ -52,7 +52,8 @@ public class UserHelper {
     }
 
     public static Query getAllUsers(){
-        return UserHelper.getUsersCollection();
+        return UserHelper.getUsersCollection()
+                .orderBy("restaurantName", Query.Direction.DESCENDING);
 
 
     }

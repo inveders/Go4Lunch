@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'jacoco-android'
-//apply plugin: 'io.fabric'
+apply plugin: 'io.fabric'
 
 jacoco {
     toolVersion = "0.8.3"
@@ -83,7 +83,7 @@ dependencies {
     //Firebase
     implementation 'com.google.firebase:firebase-core:17.2.0'
     implementation 'com.firebaseui:firebase-ui-auth:5.0.0'
-    implementation 'com.google.firebase:firebase-firestore:21.1.1'
+    implementation 'com.google.firebase:firebase-firestore:21.2.0'
 
     // FirebaseUI for Cloud Firestore
     implementation 'com.firebaseui:firebase-ui-firestore:5.0.0'
@@ -109,8 +109,8 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
 
     //Crashlytic
-  //  implementation 'com.google.firebase:firebase-analytics:17.2.0'
-  //  implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
+    implementation 'com.google.firebase:firebase-analytics:17.2.0'
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
 
     implementation 'com.squareup.picasso:picasso:2.71828'
 

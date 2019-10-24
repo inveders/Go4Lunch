@@ -4,9 +4,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
+
 import android.widget.Button;
-import android.widget.ProgressBar;
+
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -39,9 +39,6 @@ public class FindMyJobAddressActivity extends BaseActivity {
     String jobPlaceId;
     String jobName;
 
-    //Progress bar
-    private ProgressBar mProgressBar;
-
     @BindView(R.id.activity_find_job_address_btn_validation)
     Button btnValidation;
 
@@ -49,19 +46,14 @@ public class FindMyJobAddressActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //Progress bar
-        mProgressBar = findViewById(R.id.progressBar);
-
         if (ManageChangingWork.getUserWorkDecision(this)) {
-            showProgressBar();
+
             if(getCurrentUser()!=null){
                 UserHelper.getUserWhateverLocation(getCurrentUser().getUid()).get().addOnCompleteListener(task -> {
 
                     if (task.isSuccessful()) {
                         if(task.getResult()!=null){
-                            if (task.getResult().getDocuments().size() == 0) {
-                                hideProgressBar();
-                            } else {
+                            if (task.getResult().getDocuments().size() != 0) {
                                 ManageJobPlaceId.saveJobPlaceId(this, task.getResult().getDocuments().get(0).getString("jobPlaceId"));
                                 startRestaurantActivity();
                                 finish();
@@ -163,15 +155,6 @@ public class FindMyJobAddressActivity extends BaseActivity {
     @Override
     public int getFragmentLayout() {
         return R.layout.activity_find_job_address;
-    }
-
-    private void showProgressBar(){
-        mProgressBar.setVisibility(View.VISIBLE);
-
-    }
-
-    private void hideProgressBar(){
-        mProgressBar.setVisibility(View.GONE);
     }
 
     private void createUserInFirestore(String jobAddress, String jobPlaceId, String jobName) {

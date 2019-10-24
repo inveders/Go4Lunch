@@ -26,8 +26,6 @@ class WorkmatesViewHolder extends RecyclerView.ViewHolder {
     private TextView mWorkmatesText;
     private ConstraintLayout mConstraintLayoutItem;
 
-
-
     WorkmatesViewHolder(@NonNull View itemView) {
 
         super(itemView);

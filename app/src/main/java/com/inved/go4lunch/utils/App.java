@@ -8,7 +8,11 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Build;
 
+import com.crashlytics.android.Crashlytics;
+
 import java.util.Calendar;
+
+import io.fabric.sdk.android.Fabric;
 
 public class App extends Application {
 
@@ -20,6 +24,7 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         mInstance = this;
+        Fabric.with(this, new Crashlytics());
         res = getResources();
         launchAlarm();
     }

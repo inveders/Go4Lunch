@@ -129,20 +129,19 @@ public class NearbyRestaurantsRepository {
                                                 for (DocumentSnapshot querySnapshot : task.getResult()) {
                                                     if (Objects.equals(querySnapshot.getString("restaurantPlaceId"), results.get(0).getPlaceId())) {
 
-                                                        Log.d("debago", "we update restaurants ");
                                                         updateFirebaseWithRestaurantsFromMyWorkIfExist();
                                                     }
                                                 }
 
 
                                             } else {
-                                                Log.d("debago", "we delete restaurants ");
+
                                                 deleteAllRestaurantInWorkMode(results, myCurrentLat, myCurrentLongi);
                                             }
 
 
                                         } else {
-                                            Log.d("debago", "location work mode we set nearby restaurant ");
+
                                             setNearbyRestaurantsInFirebase(results, myCurrentLat, myCurrentLongi);
                                         }
 
@@ -166,7 +165,7 @@ public class NearbyRestaurantsRepository {
 
             @Override
             public void onFailure(@NonNull Call<PlaceSearch> call, @NonNull Throwable t) {
-                Log.d("error", "inRetrofit failure :" + t);
+                Log.e("error", "inRetrofit failure :" + t);
             }
         });
 
@@ -359,7 +358,6 @@ public class NearbyRestaurantsRepository {
         if (openingHours != null) {
             //if getpriod.size equal to 7
             if (openingHours.getPeriods().size() == 7) {
-
 
                 if (openingHours.getPeriods().get(day).getOpen() != null) {
                     return openingHours.getPeriods().get(day).getOpen().getTime().getHours();
@@ -622,7 +620,6 @@ public class NearbyRestaurantsRepository {
             //if getpriod.size equal to 7
             if (openingHours.getPeriods().size() == 7) {
 
-
                 if (openingHours.getPeriods().get(day).getOpen() != null) {
                     return openingHours.getPeriods().get(day).getClose().getTime().getMinutes();
                 }
@@ -731,12 +728,10 @@ public class NearbyRestaurantsRepository {
                 website = "";
             }
 
-
             openHours = openHoursCalcul(place.getOpeningHours());
             openMinutes = openMinutesCalcul(place.getOpeningHours());
             closeMinutes = closeMinutesCalcul(place.getOpeningHours());
             closeHours = closeHoursCalcul(place.getOpeningHours());
-            Log.d("debago", "place detail opening hours, open hours: " + openHours + "h" + openMinutes + " current hour is: " + currentHour);
             openForLunch = openHours <= 12 && closeHours >= 13;
 
             if (appMode.equals(App.getResourses().getString(R.string.app_mode_work)) || appMode.equals(App.getResourses().getString(R.string.app_mode_forced_work))) {
