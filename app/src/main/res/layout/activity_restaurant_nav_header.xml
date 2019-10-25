@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/nav_header_height"
+    android:background="@drawable/background_connexion_activity_flou_ok"
+    android:orientation="vertical">
+
+
+    <TextView
+        android:id="@+id/nav_header_app_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:text="@string/app_name"
+        android:textColor="@color/greyColor"
+        app:layout_constraintTop_toTopOf="parent"
+        android:textSize="@dimen/default_title_size"
+        android:layout_marginTop="@dimen/default_margin"
+        android:textStyle="bold" />
+
+
+    <ImageView
+        android:id="@+id/nav_header_profile_image"
+        android:layout_width="62dp"
+        android:layout_height="56dp"
+        android:contentDescription="@string/fragment_people_item_image"
+        app:layout_constraintCircleRadius="130dp"
+        android:layout_marginBottom="@dimen/default_large_margin"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:srcCompat="@drawable/ic_anon_user_48dp" />
+
+
+    <!-- NOM, PRENOM, EMAIL -->
+    <TextView
+        android:id="@+id/nav_header_FirstName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/text_input_firstname"
+        android:textColor="@color/blackColor"
+        app:layout_constraintTop_toTopOf="@id/nav_header_profile_image"
+        app:layout_constraintLeft_toRightOf="@id/nav_header_profile_image"
+        android:layout_marginStart="@dimen/default_large_margin"
+        android:background="@color/colorPrimaryLight"
+        app:layout_constrainedWidth="true"/>
+
+    <TextView
+        android:id="@+id/nav_header_LastName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/text_input_lastname"
+        android:textColor="@color/blackColor"
+        app:layout_constraintTop_toTopOf="@id/nav_header_profile_image"
+        app:layout_constraintLeft_toRightOf="@id/nav_header_FirstName"
+        android:layout_marginStart="@dimen/default_margin"
+        android:background="@color/colorPrimaryLight"
+        app:layout_constrainedWidth="true"/>
+
+
+    <TextView
+        android:id="@+id/nav_header_Email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:gravity="center"
+        android:text="@string/email_adress"
+        android:textColor="@color/blackColor"
+        app:layout_constraintTop_toBottomOf="@id/nav_header_FirstName"
+        app:layout_constraintLeft_toRightOf="@id/nav_header_profile_image"
+        android:layout_marginStart="@dimen/default_large_margin"
+        android:layout_marginTop="@dimen/default_margin"
+        android:background="@color/colorPrimaryLight"
+        app:layout_constrainedWidth="true" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
