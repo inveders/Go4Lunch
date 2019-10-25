@@ -5,8 +5,10 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
+import android.view.View;
 import android.widget.Button;
 
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -39,6 +41,9 @@ public class FindMyJobAddressActivity extends BaseActivity {
     String jobPlaceId;
     String jobName;
 
+    //Progress bar
+    private ProgressBar mProgressBar;
+
     @BindView(R.id.activity_find_job_address_btn_validation)
     Button btnValidation;
 
@@ -46,9 +51,13 @@ public class FindMyJobAddressActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //Progress bar
+        mProgressBar = findViewById(R.id.progressBar);
+        mProgressBar.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.colorPrimary),android.graphics.PorterDuff.Mode.MULTIPLY);
         if (ManageChangingWork.getUserWorkDecision(this)) {
 
             if(getCurrentUser()!=null){
+                showProgressBar();
                 UserHelper.getUserWhateverLocation(getCurrentUser().getUid()).get().addOnCompleteListener(task -> {
 
                     if (task.isSuccessful()) {
@@ -109,7 +118,13 @@ public class FindMyJobAddressActivity extends BaseActivity {
 
                 if (ManageChangingWork.getUserWorkDecision(this)) {
                     //User first work in app
+
+                    if(ManageJobPlaceId.getJobPlaceId(this)==null){
+                        ManageJobPlaceId.saveJobPlaceId(this,jobPlaceId);
+                    }
+
                     if(getCurrentUser()!=null){
+                        showProgressBar();
                         UserHelper.getUserWithSameUid(getCurrentUser().getUid()).get().addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
 
@@ -149,6 +164,11 @@ public class FindMyJobAddressActivity extends BaseActivity {
             UserHelper.updateJobName(jobName, getCurrentUser().getUid());
             UserHelper.updateJobPlaceId(jobPlaceId, getCurrentUser().getUid());
         }
+
+    }
+
+    private void showProgressBar(){
+        mProgressBar.setVisibility(View.VISIBLE);
 
     }
 

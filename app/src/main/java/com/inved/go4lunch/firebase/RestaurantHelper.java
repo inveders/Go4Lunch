@@ -17,8 +17,8 @@ public class RestaurantHelper {
 
     private static CollectionReference getRestaurantsCollection() {
         return FirebaseFirestore.getInstance().collection(COLLECTION_GENERAL)
-                .document(ManageJobPlaceId.getJobPlaceId(App.getInstance()
-                .getApplicationContext())).collection(COLLECTION_NAME);
+                .document(ManageJobPlaceId.getJobPlaceId(App.getInstance().getApplicationContext()))
+                .collection(COLLECTION_NAME);
 
     }
 

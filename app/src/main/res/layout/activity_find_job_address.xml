@@ -5,14 +5,21 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimaryDark"
-    tools:context=".controller.activity.PermissionActivity"
-    android:padding="32dp">
+    android:padding="32dp"
+    tools:context=".controller.activity.PermissionActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_horizontal">
+        android:gravity="center_horizontal"
+        android:layout_marginTop="@dimen/default_large_margin"
+        android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
 
         <ImageView
             android:layout_width="wrap_content"
@@ -22,19 +29,37 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/job_address_question"
-            android:textSize="24sp"
-            android:textColor="@color/whiteColor"
             android:layout_marginTop="12dp"
             android:fontFamily="sans-serif-condensed"
-            android:textStyle="bold"/>
+            android:text="@string/job_address_question"
+            android:textColor="@color/whiteColor"
+            android:textSize="24sp"
+            android:textStyle="bold" />
 
-        <fragment android:id="@+id/autocomplete_fragment_job_address"
+        <fragment
+            android:id="@+id/autocomplete_fragment_job_address"
+            android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="25dp"
-            android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
-            />
+            android:layout_marginTop="25dp" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="@dimen/default_large_margin"
+        android:orientation="vertical">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:visibility="visible" />
+    </LinearLayout>
 
     </LinearLayout>
 
@@ -44,8 +69,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@color/colorPrimary"
-        android:textColor="#FFFFFF"
         android:text="@string/valider"
-        android:textAllCaps="false" />
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF" />
 
 </RelativeLayout>

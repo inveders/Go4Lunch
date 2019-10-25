@@ -104,6 +104,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         mView = inflater.inflate(R.layout.fragment_map, container, false);
         //Progress bar
         mProgressBar = mView.findViewById(R.id.progressBar);
+        mProgressBar.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.colorPrimary),android.graphics.PorterDuff.Mode.MULTIPLY);
         mapGeolocalisationButton = mView.findViewById(R.id.fragment_map_gps_geolocalisation_button);
 
         actionOnFloatingButton();
@@ -149,6 +150,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     public void onResume() {
         super.onResume();
         if(ManageAutocompleteResponse.getStringAutocomplete((context), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID)!=null){
+            initializeMap();
+        }else if(ManageAutocompleteResponse.getStringAutocomplete((context), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID)==null){
             initializeMap();
         }
 

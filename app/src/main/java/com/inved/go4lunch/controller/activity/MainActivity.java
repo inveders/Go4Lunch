@@ -54,7 +54,7 @@ public class MainActivity extends BaseActivity {
 
         //Progress bar
         mProgressBar = findViewById(R.id.progressBar);
-
+        mProgressBar.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.colorPrimary),android.graphics.PorterDuff.Mode.MULTIPLY);
         // Start appropriate activity
         if (this.isCurrentUserLogged()) {
             showProgressBar();
