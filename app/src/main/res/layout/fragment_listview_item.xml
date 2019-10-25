@@ -34,10 +34,12 @@
         android:id="@+id/fragment_listview_item_restaurant_address"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-
+        app:layout_constrainedWidth="true"
         android:text="@string/fragment_listview_item_restaurant_adress"
         app:layout_constraintTop_toBottomOf="@id/fragment_listview_item_restaurant_name"
         app:layout_constraintLeft_toLeftOf="@id/fragment_listview_item_restaurant_name"
+        app:layout_constraintRight_toLeftOf="@id/fragment_listview_item_image"
+        android:layout_marginEnd="@dimen/default_margin"
         />
 
 

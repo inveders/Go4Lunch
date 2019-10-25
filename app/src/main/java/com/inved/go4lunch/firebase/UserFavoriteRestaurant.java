@@ -5,12 +5,10 @@ public class UserFavoriteRestaurant {
 
 
     private String restaurantPlaceId;
-    private Boolean liked;
 
 
-    UserFavoriteRestaurant(String restaurantPlaceId, Boolean liked) {
+    UserFavoriteRestaurant(String restaurantPlaceId) {
         this.restaurantPlaceId = restaurantPlaceId;
-        this.liked = liked;
     }
 
     // --- GETTERS ---

@@ -70,7 +70,6 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
     @BindView(R.id.activity_view_place_no_workmates_text)
     TextView textViewRecyclerViewEmpty;
 
-
     Context context;
 
 
@@ -80,6 +79,8 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
     TextView viewPlaceCallImageText;
     @BindView(R.id.activity_view_place_like_image)
     ImageView viewPlaceLikeImage;
+    @BindView(R.id.activity_view_place_like_image_text)
+    TextView viewPlaceLikeText;
     @BindView(R.id.activity_view_place_website_image)
     ImageView viewPlaceWebsiteImage;
     @BindView(R.id.activity_view_place_website_image_text)
@@ -534,190 +535,66 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                 if (task.isSuccessful()) {
 
                     if (task.getResult() != null) {
+
                         if (!task.getResult().getDocuments().isEmpty()) {
-
-                            Boolean isRestaurantLiked = task.getResult().getDocuments().get(0).getBoolean("liked");
-
-                            if (isRestaurantLiked != null) {
-                                if (isRestaurantLiked) {
-                                    changeLikeButtonColor(getString(R.string.changeButtonColor_Yellow));
-                                } else {
-                                    changeLikeButtonColor(getString(R.string.changeButtonColor_Orange));
-                                }
-                            }
-
-
+                            changeLikeButtonColor(getString(R.string.changeButtonColor_Yellow));
                         } else {
-
                             changeLikeButtonColor(getString(R.string.changeButtonColor_Orange));
                         }
+
+
                     }
-
-
                 }
-
 
             });
         }
-
-
     }
+
+
+
 
     private void actionOnLikeButton(String currentPlaceId) {
 
+        viewPlaceLikeImage.setOnClickListener(v -> {
+            if (getCurrentUser() != null) {
+                UserFavoriteRestaurantHelper.getCurrentRestaurantPlaceId(getCurrentUser().getUid(), currentPlaceId).get().addOnCompleteListener(task -> {
 
-        if (ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_work)) || ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_forced_work))) {
-            viewPlaceLikeImage.setOnClickListener(view -> RestaurantHelper.getRestaurant(currentPlaceId).addOnCompleteListener(task -> {
-                DocumentSnapshot document = task.getResult();
-                if (document != null) {
-                    Restaurant restaurant = document.toObject(Restaurant.class);
+                    if(task.getResult()!=null){
+                        if (!task.getResult().getDocuments().isEmpty()) {
 
-                    if (restaurant != null) {
-                        int currentRestaurantLike = restaurant.getRestaurantLike();
-
-                        if (getCurrentUser() != null) {
-                            UserFavoriteRestaurantHelper.getCurrentRestaurantPlaceId(getCurrentUser().getUid(), currentPlaceId).get().addOnCompleteListener(task1 -> {
-
-
-                                if (task1.isSuccessful()) {
-
-                                    if (task1.getResult() != null) {
-
-                                        if (!task1.getResult().getDocuments().isEmpty()) {
-
-                                            int newRestaurantLike;
-
-                                            Boolean isRestaurantLiked = task1.getResult().getDocuments().get(0).getBoolean("liked");
-
-                                            //We want to decrement
-                                            if (isRestaurantLiked != null) {
-                                                if (isRestaurantLiked) {
-                                                    changeLikeButtonColor(getString(R.string.changeButtonColor_Orange));
-                                                    newRestaurantLike = currentRestaurantLike - 1;
-
-                                                    UserFavoriteRestaurantHelper.updateFavoriteRestaurantLiked((getCurrentUser()).getUid(), currentPlaceId, false);
-
-                                                }
-                                                //We want to increment
-                                                else {
-                                                    changeLikeButtonColor(getString(R.string.changeButtonColor_Yellow));
-                                                    newRestaurantLike = currentRestaurantLike + 1;
-
-                                                    UserFavoriteRestaurantHelper.updateFavoriteRestaurantLiked(getCurrentUser().getUid(), currentPlaceId, true);
-                                                }
-
-                                                RestaurantHelper.updateRestaurantLike(newRestaurantLike, currentPlaceId);
-
-                                                actionOnLikeButton(currentPlaceId);
-                                            }
-
-
-                                        }
-                                        //First time we have select this restaurant to favorite, we create it in the database
-                                        else {
-
-                                            UserFavoriteRestaurantHelper.createUserFavoriteRestaurants(getCurrentUser().getUid(), currentPlaceId, true);
-
-                                            changeLikeButtonColor(getString(R.string.changeButtonColor_Yellow));
-                                            RestaurantHelper.updateRestaurantLike(1, currentPlaceId);
-                                            actionOnLikeButton(currentPlaceId);
-                                        }
-                                    }
-
-                                }
-                            });
-                        }
-
-                    } else {
-                        //We create this place in favorites even if it's not near from you
-                        if (getCurrentUser() != null) {
-                            UserFavoriteRestaurantHelper.createUserFavoriteRestaurants(getCurrentUser().getUid(), currentPlaceId, true);
-
-                        }
-
-                    }
-
-                }
-
-
-            }));
-        } else {
-            if (this.getCurrentUser() != null) {
-                viewPlaceLikeImage.setOnClickListener(view -> RestaurantInNormalModeHelper.getRestaurant(this.getCurrentUser().getUid(), currentPlaceId).addOnCompleteListener(task -> {
-                    DocumentSnapshot document = task.getResult();
-
-                    if (document != null) {
-                        Restaurant restaurant = document.toObject(Restaurant.class);
-
-                        if (restaurant != null) {
-
-                            int currentRestaurantLike = restaurant.getRestaurantLike();
-
-                            if (getCurrentUser() != null) {
-                                UserFavoriteRestaurantHelper.getCurrentRestaurantPlaceId(getCurrentUser().getUid(), currentPlaceId).get().addOnCompleteListener(task1 -> {
-
-
-                                    if (task1.isSuccessful()) {
-
-                                        if (task1.getResult() != null) {
-
-                                            if (!task1.getResult().getDocuments().isEmpty()) {
-
-                                                int newRestaurantLike;
-
-                                                Boolean isRestaurantLiked = task1.getResult().getDocuments().get(0).getBoolean("liked");
-
-                                                //We want to decrement
-                                                if (isRestaurantLiked != null) {
-                                                    if (isRestaurantLiked) {
-                                                        changeLikeButtonColor(getString(R.string.changeButtonColor_Orange));
-                                                        newRestaurantLike = currentRestaurantLike - 1;
-
-                                                        UserFavoriteRestaurantHelper.updateFavoriteRestaurantLiked((getCurrentUser()).getUid(), currentPlaceId, false);
-
-                                                    }
-                                                    //We want to increment
-                                                    else {
-                                                        changeLikeButtonColor(getString(R.string.changeButtonColor_Yellow));
-                                                        newRestaurantLike = currentRestaurantLike + 1;
-
-                                                        UserFavoriteRestaurantHelper.updateFavoriteRestaurantLiked(getCurrentUser().getUid(), currentPlaceId, true);
-                                                    }
-
-                                                    RestaurantInNormalModeHelper.updateRestaurantLike(this.getCurrentUser().getUid(), newRestaurantLike, currentPlaceId);
-
-                                                    actionOnLikeButton(currentPlaceId);
-                                                }
-
-
-                                            }
-                                            //First time we have select this restaurant to favorite, we create it in the database
-                                            else {
-
-                                                UserFavoriteRestaurantHelper.createUserFavoriteRestaurants(getCurrentUser().getUid(), currentPlaceId, true);
-                                                changeLikeButtonColor(getString(R.string.changeButtonColor_Yellow));
-                                                RestaurantInNormalModeHelper.updateRestaurantLike(this.getCurrentUser().getUid(), 1, currentPlaceId);
-                                                actionOnLikeButton(currentPlaceId);
-                                            }
-                                        }
-
-                                    }
-                                });
-                            }
-
+                            changeLikeButtonColor(getString(R.string.changeButtonColor_Orange));
+                            UserFavoriteRestaurantHelper.deleteFavoriteRestaurant(getCurrentUser().getUid(), currentPlaceId);
                         } else {
-                            //We create this place in favorites even if it's not near from you
-                            UserFavoriteRestaurantHelper.createUserFavoriteRestaurants(getCurrentUser().getUid(), currentPlaceId, true);
-                        }
 
+                            changeLikeButtonColor(getString(R.string.changeButtonColor_Yellow));
+                            UserFavoriteRestaurantHelper.createUserFavoriteRestaurants(getCurrentUser().getUid(), currentPlaceId);
+                        }
                     }
 
 
-                }));
+                }).addOnFailureListener(e -> Log.e("debago", "Problem during the sort in work mode"));
             }
+        });
 
+        viewPlaceLikeText.setOnClickListener(v -> {
+            if (getCurrentUser() != null) {
+                UserFavoriteRestaurantHelper.getCurrentRestaurantPlaceId(getCurrentUser().getUid(), currentPlaceId).get().addOnCompleteListener(task -> {
 
-        }
+                    if(task.getResult()!=null){
+                        if (!task.getResult().getDocuments().isEmpty()) {
+
+                            changeLikeButtonColor(getString(R.string.changeButtonColor_Orange));
+                            UserFavoriteRestaurantHelper.deleteFavoriteRestaurant(getCurrentUser().getUid(), currentPlaceId);
+                        } else {
+
+                            changeLikeButtonColor(getString(R.string.changeButtonColor_Yellow));
+                            UserFavoriteRestaurantHelper.createUserFavoriteRestaurants(getCurrentUser().getUid(), currentPlaceId);
+                        }
+                    }
+
+                }).addOnFailureListener(e -> Log.e("debago", "Problem during the sort in work mode"));
+            }
+        });
 
 
     }

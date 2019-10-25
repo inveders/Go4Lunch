@@ -339,7 +339,7 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
 
         mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(generateOptionsForAdapter(RestaurantHelper.getAllRestaurants()), this);
         //Choose how to display the list in the RecyclerView (vertical or horizontal)
-        mRecyclerListView.setHasFixedSize(true); //REVOIR CELA
+        mRecyclerListView.setHasFixedSize(true);
         mRecyclerListView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
         mRecyclerListView.addItemDecoration(new DividerItemDecoration(mRecyclerListView.getContext(), DividerItemDecoration.VERTICAL));
         mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
@@ -349,7 +349,7 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(generateOptionsForAdapter(RestaurantInNormalModeHelper.getAllRestaurants(FirebaseAuth.getInstance().getCurrentUser().getUid())), this);
             //Choose how to display the list in the RecyclerView (vertical or horizontal)
-            mRecyclerListView.setHasFixedSize(true); //REVOIR CELA
+            mRecyclerListView.setHasFixedSize(true);
             mRecyclerListView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
             mRecyclerListView.addItemDecoration(new DividerItemDecoration(mRecyclerListView.getContext(), DividerItemDecoration.VERTICAL));
             mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
@@ -361,7 +361,7 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
 
         mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(generateOptionsForAdapter(RestaurantHelper.getFilterRestaurant(mQuery)), this);
         //Choose how to display the list in the RecyclerView (vertical or horizontal)
-        mRecyclerListView.setHasFixedSize(true); //REVOIR CELA
+        mRecyclerListView.setHasFixedSize(true);
         mRecyclerListView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
         mRecyclerListView.addItemDecoration(new DividerItemDecoration(mRecyclerListView.getContext(), DividerItemDecoration.VERTICAL));
         mRecyclerListView.setAdapter(mRecyclerListViewAdapter);
@@ -371,7 +371,7 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(generateOptionsForAdapter(RestaurantInNormalModeHelper.getFilterRestaurant(FirebaseAuth.getInstance().getCurrentUser().getUid(), mQuery)), this);
             //Choose how to display the list in the RecyclerView (vertical or horizontal)
-            mRecyclerListView.setHasFixedSize(true); //REVOIR CELA
+            mRecyclerListView.setHasFixedSize(true);
             mRecyclerListView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
             mRecyclerListView.addItemDecoration(new DividerItemDecoration(mRecyclerListView.getContext(), DividerItemDecoration.VERTICAL));
             mRecyclerListView.setAdapter(mRecyclerListViewAdapter);

@@ -224,28 +224,6 @@ public class RecyclerViewListViewRestaurant extends FirestoreRecyclerAdapter<Res
 
     }
 
-  /*  @Override
-    public int getItemCount() {
-
-        if (restaurantArrayListFiltered != null) {
-
-            return restaurantArrayListFiltered.size();
-        } else {
-            return 0;
-        }
-
-    }*/
-
-   /* public void setData(ArrayList<Restaurant> restaurantArrayList) {
-
-        this.restaurantArrayList = restaurantArrayList;
-        this.restaurantArrayListFiltered = restaurantArrayList;
-        //Fill the Recycler View
-        notifyDataSetChanged();
-
-    }*/
-
-
     class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView mRestaurantName;

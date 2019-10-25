@@ -7,6 +7,7 @@
     <!-- NAVIGATION DRAWER -->
     <string name="nav_drawer_menu_lunch">YOUR LUNCH</string>
     <string name="nav_drawer_menu_settings">SETTINGS</string>
+    <string name="nav_drawer_menu_favorites">FAVORITES</string>
     <string name="nav_drawer_menu_logout">LOGOUT</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -24,6 +25,7 @@
 
     <string name="notification_message_short">Find the details of the information concerning your lunch</string>
     <string name="toolbar_title_notification_activity">Notification</string>
+    <string name="toolbar_title_favorites_activity">Favorites restaurants</string>
     <string name="info_no_restaurant_name_found">No restaurant</string>
     <string name="info_no_restaurant_adresse_found">No restaurant address</string>
     <string name="notification_enable">Enable notifications (every lunchtime)</string>

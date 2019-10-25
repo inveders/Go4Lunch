@@ -587,6 +587,9 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
             case R.id.activity_main_drawer_settings:
                 this.startProfileActivity();
                 break;
+            case R.id.activity_main_drawer_favorites:
+                this.startFavoritesActivity();
+                break;
             case R.id.activity_main_drawer_logout:
                 signOutUserFromFirebase();
                 break;
@@ -598,6 +601,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
         return true;
     }
+
 
 
     // -------------------
@@ -810,6 +814,12 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         Intent intent = new Intent(this, NotificationsActivity.class);
         startActivity(intent);
     }
+
+    private void startFavoritesActivity() {
+        Intent intent = new Intent(this, FavoritesActivity.class);
+        startActivity(intent);
+    }
+
 
     //Signout
 

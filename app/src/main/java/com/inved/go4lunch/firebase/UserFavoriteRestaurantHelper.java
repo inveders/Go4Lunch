@@ -23,10 +23,10 @@ public class UserFavoriteRestaurantHelper {
 
     // --- CREATE ---
 
-    public static void createUserFavoriteRestaurants(String uid, String restaurantPlaceId, Boolean liked) {
+    public static void createUserFavoriteRestaurants(String uid, String restaurantPlaceId) {
         // 1 - Create subcollection in user
 
-        UserFavoriteRestaurant userFavoriteRestaurantToCreate = new UserFavoriteRestaurant(restaurantPlaceId,liked);
+        UserFavoriteRestaurant userFavoriteRestaurantToCreate = new UserFavoriteRestaurant(restaurantPlaceId);
         UserFavoriteRestaurantHelper.getUsersFavoriteRestaurantCollection(uid).document(restaurantPlaceId).set(userFavoriteRestaurantToCreate);
     }
 
@@ -39,14 +39,14 @@ public class UserFavoriteRestaurantHelper {
 
     }
 
+    public static Query getAllRestaurants(String uid) {
+        return UserFavoriteRestaurantHelper.getUsersFavoriteRestaurantCollection(uid);
 
-    // --- UPDATE ---
-
-    public static void updateFavoriteRestaurantLiked(String uid, String restaurantPlaceId, Boolean liked) {
-        UserFavoriteRestaurantHelper.getUsersFavoriteRestaurantCollection(uid).document(restaurantPlaceId).update("liked", liked);
     }
 
     // --- DELETE ---
-
+    public static void deleteFavoriteRestaurant(String uid, String restaurantPlaceId) {
+        UserFavoriteRestaurantHelper.getUsersFavoriteRestaurantCollection(uid).document(restaurantPlaceId).delete();
+    }
 
 }
