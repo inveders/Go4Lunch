@@ -31,33 +31,39 @@ public class MyAlarmService extends Service {
             UserHelper.updateRestaurantName(null, FirebaseAuth.getInstance().getCurrentUser().getUid());
             UserHelper.updateRestaurantPlaceId(null, FirebaseAuth.getInstance().getCurrentUser().getUid());
             UserHelper.updateRestaurantVicinity(null, FirebaseAuth.getInstance().getCurrentUser().getUid());
-        }
 
-        //Null restaurant in normal mode for user
-        ManageRestaurantChoiceInNormalMode.saveRestaurantChoice(this, null);
-        ManageRestaurantChoiceInNormalMode.saveRestaurantName(this, null);
-        ManageRestaurantChoiceInNormalMode.saveRestaurantAddress(this, null);
 
-        //Delete all customers for each restaurant
-        RestaurantHelper.getAllRestaurants().get().addOnCompleteListener(task -> {
+            //Null restaurant in normal mode for user
+            ManageRestaurantChoiceInNormalMode.saveRestaurantChoice(this, null);
+            ManageRestaurantChoiceInNormalMode.saveRestaurantName(this, null);
+            ManageRestaurantChoiceInNormalMode.saveRestaurantAddress(this, null);
 
-            if (task.getResult() != null) {
-                if(task.getResult().size()>0){
-                    for (DocumentSnapshot querySnapshot : task.getResult()) {
-                        Restaurant restaurant = querySnapshot.toObject(Restaurant.class);
+            //Delete all customers for each restaurant
+            RestaurantHelper.getAllRestaurants().get().addOnCompleteListener(task -> {
 
-                        if (restaurant != null) {
-                            String restaurantPlaceId = restaurant.getRestaurantPlaceId();
-                            RestaurantHelper.updateRestaurantCustomers(0,restaurantPlaceId);
+                if (task.getResult() != null) {
+                    if(task.getResult().size()>0){
+                        for (DocumentSnapshot querySnapshot : task.getResult()) {
+                            Restaurant restaurant = querySnapshot.toObject(Restaurant.class);
+
+                            if (restaurant != null) {
+                                String restaurantPlaceId = restaurant.getRestaurantPlaceId();
+                                RestaurantHelper.updateRestaurantCustomers(0,restaurantPlaceId);
+
+                            }
 
                         }
-
                     }
-                }
 
-            }
-        }).addOnFailureListener(e -> Log.e("debago", "Problem during the load data"));
-        return super.onStartCommand(intent, flags, startId);
+                }
+            }).addOnFailureListener(e -> Log.e("debago", "Problem during the load data"));
+            return super.onStartCommand(intent, flags, startId);
+        }
+
+
+
+        return START_STICKY;
+
     }
 
 }

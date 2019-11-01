@@ -2,14 +2,14 @@ package com.inved.go4lunch;
 
 import com.inved.go4lunch.utils.UnitConversion;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+
 public class UnitConversionTest {
 
-    private UnitConversion unitConversion = Mockito.spy(new UnitConversion()); //Utiliser cette notation
+    private UnitConversion unitConversion = Mockito.spy(new UnitConversion());
 
 
     @Test
