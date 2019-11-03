@@ -47,10 +47,11 @@ import static com.inved.go4lunch.utils.ManagePosition.KEY_POSITION_JOB_LAT_LNG_D
 
 public class NearbyRestaurantsRepository {
 
-    private Context context = App.getInstance().getApplicationContext();
-    private String appMode = ManageAppMode.getAppMode(context);
     private String website;
     private String phoneNumber;
+    private Context context = App.getInstance().getApplicationContext();
+    private String appMode = ManageAppMode.getAppMode(context);
+
     private int openHours;
     private int closeHours;
     private int openMinutes;

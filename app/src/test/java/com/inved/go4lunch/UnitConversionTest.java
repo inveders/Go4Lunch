@@ -23,7 +23,7 @@ public class UnitConversionTest {
 
         //Then
 
-        Assert.assertEquals(17.453292519943293, radians);
+        Assert.assertEquals(17.453292519943293, radians,0.000001);
 
     }
 

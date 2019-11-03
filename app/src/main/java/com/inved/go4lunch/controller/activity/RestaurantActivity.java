@@ -484,7 +484,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         }
     }
 
-    private double calculateBound(String lat_long) {
+    public double calculateBound(String lat_long) {
 
         double eartch_circumference = 40075.04;
         double distance_in_meter = 15000;
@@ -918,7 +918,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     }
 
-    private void changeMode(boolean workModeDesired, Double lat, Double longi) {
+    public void changeMode(boolean workModeDesired, Double lat, Double longi) {
         if (workModeDesired) {
             if (ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_work))) {
                 ManageAppMode.saveAppMode(this, getString(R.string.app_mode_forced_work));

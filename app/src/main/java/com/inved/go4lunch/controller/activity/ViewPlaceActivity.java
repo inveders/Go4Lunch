@@ -522,7 +522,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     }
 
-    private void changeButtonColor(String newColor) {
+    public void changeButtonColor(String newColor) {
 
         isChoosenRestaurantImage.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor(newColor)));
 
