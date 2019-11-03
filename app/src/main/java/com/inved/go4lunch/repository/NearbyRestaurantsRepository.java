@@ -43,6 +43,7 @@ import retrofit2.Response;
 
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.MAP_API_KEY;
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.TAG;
+import static com.inved.go4lunch.utils.ManagePosition.KEY_POSITION_JOB_LAT_LNG_DATA;
 
 public class NearbyRestaurantsRepository {
 
@@ -61,10 +62,13 @@ public class NearbyRestaurantsRepository {
     private int day = calendar.get(Calendar.DAY_OF_WEEK) - 1;
     private int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
     private String stringCurrentDay = ListDay.values()[day].toString();
+    private String nextPageToken;
 
     //FOR RETROFIT
     private ArrayList<Result> results = new ArrayList<>();
+    private ArrayList<Result> resultsNextPage = new ArrayList<>();
     private MutableLiveData<List<Result>> mutableLiveData = new MutableLiveData<>();
+    private GoogleNearbySearchApi googleNearbySearchApi = RetrofitServiceNearbySearch.getGoogleNearbySearchApi();
 
     public NearbyRestaurantsRepository() {
 
@@ -72,7 +76,6 @@ public class NearbyRestaurantsRepository {
 
     public MutableLiveData<List<Result>> getNearbySearchMutableLiveData(Double myCurrentLat, Double myCurrentLongi) {
 
-        GoogleNearbySearchApi googleNearbySearchApi = RetrofitServiceNearbySearch.getGoogleNearbySearchApi();
 
         String location;
         if (ManageAppMode.getAppMode(context).equals(App.getResourses().getString(R.string.app_mode_normal))) {
@@ -81,13 +84,17 @@ public class NearbyRestaurantsRepository {
             location = ManagePosition.getPosition(context, ManagePosition.KEY_POSITION_JOB_LAT_LNG_DATA);
         }
 
-        int radius = 1500;
+        String rankby = "distance";
         String type = "restaurant";
-        Call<PlaceSearch> call = googleNearbySearchApi.getNearbyRestaurants(location, radius, type, MAP_API_KEY);
+        Call<PlaceSearch> call = googleNearbySearchApi.getNearbyRestaurants(location, rankby, type, MAP_API_KEY);
 
         call.enqueue(new Callback<PlaceSearch>() {
             @Override
             public void onResponse(@NonNull Call<PlaceSearch> call, @NonNull Response<PlaceSearch> response) {
+
+                if (response.body() != null && response.body().getNextPageToken() != null) {
+                    nextPageToken = response.body().getNextPageToken();
+                }
 
                 PlaceSearch placeSearch = response.body();
                 if (placeSearch != null) {
@@ -113,6 +120,7 @@ public class NearbyRestaurantsRepository {
 
                                             } else {
                                                 setNearbyRestaurantsInFirebase(results, myCurrentLat, myCurrentLongi);
+
                                             }
                                         }
                                     }
@@ -190,7 +198,7 @@ public class NearbyRestaurantsRepository {
             }
 
             double longitude;
-            String distance;
+            long distance;
             double latitude;
             if (myResult.getGeometry().getLocation().getLat() != null) {
                 latitude = myResult.getGeometry().getLocation().getLat();
@@ -199,13 +207,57 @@ public class NearbyRestaurantsRepository {
             } else {
                 latitude = 0.0;
                 longitude = 0.0;
-                distance = null;
+                distance = 0;
             }
 
             createRestaurantsInFirebase(restaurantPlaceId, restaurantName, rating, latitude, longitude, distance, restaurantAddress);
 
             fetchPlaceDetailRequest(restaurantPlaceId);
         }
+
+        if (nextPageToken != null) {
+            nextPageRequest(myCurrentLat, myCurrentLongi);
+        }
+
+    }
+
+    private void nextPageRequest(double lat, double longi) {
+
+        Call<PlaceSearch> callNextPage = googleNearbySearchApi.getNearbyRestaurantsNextPage(MAP_API_KEY, nextPageToken);
+
+        callNextPage.enqueue(new Callback<PlaceSearch>() {
+            @Override
+            public void onResponse(@NonNull Call<PlaceSearch> call, @NonNull Response<PlaceSearch> otherResponse) {
+
+                if (otherResponse.body() != null && otherResponse.body().getNextPageToken() != null) {
+                    nextPageToken = otherResponse.body().getNextPageToken();
+                } else {
+                    nextPageToken = null;
+                }
+
+                PlaceSearch placeSearch = otherResponse.body();
+                if (placeSearch != null) {
+                    if (placeSearch.getResults() != null) {
+                        resultsNextPage = (ArrayList<Result>) placeSearch.getResults();
+
+                        if (resultsNextPage.size() > 0) {
+                            if (otherResponse.body() != null) {
+                                setNearbyRestaurantsInFirebase(resultsNextPage, lat, longi);
+                            }
+                        }
+                    }
+                }
+
+
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<PlaceSearch> call, @NonNull Throwable t) {
+
+            }
+
+
+        });
 
     }
 
@@ -291,7 +343,7 @@ public class NearbyRestaurantsRepository {
 
     private void createRestaurantsInFirebase(String restaurantPlaceId, String restaurantName,
                                              int rating, double latitude, double longitude,
-                                             String distance, String restaurantAddress) {
+                                             long distance, String restaurantAddress) {
         //Create restaurant in firebase if it doesn't exist
 
         if (appMode.equals(App.getResourses().getString(R.string.app_mode_work)) || appMode.equals(App.getResourses().getString(R.string.app_mode_forced_work))) {
@@ -330,25 +382,41 @@ public class NearbyRestaurantsRepository {
     }
 
 
-    private String distanceCalcul(double latitude, double longitude, double
+    private long distanceCalcul(double latitude, double longitude, double
             myCurrentLat, double myCurrentLongi) {
 
+        double lat;
+        double longi;
         //DISTANCE
         if (latitude != 0 || longitude != 0) {
             double latitudeRestaurant = unitConversion.convertRad(latitude);
             double longitudeRestaurant = unitConversion.convertRad(longitude);
-            double latCurrent = unitConversion.convertRad(myCurrentLat);
-            double longiCurrent = unitConversion.convertRad(myCurrentLongi);
+
+            if(appMode.equals(App.getResourses().getString(R.string.app_mode_work)) || appMode.equals(App.getResourses().getString(R.string.app_mode_forced_work))){
+                String[] latlongJob =  ManagePosition.getPosition(context, KEY_POSITION_JOB_LAT_LNG_DATA).split(",");
+                lat = unitConversion.convertRad(Double.parseDouble(latlongJob[0]));
+                longi = unitConversion.convertRad(Double.parseDouble(latlongJob[1]));
+            }else{
+                lat = unitConversion.convertRad(myCurrentLat);
+                longi = unitConversion.convertRad(myCurrentLongi);
+            }
+
+
+
+
+
+
 
             DecimalFormat df = new DecimalFormat("#");
             df.setRoundingMode(RoundingMode.HALF_UP);
 
-            double distanceDouble = Math.acos(Math.sin(latCurrent) * Math.sin(latitudeRestaurant) + Math.cos(latCurrent) * Math.cos(latitudeRestaurant) * Math.cos(longitudeRestaurant - longiCurrent)) * 6371 * 1000;
+            double distanceDouble = Math.acos(Math.sin(lat) * Math.sin(latitudeRestaurant) + Math.cos(lat) * Math.cos(latitudeRestaurant) * Math.cos(longitudeRestaurant - longi)) * 6371 * 1000;
+            String decimalFormat = df.format(distanceDouble);
 
-            return df.format(distanceDouble);
+            return Long.valueOf(decimalFormat);
         }
 
-        return null;
+        return 0;
 
     }
 
@@ -389,7 +457,7 @@ public class NearbyRestaurantsRepository {
                                 if (myOccurrence != 0) {
                                     int hourOne = openingHours.getPeriods().get(i).getOpen().getTime().getHours();
                                     int hourTwo = openingHours.getPeriods().get(myOccurrence).getOpen().getTime().getHours();
-                                                if (hourOne - currentHour >= 0 && Math.abs(hourOne - currentHour) <= Math.abs(hourTwo - currentHour)) {
+                                    if (hourOne - currentHour >= 0 && Math.abs(hourOne - currentHour) <= Math.abs(hourTwo - currentHour)) {
 
                                         return openingHours.getPeriods().get(i).getOpen().getTime().getHours();
                                     } else {
@@ -702,6 +770,7 @@ public class NearbyRestaurantsRepository {
         // Initialize Places.
         Places.initialize(App.getInstance().getApplicationContext(), MAP_API_KEY);
 
+        Log.d("debago","restaurant id is : "+currentPlaceId);
         // Create a new Places client instance.
         PlacesClient placesClient = Places.createClient(App.getInstance().getApplicationContext());
 
@@ -710,6 +779,7 @@ public class NearbyRestaurantsRepository {
                 Place.Field.PHONE_NUMBER,
                 Place.Field.WEBSITE_URI,
                 Place.Field.OPENING_HOURS);
+
 
 
         // Construct a request object, passing the place ID and fields array.

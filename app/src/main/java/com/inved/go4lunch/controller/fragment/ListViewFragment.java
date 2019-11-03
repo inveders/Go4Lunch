@@ -19,11 +19,13 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.paging.PagedList;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -66,9 +68,10 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
     private int openMinutes;
     private int closeMinutes;
     private boolean isOpenForLunch;
-    private String distance;
+    private long distance;
     private ArrayList<Restaurant> restaurantArrayList;
     private Context context = App.getInstance().getApplicationContext();
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
 
     //Receive current localisation from Localisation.class
@@ -90,8 +93,6 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
     };
 
 
-
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -102,6 +103,7 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
 
         //DECLARE ET IITIALIZE TEXTVIEW
         textViewNoRestaurantFound = mView.findViewById(R.id.fragment_list_view_textview_no_restaurant);
+        mSwipeRefreshLayout = mView.findViewById(R.id.swipeRefreshLayout);
 
         //RecyclerView initialization
         mRecyclerListView = mView.findViewById(R.id.fragment_listview_recycler_view);
@@ -116,8 +118,12 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
         filterButton = mView.findViewById(R.id.fragment_list_view_sort_button);
         actionOnFloatingButton();
 
+        mSwipeRefreshLayout.setOnRefreshListener(() -> mRecyclerListViewAdapter.refresh());
 
-        ((RestaurantActivity) Objects.requireNonNull(getActivity())).setFragmentRefreshListener(this::getRestaurantNameFromAutocomplete);
+        if (getActivity() != null) {
+            ((RestaurantActivity) getActivity()).setFragmentRefreshListener(this::getRestaurantNameFromAutocomplete);
+        }
+
 
         return mView;
     }
@@ -179,8 +185,8 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
                     restaurantArrayList.clear();
                 }
 
-                if(!ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_normal))){
-                    RestaurantHelper.getAllRestaurants().get().addOnCompleteListener(task -> {
+                if (!ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_normal))) {
+                     RestaurantHelper.getAllRestaurants().get().addOnCompleteListener(task -> {
 
                         if (task.getResult() != null) {
                             for (DocumentSnapshot querySnapshot : task.getResult()) {
@@ -208,18 +214,17 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
 
                             }
 
-                            if(ratingChoosen==1 && !openForLunchChoosen){
+                            if (ratingChoosen == 1 && !openForLunchChoosen) {
                                 Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByDistance);
-                            }else if(distanceChoosen==1500.0 && !openForLunchChoosen){
+                            } else if (distanceChoosen == 1500.0 && !openForLunchChoosen) {
                                 Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByRating);
-                            }else if(distanceChoosen==1500.0 && ratingChoosen==1){
+                            } else if (distanceChoosen == 1500.0 && ratingChoosen == 1) {
                                 Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByOpenForLunch);
-                            }else if(openForLunchChoosen &&ratingChoosen!=1){
+                            } else if (openForLunchChoosen && ratingChoosen != 1) {
                                 Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByOpenForLunch);
                                 Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByRating);
-                                Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByDistance);
-                            }
-                            else{
+                              //  Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByDistance);
+                            } else {
                                 Collections.sort(restaurantArrayList, Restaurant::compareTo);
                             }
 
@@ -231,8 +236,8 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
                             Toast.makeText(getContext(), "No result found", Toast.LENGTH_SHORT).show();
                         }
                     }).addOnFailureListener(e -> Log.e("debago", "Problem during the sort in work mode"));
-                }else{
-                    if(FirebaseAuth.getInstance().getCurrentUser()!=null){
+                } else {
+                    if (FirebaseAuth.getInstance().getCurrentUser() != null) {
                         RestaurantInNormalModeHelper.getAllRestaurants(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnCompleteListener(task -> {
 
                             if (task.getResult() != null) {
@@ -262,18 +267,17 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
                                 }
 
 
-                                if(ratingChoosen==1 && !openForLunchChoosen){
+                                if (ratingChoosen == 1 && !openForLunchChoosen) {
                                     Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByDistance);
-                                }else if(distanceChoosen==1500.0 && !openForLunchChoosen){
+                                } else if (distanceChoosen == 1500.0 && !openForLunchChoosen) {
                                     Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByRating);
-                                }else if(distanceChoosen==1500.0 && ratingChoosen==1){
+                                } else if (distanceChoosen == 1500.0 && ratingChoosen == 1) {
                                     Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByOpenForLunch);
-                                }else if(openForLunchChoosen &&ratingChoosen!=1){
+                                } else if (openForLunchChoosen && ratingChoosen != 1) {
                                     Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByOpenForLunch);
                                     Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByRating);
                                     Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByDistance);
-                                }
-                                else{
+                                } else {
                                     Collections.sort(restaurantArrayList, Restaurant::compareTo);
                                 }
                                 mRecyclerListViewSortedAdapter = new RecyclerViewListViewRestaurantSorted(restaurantArrayList);
@@ -285,6 +289,7 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
                             }
                         }).addOnFailureListener(e -> Log.e("debago", "Problem during the sort in normal mode"));
                     }
+
 
                 }
 
@@ -315,7 +320,7 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
                 loadDataFromFirebase();
             } else {
                 loadDataFromFirebaseFilter(restaurantNameFromAutocomplete);
-              //  initializeSharedPreferences();
+                //  initializeSharedPreferences();
             }
         } else {
             loadDataFromFirebase();
@@ -337,7 +342,7 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
 
     private void displayAllRestaurantsInWorkMode() {
 
-        mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(generateOptionsForAdapter(RestaurantHelper.getAllRestaurants()), this);
+        mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(generateOptionsForAdapterPaging(RestaurantHelper.getAllRestaurants()), this);
         //Choose how to display the list in the RecyclerView (vertical or horizontal)
         mRecyclerListView.setHasFixedSize(true);
         mRecyclerListView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
@@ -347,7 +352,7 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
 
     private void displayAllRestaurantsInNormalMode() {
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(generateOptionsForAdapter(RestaurantInNormalModeHelper.getAllRestaurants(FirebaseAuth.getInstance().getCurrentUser().getUid())), this);
+            mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(generateOptionsForAdapterPaging(RestaurantInNormalModeHelper.getAllRestaurants(FirebaseAuth.getInstance().getCurrentUser().getUid())), this);
             //Choose how to display the list in the RecyclerView (vertical or horizontal)
             mRecyclerListView.setHasFixedSize(true);
             mRecyclerListView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
@@ -359,7 +364,7 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
 
     private void displayFilterRestaurantsInWorkMode(String mQuery) {
 
-        mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(generateOptionsForAdapter(RestaurantHelper.getFilterRestaurant(mQuery)), this);
+        mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(generateOptionsForAdapterPaging(RestaurantHelper.getFilterRestaurant(mQuery)), this);
         //Choose how to display the list in the RecyclerView (vertical or horizontal)
         mRecyclerListView.setHasFixedSize(true);
         mRecyclerListView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
@@ -369,7 +374,7 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
 
     private void displayFilterRestaurantInNormalMode(String mQuery) {
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(generateOptionsForAdapter(RestaurantInNormalModeHelper.getFilterRestaurant(FirebaseAuth.getInstance().getCurrentUser().getUid(), mQuery)), this);
+            mRecyclerListViewAdapter = new RecyclerViewListViewRestaurant(generateOptionsForAdapterPaging(RestaurantInNormalModeHelper.getFilterRestaurant(FirebaseAuth.getInstance().getCurrentUser().getUid(), mQuery)), this);
             //Choose how to display the list in the RecyclerView (vertical or horizontal)
             mRecyclerListView.setHasFixedSize(true);
             mRecyclerListView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
@@ -379,24 +384,42 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
 
     }
 
-    // Create options for RecyclerView from a Query
+
+    // Init Paging Configuration
+    private PagedList.Config config = new PagedList.Config.Builder()
+            .setEnablePlaceholders(false)
+            .setPrefetchDistance(2)
+            .setPageSize(10)
+            .build();
+
+    // Create options for RecyclerView from a Query pagination
+    private FirestorePagingOptions<Restaurant> generateOptionsForAdapterPaging(Query query) {
+        return new FirestorePagingOptions.Builder<Restaurant>()
+                .setLifecycleOwner(this)
+                .setQuery(query, config, Restaurant.class)
+                .build();
+    }
+
+
+
+   /* // Create options for RecyclerView from a Query
     private FirestoreRecyclerOptions<Restaurant> generateOptionsForAdapter(Query query) {
         return new FirestoreRecyclerOptions.Builder<Restaurant>()
                 .setQuery(query, Restaurant.class)
                 .setLifecycleOwner(this)
                 .build();
-    }
-
+    }*/
     // --------------------
     // CALLBACK
     // --------------------
 
     @Override
-    public void onDataChanged() {
-        // 7 - Show TextView in case RecyclerView is empty
+    public void onSwipeBoolean(boolean b) {
         textViewNoRestaurantFound.setVisibility(this.mRecyclerListViewAdapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
         if (this.mRecyclerListViewAdapter.getItemCount() == 0) filterButton.hide();
         else filterButton.show();
+
+        mSwipeRefreshLayout.setRefreshing(b);
 
     }
 

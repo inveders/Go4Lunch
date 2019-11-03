@@ -28,7 +28,7 @@ public class FullScreenDialog extends DialogFragment implements View.OnClickList
 
     private boolean openForLunchChoice=false;
     private int ratingChoice=1;
-    private Double distanceChoice=1500.0;
+    private long distanceChoice=1500;
     private int restaurantCustomersChoice=0;
 
 
@@ -98,7 +98,7 @@ public class FullScreenDialog extends DialogFragment implements View.OnClickList
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 distanceValue.setText(getString(R.string.fullscreen_dialog__value_in_meter,progress));
-                distanceChoice= (double) progress;
+                distanceChoice= (long) progress;
 
             }
         });
@@ -152,7 +152,7 @@ public class FullScreenDialog extends DialogFragment implements View.OnClickList
 
     public interface Callback {
 
-        void loadDataFromFirebaseSort(int ratingChoosen,boolean openForLunchChoosen,int customersNumberChoosen,double distanceChoosen);
+        void loadDataFromFirebaseSort(int ratingChoosen,boolean openForLunchChoosen,int customersNumberChoosen,long distanceChoosen);
     }
 
     @Nullable

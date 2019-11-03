@@ -110,7 +110,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         actionOnFloatingButton();
 
         if(getActivity()!=null){
-            ((RestaurantActivity) getActivity()).setMapFragmentRefreshListener(this::initializeMap);
+            ((RestaurantActivity) getActivity()).setFragmentRefreshListener(this::initializeMap);
         }
 
         initializeMap();

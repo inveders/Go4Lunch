@@ -139,19 +139,17 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     private DrawerLayout drawerLayout;
 
 
-    public FragmentRefreshListener getFragmentRefreshListener() {
-        return fragmentRefreshListener;
-    }
 
-    public void setFragmentRefreshListener(FragmentRefreshListener fragmentRefreshListener) {
-        this.fragmentRefreshListener = fragmentRefreshListener;
-
-    }
 
     private FragmentRefreshListener fragmentRefreshListener;
+    private MapFragmentRefreshListener mapFragmentRefreshListener;
 
     public interface FragmentRefreshListener {
         void onRefresh();
+    }
+
+    public interface MapFragmentRefreshListener {
+        void onMapRefresh();
     }
 
     public MapFragmentRefreshListener getMapFragmentRefreshListener() {
@@ -162,11 +160,16 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         this.mapFragmentRefreshListener = mapFragmentRefreshListener;
     }
 
-    private MapFragmentRefreshListener mapFragmentRefreshListener;
-
-    public interface MapFragmentRefreshListener {
-        void onMapRefresh();
+    public FragmentRefreshListener getFragmentRefreshListener() {
+        return fragmentRefreshListener;
     }
+
+    public void setFragmentRefreshListener(FragmentRefreshListener fragmentRefreshListener) {
+        this.fragmentRefreshListener = fragmentRefreshListener;
+
+    }
+
+
 
     @Override
     public int getFragmentLayout() {
@@ -312,8 +315,8 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
         final MenuItem clearItem = menu.findItem(R.id.action_clear);
         clearItem.setOnMenuItemClickListener(menuItem -> {
-            ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(this), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME, null);
-            ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(this), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID, null);
+            ManageAutocompleteResponse.saveAutocompleteStringResponse(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME, null);
+            ManageAutocompleteResponse.saveAutocompleteStringResponse(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID, null);
             refreshFragment();
 
             menu.findItem(R.id.action_search).setVisible(true);
@@ -435,8 +438,8 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
                                         if (documentSnapshot.getString("restaurantPlaceId") == null) {
                                             dialogToGoInViewPlaceIfAutocomplete(placeId);
-                                            ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(this), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME, null);
-                                            ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(this), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID, null);
+                                            ManageAutocompleteResponse.saveAutocompleteStringResponse(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME, null);
+                                            ManageAutocompleteResponse.saveAutocompleteStringResponse(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID, null);
 
                                         }else{
                                             refreshFragment();
@@ -877,6 +880,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
             int distance;
             String appMode = ManageAppMode.getAppMode(this);
             try {
+
                 distance = (result.get(0).getElements().get(0).getDistance().getValue()) / 1000;
             } catch (Exception e) {
                 Log.e("error", "Error try catch " + e.getMessage());

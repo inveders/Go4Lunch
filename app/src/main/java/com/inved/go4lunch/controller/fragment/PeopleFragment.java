@@ -17,6 +17,7 @@ import com.bumptech.glide.Glide;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.Query;
 import com.inved.go4lunch.R;
+import com.inved.go4lunch.controller.activity.RestaurantActivity;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.utils.App;
@@ -27,6 +28,7 @@ public class PeopleFragment extends Fragment implements WorkmatesAdapter.Listene
 
     private RecyclerView mRecyclerWorkmates;
     private String appMode = ManageAppMode.getAppMode(App.getInstance().getApplicationContext());
+    private TextView textViewNoWorkmatesInNormalMode;
 
     @Nullable
     @Override
@@ -36,16 +38,25 @@ public class PeopleFragment extends Fragment implements WorkmatesAdapter.Listene
 
         //RecyclerView initialization
         mRecyclerWorkmates = mView.findViewById(R.id.fragment_people_recycler_view);
-        TextView textViewNoWorkmatesInNormalMode = mView.findViewById(R.id.fragment_people_textview_no_workmates);
+        textViewNoWorkmatesInNormalMode = mView.findViewById(R.id.fragment_people_textview_no_workmates);
 
+        if(getActivity()!=null){
+            ((RestaurantActivity) getActivity()).setFragmentRefreshListener(this::initializePage);
+        }
+
+        initializePage();
+
+        return mView;
+
+    }
+
+    private void initializePage() {
         if (!appMode.equals(App.getResourses().getString(R.string.app_mode_normal))) {
             displayAllWorkmates();
         }else{
             mRecyclerWorkmates.setVisibility(View.INVISIBLE);
             textViewNoWorkmatesInNormalMode.setVisibility(View.VISIBLE);
         }
-
-        return mView;
 
     }
 

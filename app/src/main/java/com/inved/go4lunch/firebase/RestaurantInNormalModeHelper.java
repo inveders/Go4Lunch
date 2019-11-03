@@ -31,7 +31,7 @@ public class RestaurantInNormalModeHelper {
                                                      String restaurantName,
                                                      int ratingApp,
                                                      boolean openForLunch,
-                                                     String distance,
+                                                     long distance,
                                                      int openHours,
                                                      int closeHours,
                                                      String restaurantAddress,

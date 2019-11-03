@@ -15,7 +15,7 @@ public class Restaurant implements Comparable<Restaurant> {
     private String restaurantName;
     private int ratingApp;
     private boolean openForLunch;
-    private String distance;
+    private long distance;
     private int openHours;
     private int closeHours;
     private String restaurantAddress;
@@ -38,7 +38,7 @@ public class Restaurant implements Comparable<Restaurant> {
                       String restaurantName,
                       int ratingApp,
                       boolean openForLunch,
-                      String distance,
+                      long distance,
                       int openHours,
                       int closeHours,
                       String restaurantAddress,
@@ -101,7 +101,7 @@ public class Restaurant implements Comparable<Restaurant> {
     }
 
 
-    public String getDistance() {
+    public long getDistance() {
         return distance;
     }
 
@@ -152,7 +152,7 @@ public class Restaurant implements Comparable<Restaurant> {
     }
 
 
-    public void setDistance(String distance) {
+    public void setDistance(long distance) {
         this.distance = distance;
     }
 
@@ -170,31 +170,31 @@ public class Restaurant implements Comparable<Restaurant> {
         return -1;
     }
 
-    /*Comparator for sorting the list by distance*/
+    /*Comparator to sort the list by distance*/
     public static Comparator<Restaurant> compareRestaurantByDistance = (s1, s2) -> {
 
-        String rest1 = s1.getDistance();
-        String rest2 = s2.getDistance();
+        int rest1 = (int) s1.getDistance();
+        int rest2 = (int) s2.getDistance();
 
         /*For ascending order*/
         //ascending order
-        return rest2.compareTo(rest1);
+        return rest1-rest2;
 
     };
 
-    /*Comparator for sorting the list by rating*/
+    /*Comparator to sort the list by rating*/
     public static Comparator<Restaurant> compareRestaurantByRating = (s1, s2) -> {
 
         int rest1 = s1.getRatingApp();
         int rest2 = s2.getRatingApp();
 
-        /*For ascending order*/
-        //ascending order
+        /*For descending order*/
+
         return rest2-rest1;
 
     };
 
-    /*Comparator for sorting the list by rating*/
+    /*Comparator to sort the list by isOpenForLunch*/
     public static Comparator<Restaurant> compareRestaurantByOpenForLunch = (s1, s2) -> {
 
         boolean rest1 = s1.getOpenForLunch();

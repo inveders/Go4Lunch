@@ -1,5 +1,7 @@
 package com.inved.go4lunch.firebase;
 
+import androidx.annotation.NonNull;
+
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -31,7 +33,7 @@ public class RestaurantHelper {
                                         String restaurantName,
                                         int ratingApp,
                                         boolean openForLunch,
-                                        String distance,
+                                        long distance,
                                         int openHours,
                                         int closeHours,
                                         String restaurantAddress,
@@ -56,7 +58,8 @@ public class RestaurantHelper {
     }
 
     public static Query getAllRestaurants() {
-        return RestaurantHelper.getRestaurantsCollection();
+        return RestaurantHelper.getRestaurantsCollection()
+                .orderBy("restaurantCustomers", Query.Direction.DESCENDING);
 
 
     }
@@ -66,6 +69,7 @@ public class RestaurantHelper {
                 .whereEqualTo("restaurantName",queryFilter);
 
     }
+
 
     // --- UPDATE ---
 

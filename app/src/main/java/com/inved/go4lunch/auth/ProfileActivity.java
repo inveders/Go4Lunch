@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Switch;
@@ -150,6 +151,7 @@ public class ProfileActivity extends BaseActivity {
         } else {
             if (latitude != 0.0) {
                 RestaurantActivity restaurantActivity = new RestaurantActivity();
+
                 restaurantActivity.checkDistanceFromWork(myCurrentGeolocalisation, ManageJobPlaceId.getJobPlaceId(this), latitude, longitude);
 
             } else {

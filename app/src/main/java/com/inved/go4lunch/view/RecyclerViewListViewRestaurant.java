@@ -15,8 +15,9 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
+import com.firebase.ui.firestore.paging.FirestorePagingOptions;
+import com.firebase.ui.firestore.paging.LoadingState;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.PhotoMetadata;
@@ -37,18 +38,20 @@ import java.util.List;
 import static com.inved.go4lunch.controller.activity.RestaurantActivity.MAP_API_KEY;
 import static com.inved.go4lunch.controller.fragment.MapFragment.RESTAURANT_PLACE_ID;
 
-public class RecyclerViewListViewRestaurant extends FirestoreRecyclerAdapter<Restaurant, RecyclerViewListViewRestaurant.ViewHolder> {
+public class RecyclerViewListViewRestaurant extends FirestorePagingAdapter<Restaurant, RecyclerViewListViewRestaurant.ViewHolder> {
 
     private String placeId;
     private Listener callback;
 
+
     public interface Listener {
-        void onDataChanged();
+
+        void onSwipeBoolean(boolean b);
     }
 
 
 
-    public RecyclerViewListViewRestaurant(@NonNull FirestoreRecyclerOptions<Restaurant> options, Listener callback) {
+    public RecyclerViewListViewRestaurant(@NonNull FirestorePagingOptions<Restaurant> options, Listener callback) {
 
         super(options);
         this.callback = callback;
@@ -127,7 +130,7 @@ public class RecyclerViewListViewRestaurant extends FirestoreRecyclerAdapter<Res
         String name = restaurant.getRestaurantName();
         holder.mRestaurantName.setText(name);
 
-        holder.mDistance.setText(App.getResourses().getString(R.string.distance_text, restaurant.getDistance()));
+        holder.mDistance.setText(App.getResourses().getString(R.string.distance_text, String.valueOf(restaurant.getDistance())));
 
         holder.mRestaurantAdress.setText(restaurant.getRestaurantAddress());
 
@@ -238,6 +241,7 @@ public class RecyclerViewListViewRestaurant extends FirestoreRecyclerAdapter<Res
         TextView mDistance;
         ImageView mNumberRatesIcon;
 
+
         ViewHolder(View itemView) {
 
             super(itemView);
@@ -255,6 +259,7 @@ public class RecyclerViewListViewRestaurant extends FirestoreRecyclerAdapter<Res
             mStarThird = itemView.findViewById(R.id.fragment_listview_item_like_start_third);
             mNumberRatesIcon = itemView.findViewById(R.id.fragment_listview_item_person_icon_rate);
 
+
             if (ManageAppMode.getAppMode(App.getInstance().getApplicationContext()).equals(App.getResourses().getString(R.string.app_mode_normal))) {
                 mNumberRates.setVisibility(View.INVISIBLE);
                 mNumberRatesIcon.setVisibility(View.INVISIBLE);
@@ -265,11 +270,46 @@ public class RecyclerViewListViewRestaurant extends FirestoreRecyclerAdapter<Res
     }
 
     @Override
-    public void onDataChanged() {
-        super.onDataChanged();
-        this.callback.onDataChanged();
+    protected void onError(@NonNull Exception e) {
+        super.onError(e);
+        if(e.getMessage()!=null){
+            Log.e("debago", e.getMessage());
+        }
+
+       // retry();
 
     }
+
+    @Override
+    protected void onLoadingStateChanged(@NonNull LoadingState state) {
+        switch (state) {
+            case LOADING_INITIAL:
+            case LOADING_MORE:
+                callback.onSwipeBoolean(true);
+
+                break;
+
+            case LOADED:
+                callback.onSwipeBoolean(false);
+                break;
+
+            case ERROR:
+                Toast.makeText(
+                        App.getInstance().getApplicationContext(),
+                        "Error Occurred!",
+                        Toast.LENGTH_SHORT
+                ).show();
+                retry();
+                callback.onSwipeBoolean(true);
+                break;
+
+            case FINISHED:
+                callback.onSwipeBoolean(false);
+                break;
+        }
+    }
+
+
 
 
 }
