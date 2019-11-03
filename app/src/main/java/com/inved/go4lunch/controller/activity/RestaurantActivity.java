@@ -142,23 +142,11 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
 
     private FragmentRefreshListener fragmentRefreshListener;
-    private MapFragmentRefreshListener mapFragmentRefreshListener;
 
     public interface FragmentRefreshListener {
         void onRefresh();
     }
 
-    public interface MapFragmentRefreshListener {
-        void onMapRefresh();
-    }
-
-    public MapFragmentRefreshListener getMapFragmentRefreshListener() {
-        return mapFragmentRefreshListener;
-    }
-
-    public void setMapFragmentRefreshListener(MapFragmentRefreshListener mapFragmentRefreshListener) {
-        this.mapFragmentRefreshListener = mapFragmentRefreshListener;
-    }
 
     public FragmentRefreshListener getFragmentRefreshListener() {
         return fragmentRefreshListener;
@@ -335,11 +323,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         if (getFragmentRefreshListener() != null) {
             getFragmentRefreshListener().onRefresh();
         }
-
-        if (getMapFragmentRefreshListener() != null) {
-            getMapFragmentRefreshListener().onMapRefresh();
-        }
-
 
     }
 

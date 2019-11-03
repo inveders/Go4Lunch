@@ -290,6 +290,8 @@ public class RecyclerViewListViewRestaurant extends FirestorePagingAdapter<Resta
                 break;
 
             case LOADED:
+
+            case FINISHED:
                 callback.onSwipeBoolean(false);
                 break;
 
@@ -301,10 +303,6 @@ public class RecyclerViewListViewRestaurant extends FirestorePagingAdapter<Resta
                 ).show();
                 retry();
                 callback.onSwipeBoolean(true);
-                break;
-
-            case FINISHED:
-                callback.onSwipeBoolean(false);
                 break;
         }
     }

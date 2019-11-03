@@ -1,7 +1,5 @@
 package com.inved.go4lunch.firebase;
 
-import androidx.annotation.NonNull;
-
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -72,10 +70,6 @@ public class RestaurantHelper {
 
 
     // --- UPDATE ---
-
-    public static void updateRestaurantLike(int restaurantLike, String id) {
-        RestaurantHelper.getRestaurantsCollection().document(id).update("restaurantLike", restaurantLike);
-    }
 
     public static void updateRestaurantCustomers(int restaurantCustomers, String id) {
         RestaurantHelper.getRestaurantsCollection()

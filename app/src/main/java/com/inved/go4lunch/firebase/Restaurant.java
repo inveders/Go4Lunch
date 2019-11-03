@@ -80,10 +80,6 @@ public class Restaurant implements Comparable<Restaurant> {
         return restaurantCustomers;
     }
 
-    public int getRestaurantLike() {
-        return restaurantLike;
-    }
-
     public String getJobPlaceId() {
         return jobPlaceId;
     }
