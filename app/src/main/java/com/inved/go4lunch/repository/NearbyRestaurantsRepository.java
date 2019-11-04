@@ -16,6 +16,7 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.inved.go4lunch.R;
+import com.inved.go4lunch.domain.RatingCalcul;
 import com.inved.go4lunch.firebase.RestaurantHelper;
 import com.inved.go4lunch.firebase.RestaurantInNormalModeHelper;
 import com.inved.go4lunch.model.placesearch.PlaceSearch;
@@ -27,7 +28,7 @@ import com.inved.go4lunch.utils.ListDay;
 import com.inved.go4lunch.utils.ManageAppMode;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
 import com.inved.go4lunch.utils.ManagePosition;
-import com.inved.go4lunch.utils.UnitConversion;
+import com.inved.go4lunch.domain.UnitConversion;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -58,6 +59,7 @@ public class NearbyRestaurantsRepository {
     private int closeMinutes;
     private boolean openForLunch;
     private UnitConversion unitConversion = new UnitConversion();
+    private RatingCalcul ratingCalcul = new RatingCalcul();
     private String currentUser = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
     private Calendar calendar = Calendar.getInstance();
     private int day = calendar.get(Calendar.DAY_OF_WEEK) - 1;
@@ -82,7 +84,6 @@ public class NearbyRestaurantsRepository {
     }
 
     public MutableLiveData<List<Result>> getNearbySearchMutableLiveData(Double myCurrentLat, Double myCurrentLongi) {
-
 
         String location;
         if (ManageAppMode.getAppMode(context).equals(App.getResourses().getString(R.string.app_mode_normal))) {
@@ -199,7 +200,7 @@ public class NearbyRestaurantsRepository {
 
             int rating;
             if (myResult.getRating() != null) {
-                rating = ratingValueCalcul(myResult.getRating());
+                rating = ratingCalcul.ratingValueCalcul(myResult.getRating());
             } else {
                 rating = 0;
             }
@@ -374,19 +375,7 @@ public class NearbyRestaurantsRepository {
 
     }
 
-    public int ratingValueCalcul(double ratingValue) {
 
-        int rating = 0;
-        if (ratingValue > 0 && ratingValue < 4.3) {
-            rating = 1;
-        } else if (ratingValue >= 4.3 && ratingValue < 4.6) {
-            rating = 2;
-        } else if (ratingValue >= 4.6 && ratingValue <= 5) {
-            rating = 3;
-        }
-        return rating;
-
-    }
 
 
     private long distanceCalcul(double latitude, double longitude, double
@@ -407,11 +396,6 @@ public class NearbyRestaurantsRepository {
                 lat = unitConversion.convertRad(myCurrentLat);
                 longi = unitConversion.convertRad(myCurrentLongi);
             }
-
-
-
-
-
 
 
             DecimalFormat df = new DecimalFormat("#");

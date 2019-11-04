@@ -223,7 +223,7 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
                             } else if (openForLunchChoosen && ratingChoosen != 1) {
                                 Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByOpenForLunch);
                                 Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByRating);
-                              //  Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByDistance);
+                                Collections.sort(restaurantArrayList, Restaurant.compareRestaurantByDistance);
                             } else {
                                 Collections.sort(restaurantArrayList, Restaurant::compareTo);
                             }

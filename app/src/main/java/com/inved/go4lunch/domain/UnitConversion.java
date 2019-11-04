@@ -1,4 +1,4 @@
-package com.inved.go4lunch.utils;
+package com.inved.go4lunch.domain;
 
 public class UnitConversion {
 

@@ -159,7 +159,6 @@ public class Restaurant implements Comparable<Restaurant> {
             return Comparator.comparing(Restaurant::getDistance)
                     .thenComparing(Restaurant::getOpenForLunch)
                     .thenComparing(Restaurant::getRatingApp)
-                   // .reversed()
                     .compare(this, o);
         }
 

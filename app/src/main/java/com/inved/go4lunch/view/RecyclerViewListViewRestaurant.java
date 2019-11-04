@@ -79,9 +79,6 @@ public class RecyclerViewListViewRestaurant extends FirestorePagingAdapter<Resta
 
         //PHOTO
 
-
-
-
         // Specify the fields to return.
         List<Place.Field> fields = Collections.singletonList(Place.Field.PHOTO_METADATAS);
 

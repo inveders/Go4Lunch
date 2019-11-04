@@ -37,13 +37,13 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.base.BaseActivity;
+import com.inved.go4lunch.domain.RatingCalcul;
 import com.inved.go4lunch.firebase.Restaurant;
 import com.inved.go4lunch.firebase.RestaurantHelper;
 import com.inved.go4lunch.firebase.RestaurantInNormalModeHelper;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserFavoriteRestaurantHelper;
 import com.inved.go4lunch.firebase.UserHelper;
-import com.inved.go4lunch.repository.NearbyRestaurantsRepository;
 import com.inved.go4lunch.utils.App;
 import com.inved.go4lunch.utils.ManageAppMode;
 import com.inved.go4lunch.utils.ManageRestaurantChoiceInNormalMode;
@@ -104,6 +104,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
 
     private WorkmatesAdapter mRecyclerWorkmatesAdapter;
     private RecyclerView mRecyclerWorkmates;
+    private RatingCalcul ratingCalcul = new RatingCalcul();
 
 
     @Override
@@ -228,9 +229,8 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
                 website = "";
             }
 
-            NearbyRestaurantsRepository nearbyRestaurantsRepository = new NearbyRestaurantsRepository();
             if (place.getRating() != null) {
-                rating = nearbyRestaurantsRepository.ratingValueCalcul(place.getRating().intValue());
+                rating = ratingCalcul.ratingValueCalcul(place.getRating().intValue());
             } else {
                 rating = 1;
             }
