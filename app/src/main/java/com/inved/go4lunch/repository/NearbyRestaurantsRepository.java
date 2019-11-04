@@ -70,8 +70,14 @@ public class NearbyRestaurantsRepository {
     private ArrayList<Result> resultsNextPage = new ArrayList<>();
     private MutableLiveData<List<Result>> mutableLiveData = new MutableLiveData<>();
     private GoogleNearbySearchApi googleNearbySearchApi = RetrofitServiceNearbySearch.getGoogleNearbySearchApi();
+    private PlacesClient placesClient;
 
     public NearbyRestaurantsRepository() {
+
+        // Initialize Places.
+        Places.initialize(App.getInstance().getApplicationContext(), MAP_API_KEY);
+        // Create a new Places client instance.
+        placesClient = Places.createClient(App.getInstance().getApplicationContext());
 
     }
 
@@ -767,13 +773,6 @@ public class NearbyRestaurantsRepository {
     }
 
     private void fetchPlaceDetailRequest(String currentPlaceId) {
-
-        // Initialize Places.
-        Places.initialize(App.getInstance().getApplicationContext(), MAP_API_KEY);
-
-        Log.d("debago","restaurant id is : "+currentPlaceId);
-        // Create a new Places client instance.
-        PlacesClient placesClient = Places.createClient(App.getInstance().getApplicationContext());
 
         // Specify the fields to return.
         List<Place.Field> placeFields = Arrays.asList(Place.Field.ID,

@@ -42,6 +42,7 @@ public class RecyclerViewListViewRestaurant extends FirestorePagingAdapter<Resta
 
     private String placeId;
     private Listener callback;
+    private PlacesClient placesClient;
 
 
     public interface Listener {
@@ -61,6 +62,11 @@ public class RecyclerViewListViewRestaurant extends FirestorePagingAdapter<Resta
     @Override
     public RecyclerViewListViewRestaurant.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
+        // Initialize Places.
+        Places.initialize(App.getInstance().getApplicationContext(), MAP_API_KEY);
+        // Create a new Places client instance.
+        placesClient = Places.createClient(App.getInstance().getApplicationContext());
+
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_listview_item, parent, false);
 
         return new ViewHolder(v);
@@ -72,11 +78,9 @@ public class RecyclerViewListViewRestaurant extends FirestorePagingAdapter<Resta
         placeId = restaurant.getRestaurantPlaceId();
 
         //PHOTO
-        // Initialize Places.
-        Places.initialize(App.getInstance().getApplicationContext(), MAP_API_KEY);
 
-        // Create a new Places client instance.
-        PlacesClient placesClient = Places.createClient(App.getInstance().getApplicationContext());
+
+
 
         // Specify the fields to return.
         List<Place.Field> fields = Collections.singletonList(Place.Field.PHOTO_METADATAS);

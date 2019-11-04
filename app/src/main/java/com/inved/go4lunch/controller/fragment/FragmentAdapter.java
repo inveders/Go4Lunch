@@ -5,7 +5,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +12,7 @@ public class FragmentAdapter extends FragmentPagerAdapter {
 
     private List<androidx.fragment.app.Fragment> Fragment = new ArrayList<>(); //Fragment List
     private List<String> NamePage = new ArrayList<>(); // Fragment Name List
+
     public FragmentAdapter(FragmentManager manager) {
         super(manager,BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
     }

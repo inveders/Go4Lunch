@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -110,7 +111,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         actionOnFloatingButton();
 
         if(getActivity()!=null){
-            ((RestaurantActivity) getActivity()).setFragmentRefreshListener(this::initializeMap);
+            ((RestaurantActivity)getActivity()).setFragmentMapRefreshListener(this::initializeMap);
         }
 
         initializeMap();
@@ -180,6 +181,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     }
 
     private void initializeMap() {
+
 
         showProgressBar();
         String sharedPreferenceRestaurantPlaceId = ManageAutocompleteResponse.getStringAutocomplete((context), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID);

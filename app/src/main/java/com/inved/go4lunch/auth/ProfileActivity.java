@@ -64,33 +64,12 @@ public class ProfileActivity extends BaseActivity {
     @BindView(R.id.profile_activity_app_mode_button)
     Button appModeButton;
 
-    private String myCurrentGeolocalisation = null;
-    private double latitude;
-    private double longitude;
-
-    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (KEY_LOCATION_CHANGED.equals(intent.getAction())) {
-                intent.getSerializableExtra(KEY_GEOLOCALISATION);
-                myCurrentGeolocalisation = intent.getStringExtra(KEY_GEOLOCALISATION);
-                latitude = intent.getDoubleExtra(KEY_LATITUDE, 0.0);
-                longitude = intent.getDoubleExtra(KEY_LONGITUDE, 0.0);
-            }
-
-
-        }
-    };
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter(KEY_LOCATION_CHANGED));
-
         this.configureToolBar();
         this.updateUIWhenCreating();
-
 
         notificationSwitch.setOnCheckedChangeListener((compoundButton, bChecked) -> {
             if (bChecked) {
@@ -148,14 +127,7 @@ public class ProfileActivity extends BaseActivity {
             ManageAppMode.saveAppMode(this, getString(R.string.app_mode_normal));
             appModeButton.setText(getString(R.string.app_mode_change_to_normal_mode));
         } else {
-            if (latitude != 0.0) {
-                RestaurantActivity restaurantActivity = new RestaurantActivity();
-
-                restaurantActivity.checkDistanceFromWork(myCurrentGeolocalisation, ManageJobPlaceId.getJobPlaceId(this), latitude, longitude);
-
-            } else {
-                ManageAppMode.saveAppMode(this, getString(R.string.app_mode_forced_work));
-            }
+            ManageAppMode.saveAppMode(this, getString(R.string.app_mode_forced_work));
             appModeButton.setText(getString(R.string.app_mode_change_to_work_mode));
         }
     }

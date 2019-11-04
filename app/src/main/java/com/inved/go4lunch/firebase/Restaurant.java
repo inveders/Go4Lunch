@@ -156,10 +156,10 @@ public class Restaurant implements Comparable<Restaurant> {
     @Override
     public int compareTo(@NonNull Restaurant o) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            return Comparator.comparing(Restaurant::getOpenForLunch)
-                    .thenComparing(Restaurant::getDistance)
+            return Comparator.comparing(Restaurant::getDistance)
+                    .thenComparing(Restaurant::getOpenForLunch)
                     .thenComparing(Restaurant::getRatingApp)
-                    .reversed()
+                   // .reversed()
                     .compare(this, o);
         }
 

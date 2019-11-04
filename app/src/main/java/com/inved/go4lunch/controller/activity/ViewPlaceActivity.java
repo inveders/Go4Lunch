@@ -119,7 +119,6 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
         //RecyclerView initialization
         mRecyclerWorkmates = findViewById(R.id.activity_view_place_recycler_view);
 
-
     }
 
     private void initializeViewPlace() {
@@ -129,9 +128,7 @@ public class ViewPlaceActivity extends BaseActivity implements WorkmatesAdapter.
             RestaurantHelper.getRestaurant(currentPlaceId).addOnSuccessListener(documentSnapshot -> {
                 Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
 
-
                 if (restaurant != null) {
-
 
                     restaurantName = restaurant.getRestaurantName();
                     restaurantAddress = restaurant.getRestaurantAddress();

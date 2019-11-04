@@ -126,7 +126,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     BottomNavigationView bottomNavigationView;
     ViewPager viewPager;
 
-
     //Localisation
 
     public static final String KEY_LOCATION_CHANGED = "DATA_ACTION";
@@ -137,16 +136,12 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     //Declaration for Navigation Drawer
     private Toolbar toolbar;
     private DrawerLayout drawerLayout;
-
-
-
-
     private FragmentRefreshListener fragmentRefreshListener;
+    private FragmentMapRefreshListener fragmentMapRefreshListener;
 
-    public interface FragmentRefreshListener {
+    public interface FragmentRefreshListener{
         void onRefresh();
     }
-
 
     public FragmentRefreshListener getFragmentRefreshListener() {
         return fragmentRefreshListener;
@@ -154,8 +149,20 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     public void setFragmentRefreshListener(FragmentRefreshListener fragmentRefreshListener) {
         this.fragmentRefreshListener = fragmentRefreshListener;
-
     }
+
+    public interface FragmentMapRefreshListener{
+        void onRefreshMap();
+    }
+
+    public FragmentMapRefreshListener getFragmentMapRefreshListener() {
+        return fragmentMapRefreshListener;
+    }
+
+    public void setFragmentMapRefreshListener(FragmentMapRefreshListener fragmentMapRefreshListener) {
+        this.fragmentMapRefreshListener = fragmentMapRefreshListener;
+    }
+
 
 
 
@@ -172,7 +179,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
         initializeJobLatLng();
         this.configureToolBar();
-
 
         checkLocation();
         //Bottom Navigation View
@@ -305,6 +311,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         clearItem.setOnMenuItemClickListener(menuItem -> {
             ManageAutocompleteResponse.saveAutocompleteStringResponse(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME, null);
             ManageAutocompleteResponse.saveAutocompleteStringResponse(this, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID, null);
+
             refreshFragment();
 
             menu.findItem(R.id.action_search).setVisible(true);
@@ -320,10 +327,13 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     private void refreshFragment() {
 
-        if (getFragmentRefreshListener() != null) {
+        if(getFragmentRefreshListener()!=null){
             getFragmentRefreshListener().onRefresh();
         }
 
+        if(getFragmentMapRefreshListener()!=null){
+            getFragmentMapRefreshListener().onRefreshMap();
+        }
     }
 
     //PLACE AUTOCOMPLETE
@@ -398,11 +408,11 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
                             }
 
                             if (ManageAutocompleteResponse.getStringAutocomplete((this), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID) == null) {
-                                Log.d("debago","Restaurant 1 ");
+
                                 dialogToInformThatIsNotRestaurant();
                             } else {
                                 if (ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_normal))) {
-                                    Log.d("debago","Restaurant 2 ");
+
                                     if (getCurrentUser() != null) {
                                         //We check if the autocomplete placeId is in our firebase normal mode.
                                         RestaurantInNormalModeHelper.getRestaurant(this.getCurrentUser().getUid(), placeId).addOnSuccessListener(documentSnapshot -> {
@@ -410,6 +420,8 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
                                             if (documentSnapshot.getString("restaurantPlaceId") == null) {
 
                                                 dialogToGoInViewPlaceIfAutocomplete(placeId);
+                                            }else{
+                                                refreshFragment();
                                             }
 
                                         });

@@ -72,7 +72,7 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
     private ArrayList<Restaurant> restaurantArrayList;
     private Context context = App.getInstance().getApplicationContext();
     private SwipeRefreshLayout mSwipeRefreshLayout;
-
+    private String appMode=ManageAppMode.getAppMode(App.getInstance().getApplicationContext());
 
     //Receive current localisation from Localisation.class
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -120,8 +120,8 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
 
         mSwipeRefreshLayout.setOnRefreshListener(() -> mRecyclerListViewAdapter.refresh());
 
-        if (getActivity() != null) {
-            ((RestaurantActivity) getActivity()).setFragmentRefreshListener(this::getRestaurantNameFromAutocomplete);
+        if(getActivity()!=null){
+            ((RestaurantActivity)getActivity()).setFragmentRefreshListener(this::getRestaurantNameFromAutocomplete);
         }
 
 
@@ -151,7 +151,7 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
             clearItem.setVisible(true);
             clearItem.setOnMenuItemClickListener(menuItem -> {
 
-                ((RestaurantActivity) Objects.requireNonNull(getActivity())).setFragmentRefreshListener(this::getRestaurantNameFromAutocomplete);
+              //  ((RestaurantActivity) Objects.requireNonNull(getActivity())).setFragmentRefreshListenerInterfaceCallback(this::getRestaurantNameFromAutocomplete);
                 menu.findItem(R.id.action_search).setVisible(true);
                 menu.findItem(R.id.action_clear).setVisible(false);
 
@@ -164,7 +164,7 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
 
     private void loadDataFromFirebaseFilter(String mQuery) {
 
-        if (ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_work)) || ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_forced_work))) {
+        if (appMode.equals(getString(R.string.app_mode_work)) || appMode.equals(getString(R.string.app_mode_forced_work))) {
             displayFilterRestaurantsInWorkMode(mQuery);
         } else {
             displayFilterRestaurantInNormalMode(mQuery);
@@ -257,7 +257,7 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
                                         openMinutes = restaurant.getOpenMinutes();
                                         closeMinutes = restaurant.getCloseMinutes();
 
-                                        Restaurant restaurantObject = new Restaurant(restaurantPlaceId, restaurantCustomers, 0, ManageJobPlaceId.getJobPlaceId(App.getInstance().getApplicationContext()),
+                                        Restaurant restaurantObject = new Restaurant(restaurantPlaceId, restaurantCustomers, 0, ManageJobPlaceId.getJobPlaceId(context),
                                                 restaurantName, rating, isOpenForLunch, distance, openHours, closeHours, restaurantAddress, 0.0, 0.0,
                                                 null, null, openMinutes, closeMinutes);
 
@@ -314,11 +314,13 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
     private void getRestaurantNameFromAutocomplete() {
 
         String restaurantNameFromAutocomplete = ManageAutocompleteResponse.getStringAutocomplete((context), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME);
+
         if (restaurantNameFromAutocomplete != null) {
 
             if (restaurantNameFromAutocomplete.isEmpty()) {
                 loadDataFromFirebase();
             } else {
+
                 loadDataFromFirebaseFilter(restaurantNameFromAutocomplete);
                 //  initializeSharedPreferences();
             }
@@ -335,7 +337,7 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
     }
 
     private void initializeSharedPreferences() {
-        ManageAutocompleteResponse.saveAutocompleteStringResponse(Objects.requireNonNull(getContext()), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME, null);
+        ManageAutocompleteResponse.saveAutocompleteStringResponse(context, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME, null);
     }
 
     //FIRESTORE RECYCLER VIEW
