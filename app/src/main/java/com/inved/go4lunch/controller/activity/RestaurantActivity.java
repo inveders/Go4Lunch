@@ -138,6 +138,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     private DrawerLayout drawerLayout;
     private FragmentRefreshListener fragmentRefreshListener;
     private FragmentMapRefreshListener fragmentMapRefreshListener;
+    private FragmentPeopleRefreshListener fragmentPeopleRefreshListener;
 
     public interface FragmentRefreshListener{
         void onRefresh();
@@ -161,6 +162,18 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     public void setFragmentMapRefreshListener(FragmentMapRefreshListener fragmentMapRefreshListener) {
         this.fragmentMapRefreshListener = fragmentMapRefreshListener;
+    }
+
+    public interface FragmentPeopleRefreshListener{
+        void onRefreshPeople();
+    }
+
+    public FragmentPeopleRefreshListener getFragmentPeopleRefreshListener() {
+        return fragmentPeopleRefreshListener;
+    }
+
+    public void setFragmentPeopleRefreshListener(FragmentPeopleRefreshListener fragmentPeopleRefreshListener) {
+        this.fragmentPeopleRefreshListener = fragmentPeopleRefreshListener;
     }
 
 
@@ -333,6 +346,10 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
         if(getFragmentMapRefreshListener()!=null){
             getFragmentMapRefreshListener().onRefreshMap();
+        }
+
+        if(getFragmentPeopleRefreshListener()!=null){
+            getFragmentPeopleRefreshListener().onRefreshPeople();
         }
     }
 

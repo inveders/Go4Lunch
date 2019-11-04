@@ -41,7 +41,7 @@ public class PeopleFragment extends Fragment implements WorkmatesAdapter.Listene
         textViewNoWorkmatesInNormalMode = mView.findViewById(R.id.fragment_people_textview_no_workmates);
 
         if(getActivity()!=null){
-        //    ((RestaurantActivity) getActivity()).setFragmentRefreshListenerInterfaceCallback(this::initializePage);
+            ((RestaurantActivity) getActivity()).setFragmentPeopleRefreshListener(this::initializePage);
         }
 
         initializePage();
