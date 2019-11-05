@@ -15,6 +15,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.controller.activity.ViewPlaceActivity;
+import com.inved.go4lunch.domain.ConvertWorkmatesList;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.utils.ManageAppMode;
@@ -94,7 +95,7 @@ public class NotificationsActivity extends BaseActivity {
                                 }
                                 for (int i = 0; i <workmates.size() ; i++) {
                                     if(workmates.get(i).equals(currentUser.getFirstname())){
-                                        Log.d("debago","Workmates before suppress : "+workmates.get(i));
+
                                         workmates.remove(i);
                                     }
 
@@ -151,16 +152,10 @@ public class NotificationsActivity extends BaseActivity {
                 notificationMessageWorkmates.setText(getString(R.string.notification_message_no_workmates_with_you));
             }
             else{
-                String workmatesList = "";
-                String newligne=System.getProperty("line.separator");
-                StringBuilder sb = new StringBuilder();
 
-                for (String s : workmates)
-                {
-                    sb.append(workmatesList);
-                            sb.append(s);
-                            sb.append("\n");
-                }
+                ConvertWorkmatesList convertWorkmatesList = new ConvertWorkmatesList();
+                String newligne=System.getProperty("line.separator");
+                String sb =convertWorkmatesList.convertListToString(workmates);
 
                 notificationMessageWorkmates.setText(getString(R.string.notification_message_workmates,newligne,sb));
             }
