@@ -97,7 +97,8 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     private Dialog mDialog;
     public static final String TAG = "Debago";
     private static final int AUTOCOMPLETE_REQUEST_CODE = 645;
-
+    private String appMode ;
+    private int numberLocationChange;
     //FOR LOCATION
 
     Location location; // location
@@ -117,6 +118,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     //FOR DATA
     private ResultModel resultModel;
+    LocationManager lm;
     MenuItem logout;
     TextView navFirstname;
     TextView navLastname;
@@ -198,10 +200,10 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         //Bottom Navigation View
         bottomNavigationView = findViewById(R.id.activity_restaurant_bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-
+        appMode= ManageAppMode.getAppMode(this);
         //NavigationDrawer
         logout = findViewById(R.id.activity_main_drawer_logout);
-
+        numberLocationChange=0;
         // Initialize Places.
         if (!Places.isInitialized()) {
             Places.initialize(getApplicationContext(), MAP_API_KEY);
@@ -244,7 +246,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     private void checkLocation() {
 
         //Subscribe to providers
-        LocationManager lm = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        lm = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
         if (lm != null) {
             if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -341,6 +343,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     private void refreshFragment() {
 
+
         if(getFragmentRefreshListener()!=null){
             getFragmentRefreshListener().onRefresh();
         }
@@ -429,7 +432,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
                                 dialogToInformThatIsNotRestaurant();
                             } else {
-                                if (ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_normal))) {
+                                if (appMode.equals(getString(R.string.app_mode_normal))) {
 
                                     if (getCurrentUser() != null) {
                                         //We check if the autocomplete placeId is in our firebase normal mode.
@@ -751,8 +754,11 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         intent.putExtra(KEY_LONGITUDE, getLongitude());
         LocalBroadcastManager.getInstance(RestaurantActivity.this).sendBroadcast(intent);
 
-        fillFirebase(getLatitude(), getLongitude());
-        this.checkDistanceFromWork(currentGeolocalisation, ManageJobPlaceId.getJobPlaceId(this), getLatitude(), getLongitude());
+        if(numberLocationChange==0){
+            fillFirebase(getLatitude(), getLongitude());
+            this.checkDistanceFromWork(currentGeolocalisation, ManageJobPlaceId.getJobPlaceId(this), getLatitude(), getLongitude());
+            numberLocationChange++;
+        }
 
     }
 
@@ -883,7 +889,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         resultModel.getMatrixDistance(origins, destinations).observe(this, result -> {
 
             int distance;
-            String appMode = ManageAppMode.getAppMode(this);
+
             try {
 
                 distance = (result.get(0).getElements().get(0).getDistance().getValue()) / 1000;
@@ -925,7 +931,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     public void changeMode(boolean workModeDesired, Double lat, Double longi) {
         if (workModeDesired) {
-            if (ManageAppMode.getAppMode(this).equals(getString(R.string.app_mode_work))) {
+            if (appMode.equals(getString(R.string.app_mode_work))) {
                 ManageAppMode.saveAppMode(this, getString(R.string.app_mode_forced_work));
             } else {
                 ManageAppMode.saveAppMode(this, getString(R.string.app_mode_work));
@@ -937,6 +943,8 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
             ManageAppMode.saveAppMode(this, getString(R.string.app_mode_normal));
             Toast.makeText(this, getString(R.string.app_mode_change_to_normal_mode), Toast.LENGTH_SHORT).show();
         }
+
+        refreshFragment();
         fillFirebase(lat, longi);
     }
 

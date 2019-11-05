@@ -1,6 +1,7 @@
 package com.inved.go4lunch.controller.fragment;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +28,7 @@ import com.inved.go4lunch.view.WorkmatesAdapter;
 public class PeopleFragment extends Fragment implements WorkmatesAdapter.Listener{
 
     private RecyclerView mRecyclerWorkmates;
-    private String appMode = ManageAppMode.getAppMode(App.getInstance().getApplicationContext());
+    private String appMode ;
     private TextView textViewNoWorkmatesInNormalMode;
 
     @Nullable
@@ -36,12 +37,16 @@ public class PeopleFragment extends Fragment implements WorkmatesAdapter.Listene
 
         View mView = inflater.inflate(R.layout.fragment_people, container, false);
 
+
         //RecyclerView initialization
         mRecyclerWorkmates = mView.findViewById(R.id.fragment_people_recycler_view);
         textViewNoWorkmatesInNormalMode = mView.findViewById(R.id.fragment_people_textview_no_workmates);
 
         if(getActivity()!=null){
+            appMode=ManageAppMode.getAppMode(getActivity());
             ((RestaurantActivity) getActivity()).setFragmentPeopleRefreshListener(this::initializePage);
+        }else{
+            appMode=ManageAppMode.getAppMode(App.getInstance().getApplicationContext());
         }
 
         initializePage();
@@ -51,6 +56,10 @@ public class PeopleFragment extends Fragment implements WorkmatesAdapter.Listene
     }
 
     private void initializePage() {
+        if(getActivity()!=null){
+            appMode=ManageAppMode.getAppMode(getActivity());
+
+        }
         if (!appMode.equals(App.getResourses().getString(R.string.app_mode_normal))) {
             displayAllWorkmates();
         }else{

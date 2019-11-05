@@ -1,9 +1,6 @@
 package com.inved.go4lunch.controller.fragment;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,7 +15,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -44,11 +40,6 @@ import com.inved.go4lunch.view.RecyclerViewListViewRestaurantSorted;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Objects;
-
-import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_GEOLOCALISATION;
-import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LOCATION_CHANGED;
-import static com.inved.go4lunch.controller.activity.RestaurantActivity.PLACE_SEARCH_DATA;
 
 public class ListViewFragment extends Fragment implements RecyclerViewListViewRestaurant.Listener {
 
@@ -56,7 +47,6 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
     private RecyclerViewListViewRestaurantSorted mRecyclerListViewSortedAdapter;
     private RecyclerView mRecyclerListView;
     private TextView textViewNoRestaurantFound;
-    private String myLastGeolocalisation = null;
     private FloatingActionButton filterButton;
     private String restaurantName;
     private String restaurantAddress;
@@ -72,26 +62,7 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
     private ArrayList<Restaurant> restaurantArrayList;
     private Context context = App.getInstance().getApplicationContext();
     private SwipeRefreshLayout mSwipeRefreshLayout;
-    private String appMode=ManageAppMode.getAppMode(App.getInstance().getApplicationContext());
-
-    //Receive current localisation from Localisation.class
-    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (KEY_LOCATION_CHANGED.equals(intent.getAction())) {
-                intent.getSerializableExtra(KEY_GEOLOCALISATION);
-                String myCurrentGeolocalisation = intent.getStringExtra(KEY_GEOLOCALISATION);
-
-                if (!(myCurrentGeolocalisation != null && myCurrentGeolocalisation.equals(myLastGeolocalisation))) {
-                    myLastGeolocalisation = myCurrentGeolocalisation;
-                }
-
-            }
-
-
-        }
-    };
-
+    private String appMode;
 
     @Nullable
     @Override
@@ -112,8 +83,6 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
         //Choose how to display the list in the RecyclerView (vertical or horizontal)
         mRecyclerListView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
         mRecyclerListView.addItemDecoration(new DividerItemDecoration(mRecyclerListView.getContext(), DividerItemDecoration.VERTICAL));
-        LocalBroadcastManager.getInstance(Objects.requireNonNull(getContext())).registerReceiver(broadcastReceiver, new IntentFilter(KEY_LOCATION_CHANGED));
-        LocalBroadcastManager.getInstance(getContext()).registerReceiver(broadcastReceiver, new IntentFilter(PLACE_SEARCH_DATA));
 
         filterButton = mView.findViewById(R.id.fragment_list_view_sort_button);
         actionOnFloatingButton();
@@ -121,7 +90,10 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
         mSwipeRefreshLayout.setOnRefreshListener(() -> mRecyclerListViewAdapter.refresh());
 
         if(getActivity()!=null){
+            appMode=ManageAppMode.getAppMode(getActivity());
             ((RestaurantActivity)getActivity()).setFragmentRefreshListener(this::getRestaurantNameFromAutocomplete);
+        }else{
+            appMode=ManageAppMode.getAppMode(App.getInstance().getApplicationContext());
         }
 
 
@@ -131,9 +103,12 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
 
     private void loadDataFromFirebase() {
 
-        if (ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_work)) || ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_forced_work))) {
+        if (appMode.equals(getString(R.string.app_mode_work)) || appMode.equals(getString(R.string.app_mode_forced_work))) {
+
+
             displayAllRestaurantsInWorkMode();
         } else {
+
             displayAllRestaurantsInNormalMode();
         }
 
@@ -185,7 +160,7 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
                     restaurantArrayList.clear();
                 }
 
-                if (!ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_normal))) {
+                if (!appMode.equals(getString(R.string.app_mode_normal))) {
                      RestaurantHelper.getAllRestaurants().get().addOnCompleteListener(task -> {
 
                         if (task.getResult() != null) {
@@ -313,7 +288,11 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
 
     private void getRestaurantNameFromAutocomplete() {
 
-        String restaurantNameFromAutocomplete = ManageAutocompleteResponse.getStringAutocomplete((context), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME);
+        if(getActivity()!=null){
+            appMode=ManageAppMode.getAppMode(getActivity());
+
+        }
+         String restaurantNameFromAutocomplete = ManageAutocompleteResponse.getStringAutocomplete((context), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_NAME);
 
         if (restaurantNameFromAutocomplete != null) {
 

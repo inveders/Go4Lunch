@@ -8,7 +8,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,6 +60,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     private Marker mMarker;
     private double myCurrentLat;
     private double myCurrentLongi;
+    private String appMode ;
     //Progress bar
     private ProgressBar mProgressBar;
 
@@ -111,11 +111,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         actionOnFloatingButton();
 
         if(getActivity()!=null){
+            appMode=ManageAppMode.getAppMode(getActivity());
             ((RestaurantActivity)getActivity()).setFragmentMapRefreshListener(this::initializeMap);
+        }else{
+            appMode=ManageAppMode.getAppMode(App.getInstance().getApplicationContext());
         }
 
         initializeMap();
-
 
         return mView;
     }
@@ -182,7 +184,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
     private void initializeMap() {
 
+        if(getActivity()!=null){
+            appMode=ManageAppMode.getAppMode(getActivity());
 
+        }
         showProgressBar();
         String sharedPreferenceRestaurantPlaceId = ManageAutocompleteResponse.getStringAutocomplete((context), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID);
 
@@ -201,7 +206,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         } else {
 
 
-            if (ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_work)) || ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_forced_work))) {
+            if (appMode.equals(getString(R.string.app_mode_work)) || appMode.equals(getString(R.string.app_mode_forced_work))) {
                 RestaurantHelper.getAllRestaurants().get().addOnSuccessListener(queryDocumentSnapshots -> {
 
                     for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
@@ -279,7 +284,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
 
-            if (ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_work)) || ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_forced_work))) {
+            if (appMode.equals(getString(R.string.app_mode_work)) || appMode.equals(getString(R.string.app_mode_forced_work))) {
 
                 RestaurantHelper.getRestaurant(restaurantPlaceId).addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -383,7 +388,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         LatLng savedLatLngJob = new LatLng(savedJobLatitude,savedJobLongitude);
 
         if(mGoogleMap!=null){
-            if(ManageAppMode.getAppMode(context).equals(getString(R.string.app_mode_normal))){
+            if(appMode.equals(getString(R.string.app_mode_normal))){
                 if (myCurrentLat == 0.0) {
 
                     CameraPosition Liberty = CameraPosition.builder().target(saveLatLng).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();

@@ -56,7 +56,6 @@ public class NotificationsActivity extends BaseActivity {
         this.configureToolBar();
         firebaseInformations();
 
-
     }
 
     // Configure Toolbar
@@ -73,6 +72,7 @@ public class NotificationsActivity extends BaseActivity {
 
     private void firebaseInformations(){
 
+        showNotificationMessageText(null,null,null);
         if(this.getCurrentUser()!=null){
             UserHelper.getUserWhateverLocation(this.getCurrentUser().getUid()).get().addOnSuccessListener(queryDocumentSnapshots -> {
                 User currentUser = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
