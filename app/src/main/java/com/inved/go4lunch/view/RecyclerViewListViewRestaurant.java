@@ -56,16 +56,18 @@ public class RecyclerViewListViewRestaurant extends FirestorePagingAdapter<Resta
 
         super(options);
         this.callback = callback;
+        // Initialize Places.
+        Places.initialize(App.getInstance().getApplicationContext(), MAP_API_KEY);
+        // Create a new Places client instance.
+        placesClient = Places.createClient(App.getInstance().getApplicationContext());
+
     }
 
     @NonNull
     @Override
     public RecyclerViewListViewRestaurant.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-        // Initialize Places.
-        Places.initialize(App.getInstance().getApplicationContext(), MAP_API_KEY);
-        // Create a new Places client instance.
-        placesClient = Places.createClient(App.getInstance().getApplicationContext());
+
 
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_listview_item, parent, false);
 
