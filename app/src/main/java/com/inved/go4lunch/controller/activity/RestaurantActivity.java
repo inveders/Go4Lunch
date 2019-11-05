@@ -63,6 +63,7 @@ import com.inved.go4lunch.controller.fragment.FragmentAdapter;
 import com.inved.go4lunch.controller.fragment.ListViewFragment;
 import com.inved.go4lunch.controller.fragment.MapFragment;
 import com.inved.go4lunch.controller.fragment.PeopleFragment;
+import com.inved.go4lunch.domain.UnitConversion;
 import com.inved.go4lunch.firebase.RestaurantHelper;
 import com.inved.go4lunch.firebase.RestaurantInNormalModeHelper;
 import com.inved.go4lunch.firebase.User;
@@ -358,8 +359,8 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     private void startAutocompleteWidgetShow() {
 
         RectangularBounds boundsRect = RectangularBounds.newInstance(
-                new LatLng(calculateBound("SW_LAT"), calculateBound("SW_LNG")),
-                new LatLng(calculateBound("NE_LAT"), calculateBound("NE_LNG")));
+                new LatLng(calculateBound("SW_LAT",getLatitude(),getLongitude()), calculateBound("SW_LNG",getLatitude(),getLongitude())),
+                new LatLng(calculateBound("NE_LAT",getLatitude(),getLongitude()), calculateBound("NE_LNG",getLatitude(),getLongitude())));
 
         Intent intent = new Autocomplete.IntentBuilder(
                 AutocompleteActivityMode.OVERLAY, fieldsAutocomplete)
@@ -474,9 +475,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
                     }
 
 
-
-
-
                 }
 
 
@@ -496,16 +494,15 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         }
     }
 
-    public double calculateBound(String lat_long) {
+    public double calculateBound(String lat_long,double lat_center,double longi_center) {
 
+        UnitConversion unitConversion = new UnitConversion();
         double eartch_circumference = 40075.04;
         double distance_in_meter = 15000;
         double distance_in_km = distance_in_meter / 1000;
-        double lat_center = getLatitude();
-        double longi_center = getLongitude();
 
         double north_south_move = (360 * distance_in_km) / eartch_circumference;
-        double east_west_move = (360 * distance_in_km) / (eartch_circumference * cos(convertInRadians(lat_center)));
+        double east_west_move = (360 * distance_in_km) / (eartch_circumference * cos(unitConversion.convertDegreInRadians(lat_center)));
 
         double north_east_lat = lat_center + north_south_move;
         double north_east_longi = longi_center + east_west_move;
@@ -529,10 +526,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
                 return 0.0;
         }
 
-    }
-
-    private double convertInRadians(double degre) {
-        return Math.PI / (180 * degre);
     }
 
     private void startViewPlaceActivity(String autocompletePlaceId) {

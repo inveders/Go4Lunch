@@ -9,14 +9,15 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.model.OpeningHours;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.inved.go4lunch.R;
+import com.inved.go4lunch.domain.OpeningHoursCalculation;
 import com.inved.go4lunch.domain.RatingCalcul;
+import com.inved.go4lunch.domain.UnitConversion;
 import com.inved.go4lunch.firebase.RestaurantHelper;
 import com.inved.go4lunch.firebase.RestaurantInNormalModeHelper;
 import com.inved.go4lunch.model.placesearch.PlaceSearch;
@@ -28,7 +29,6 @@ import com.inved.go4lunch.utils.ListDay;
 import com.inved.go4lunch.utils.ManageAppMode;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
 import com.inved.go4lunch.utils.ManagePosition;
-import com.inved.go4lunch.domain.UnitConversion;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -385,16 +385,16 @@ public class NearbyRestaurantsRepository {
         double longi;
         //DISTANCE
         if (latitude != 0 || longitude != 0) {
-            double latitudeRestaurant = unitConversion.convertRad(latitude);
-            double longitudeRestaurant = unitConversion.convertRad(longitude);
+            double latitudeRestaurant = unitConversion.convertDegreInRadians(latitude);
+            double longitudeRestaurant = unitConversion.convertDegreInRadians(longitude);
 
             if(appMode.equals(App.getResourses().getString(R.string.app_mode_work)) || appMode.equals(App.getResourses().getString(R.string.app_mode_forced_work))){
                 String[] latlongJob =  ManagePosition.getPosition(context, KEY_POSITION_JOB_LAT_LNG_DATA).split(",");
-                lat = unitConversion.convertRad(Double.parseDouble(latlongJob[0]));
-                longi = unitConversion.convertRad(Double.parseDouble(latlongJob[1]));
+                lat = unitConversion.convertDegreInRadians(Double.parseDouble(latlongJob[0]));
+                longi = unitConversion.convertDegreInRadians(Double.parseDouble(latlongJob[1]));
             }else{
-                lat = unitConversion.convertRad(myCurrentLat);
-                longi = unitConversion.convertRad(myCurrentLongi);
+                lat = unitConversion.convertDegreInRadians(myCurrentLat);
+                longi = unitConversion.convertDegreInRadians(myCurrentLongi);
             }
 
 
@@ -411,350 +411,6 @@ public class NearbyRestaurantsRepository {
 
     }
 
-    @SuppressWarnings("ConstantConditions")
-    private int openHoursCalcul(OpeningHours openingHours) {
-
-        if (openingHours != null) {
-            //if getpriod.size equal to 7
-            if (openingHours.getPeriods().size() == 7) {
-
-                if (openingHours.getPeriods().get(day).getOpen() != null) {
-                    return openingHours.getPeriods().get(day).getOpen().getTime().getHours();
-                }
-            } else {
-                //if getpriod.size is different from 7
-                if (openingHours.getPeriods().size() != 0) {
-
-                    for (int i = 0; i < openingHours.getPeriods().size(); i++) {
-
-                        if ((openingHours.getPeriods().get(i).getOpen().getDay().toString()).equals(stringCurrentDay)) {
-
-
-                            //Current hour is less than open hour
-                            if (currentHour < openingHours.getPeriods().get(i).getOpen().getTime().getHours()) {
-                                int myOccurrence = 0;
-                                //We check if there is other same day in the list
-                                for (int y = 0; y < openingHours.getPeriods().size(); y++) {
-                                    if ((openingHours.getPeriods().get(y).getOpen().getDay().toString()).equals(stringCurrentDay)) {
-
-                                        if (y != i) {
-                                            myOccurrence = y;
-                                        }
-
-                                    }
-                                }
-
-                                //if I have a second even day I check wich is near from my current hour
-                                if (myOccurrence != 0) {
-                                    int hourOne = openingHours.getPeriods().get(i).getOpen().getTime().getHours();
-                                    int hourTwo = openingHours.getPeriods().get(myOccurrence).getOpen().getTime().getHours();
-                                    if (hourOne - currentHour >= 0 && Math.abs(hourOne - currentHour) <= Math.abs(hourTwo - currentHour)) {
-
-                                        return openingHours.getPeriods().get(i).getOpen().getTime().getHours();
-                                    } else {
-                                        return openingHours.getPeriods().get(myOccurrence).getOpen().getTime().getHours();
-                                    }
-                                }
-                                //Else I take only the one
-                                else {
-                                    return openingHours.getPeriods().get(i).getOpen().getTime().getHours();
-                                }
-                            } else if (currentHour > openingHours.getPeriods().get(i).getOpen().getTime().getHours()) {
-
-                                if (openingHours.getPeriods().get(i).getClose() != null) {
-                                    if (currentHour < openingHours.getPeriods().get(i).getClose().getTime().getHours()) {
-
-                                        return openingHours.getPeriods().get(i).getOpen().getTime().getHours();
-                                    }
-                                }
-
-
-                            }
-
-                        }
-
-                    }
-
-                    int noResultFound = 0;
-                    for (int i = 0; i < openingHours.getPeriods().size(); i++) {
-                        if ((openingHours.getPeriods().get(i).getOpen().getDay().toString()).equals(stringCurrentDay)) {
-                            noResultFound = i;
-
-                        }
-                    }
-                    if (noResultFound == 0) {
-                        return -1;
-                    }
-
-
-                }
-                //if getpriod.size is 0
-                else {
-                    return -1;
-                }
-
-            }
-
-        }
-        return -1;
-
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    private int openMinutesCalcul(OpeningHours openingHours) {
-
-        if (openingHours != null) {
-
-            //if getpriod.size equal to 7
-            if (openingHours.getPeriods().size() == 7) {
-
-
-                if (openingHours.getPeriods().get(day).getOpen() != null) {
-                    return openingHours.getPeriods().get(day).getOpen().getTime().getMinutes();
-                }
-            } else {
-                //if getpriod.size is different from 7
-                if (openingHours.getPeriods().size() != 0) {
-
-                    for (int i = 0; i < openingHours.getPeriods().size(); i++) {
-
-                        if ((openingHours.getPeriods().get(i).getOpen().getDay().toString()).equals(stringCurrentDay)) {
-
-                            //Current hour is less than open hour
-                            if (currentHour < openingHours.getPeriods().get(i).getOpen().getTime().getHours()) {
-                                int myOccurrence = 0;
-                                //We check if there is other same day in the list
-                                for (int y = 0; y < openingHours.getPeriods().size(); y++) {
-                                    if ((openingHours.getPeriods().get(y).getOpen().getDay().toString()).equals(stringCurrentDay)) {
-                                        if (y != i) {
-                                            myOccurrence = y;
-                                        }
-
-                                    }
-                                }
-                                //if I have a second even day I check wich is near from my current hour
-                                if (myOccurrence != 0) {
-                                    int hourOne = openingHours.getPeriods().get(i).getOpen().getTime().getHours();
-                                    int hourTwo = openingHours.getPeriods().get(myOccurrence).getOpen().getTime().getHours();
-                                    if (hourOne - currentHour >= 0 && Math.abs(hourOne - currentHour) <= Math.abs(hourTwo - currentHour)) {
-                                        return openingHours.getPeriods().get(i).getOpen().getTime().getMinutes();
-                                    } else {
-
-                                        return openingHours.getPeriods().get(myOccurrence).getOpen().getTime().getMinutes();
-                                    }
-                                }
-                                //Else I take only the one
-                                else {
-                                    return openingHours.getPeriods().get(i).getOpen().getTime().getMinutes();
-                                }
-                            } else if (currentHour > openingHours.getPeriods().get(i).getOpen().getTime().getHours()) {
-                                if (openingHours.getPeriods().get(i).getClose() != null) {
-                                    if (currentHour < openingHours.getPeriods().get(i).getClose().getTime().getHours()) {
-                                        return openingHours.getPeriods().get(i).getOpen().getTime().getMinutes();
-                                    }
-                                }
-
-
-                            }
-
-                        }
-
-                    }
-
-                    int noResultFound = 0;
-                    for (int i = 0; i < openingHours.getPeriods().size(); i++) {
-                        if ((openingHours.getPeriods().get(i).getOpen().getDay().toString()).equals(stringCurrentDay)) {
-                            noResultFound = i;
-
-                        }
-                    }
-                    if (noResultFound == 0) {
-                        return -1;
-                    }
-
-
-                }
-                //if getpriod.size is 0
-                else {
-                    return -1;
-                }
-
-            }
-
-        }
-        return -1;
-
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    private int closeHoursCalcul(OpeningHours openingHours) {
-
-        if (openingHours != null) {
-
-            //if getpriod.size equal to 7
-            if (openingHours.getPeriods().size() == 7) {
-
-                if (openingHours.getPeriods().get(day).getOpen() != null) {
-                    return openingHours.getPeriods().get(day).getClose().getTime().getHours();
-                }
-            } else {
-                //if getpriod.size is different from 7
-                if (openingHours.getPeriods().size() != 0) {
-
-                    for (int i = 0; i < openingHours.getPeriods().size(); i++) {
-
-                        if ((openingHours.getPeriods().get(i).getOpen().getDay().toString()).equals(stringCurrentDay)) {
-
-                            //Current hour is less than open hour
-                            if (currentHour < openingHours.getPeriods().get(i).getOpen().getTime().getHours()) {
-                                int myOccurrence = 0;
-                                //We check if there is other same day in the list
-                                for (int y = 0; y < openingHours.getPeriods().size(); y++) {
-                                    if ((openingHours.getPeriods().get(y).getOpen().getDay().toString()).equals(stringCurrentDay)) {
-                                        if (y != i) {
-                                            myOccurrence = y;
-                                        }
-
-                                    }
-                                }
-                                //if I have a second even day I check wich is near from my current hour
-                                if (myOccurrence != 0) {
-                                    int hourOne = openingHours.getPeriods().get(i).getOpen().getTime().getHours();
-                                    int hourTwo = openingHours.getPeriods().get(myOccurrence).getOpen().getTime().getHours();
-                                    if (hourOne - currentHour >= 0 && Math.abs(hourOne - currentHour) <= Math.abs(hourTwo - currentHour)) {
-                                        return openingHours.getPeriods().get(i).getClose().getTime().getHours();
-                                    } else {
-
-                                        return openingHours.getPeriods().get(myOccurrence).getClose().getTime().getHours();
-                                    }
-                                }
-                                //Else I take only the one
-                                else {
-                                    return openingHours.getPeriods().get(i).getClose().getTime().getHours();
-                                }
-                            } else if (currentHour > openingHours.getPeriods().get(i).getOpen().getTime().getHours()) {
-                                if (openingHours.getPeriods().get(i).getClose() != null) {
-                                    if (currentHour < openingHours.getPeriods().get(i).getClose().getTime().getHours()) {
-                                        return openingHours.getPeriods().get(i).getClose().getTime().getHours();
-                                    }
-                                }
-
-
-                            }
-
-                        }
-
-                    }
-
-                    int noResultFound = 0;
-                    for (int i = 0; i < openingHours.getPeriods().size(); i++) {
-                        if ((openingHours.getPeriods().get(i).getOpen().getDay().toString()).equals(stringCurrentDay)) {
-                            noResultFound = i;
-
-                        }
-                    }
-                    if (noResultFound == 0) {
-                        return -1;
-                    }
-
-
-                }
-                //if getpriod.size is 0
-                else {
-                    return -1;
-                }
-
-            }
-
-        }
-        return -1;
-
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    private int closeMinutesCalcul(OpeningHours openingHours) {
-
-        if (openingHours != null) {
-
-            //if getpriod.size equal to 7
-            if (openingHours.getPeriods().size() == 7) {
-
-                if (openingHours.getPeriods().get(day).getOpen() != null) {
-                    return openingHours.getPeriods().get(day).getClose().getTime().getMinutes();
-                }
-            } else {
-                //if getpriod.size is different from 7
-                if (openingHours.getPeriods().size() != 0) {
-
-                    for (int i = 0; i < openingHours.getPeriods().size(); i++) {
-
-                        if ((openingHours.getPeriods().get(i).getOpen().getDay().toString()).equals(stringCurrentDay)) {
-
-                            //Current hour is less than open hour
-                            if (currentHour < openingHours.getPeriods().get(i).getOpen().getTime().getHours()) {
-                                int myOccurrence = 0;
-                                //We check if there is other same day in the list
-                                for (int y = 0; y < openingHours.getPeriods().size(); y++) {
-                                    if ((openingHours.getPeriods().get(y).getOpen().getDay().toString()).equals(stringCurrentDay)) {
-                                        if (y != i) {
-                                            myOccurrence = y;
-                                        }
-
-                                    }
-                                }
-                                //if I have a second even day I check wich is near from my current hour
-                                if (myOccurrence != 0) {
-                                    int hourOne = openingHours.getPeriods().get(i).getOpen().getTime().getHours();
-                                    int hourTwo = openingHours.getPeriods().get(myOccurrence).getOpen().getTime().getHours();
-                                    if (hourOne - currentHour >= 0 && Math.abs(hourOne - currentHour) <= Math.abs(hourTwo - currentHour)) {
-                                        return openingHours.getPeriods().get(i).getClose().getTime().getMinutes();
-                                    } else {
-
-                                        return openingHours.getPeriods().get(myOccurrence).getClose().getTime().getMinutes();
-                                    }
-                                }
-                                //Else I take only the one
-                                else {
-                                    return openingHours.getPeriods().get(i).getClose().getTime().getMinutes();
-                                }
-                            } else if (currentHour > openingHours.getPeriods().get(i).getOpen().getTime().getHours()) {
-                                if (openingHours.getPeriods().get(i).getClose() != null) {
-                                    if (currentHour < openingHours.getPeriods().get(i).getClose().getTime().getHours()) {
-                                        return openingHours.getPeriods().get(i).getClose().getTime().getMinutes();
-                                    }
-                                }
-
-
-                            }
-
-                        }
-
-                    }
-
-                    int noResultFound = 0;
-                    for (int i = 0; i < openingHours.getPeriods().size(); i++) {
-                        if ((openingHours.getPeriods().get(i).getOpen().getDay().toString()).equals(stringCurrentDay)) {
-                            noResultFound = i;
-
-                        }
-                    }
-                    if (noResultFound == 0) {
-                        return -1;
-                    }
-
-
-                }
-                //if getpriod.size is 0
-                else {
-                    return -1;
-                }
-
-            }
-
-        }
-        return -1;
-
-    }
 
     private void fetchPlaceDetailRequest(String currentPlaceId) {
 
@@ -782,10 +438,11 @@ public class NearbyRestaurantsRepository {
                 website = "";
             }
 
-            openHours = openHoursCalcul(place.getOpeningHours());
-            openMinutes = openMinutesCalcul(place.getOpeningHours());
-            closeMinutes = closeMinutesCalcul(place.getOpeningHours());
-            closeHours = closeHoursCalcul(place.getOpeningHours());
+            OpeningHoursCalculation openingHoursCalculation = new OpeningHoursCalculation();
+            openHours = openingHoursCalculation.openHoursCalcul(place.getOpeningHours(),day,currentHour,stringCurrentDay);
+            openMinutes = openingHoursCalculation.openMinutesCalcul(place.getOpeningHours(),day,currentHour,stringCurrentDay);
+            closeMinutes = openingHoursCalculation.closeMinutesCalcul(place.getOpeningHours(),day,currentHour,stringCurrentDay);
+            closeHours = openingHoursCalculation.closeHoursCalcul(place.getOpeningHours(),day,currentHour,stringCurrentDay);
             openForLunch = openHours <= 12 && closeHours >= 13;
 
             if (appMode.equals(App.getResourses().getString(R.string.app_mode_work)) || appMode.equals(App.getResourses().getString(R.string.app_mode_forced_work))) {

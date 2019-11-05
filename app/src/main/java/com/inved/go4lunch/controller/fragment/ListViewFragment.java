@@ -402,15 +402,6 @@ public class ListViewFragment extends Fragment implements RecyclerViewListViewRe
                 .build();
     }
 
-
-
-   /* // Create options for RecyclerView from a Query
-    private FirestoreRecyclerOptions<Restaurant> generateOptionsForAdapter(Query query) {
-        return new FirestoreRecyclerOptions.Builder<Restaurant>()
-                .setQuery(query, Restaurant.class)
-                .setLifecycleOwner(this)
-                .build();
-    }*/
     // --------------------
     // CALLBACK
     // --------------------

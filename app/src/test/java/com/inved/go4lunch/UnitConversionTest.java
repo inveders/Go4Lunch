@@ -17,12 +17,13 @@ public class UnitConversionTest {
         double degre = 1000;
 
         //When
-        double radians = unitConversion.convertRad(degre);
+        double radians = unitConversion.convertDegreInRadians(degre);
 
         //Then
 
         Assert.assertEquals(17.453292519943293, radians,0.000001);
 
     }
+
 
 }

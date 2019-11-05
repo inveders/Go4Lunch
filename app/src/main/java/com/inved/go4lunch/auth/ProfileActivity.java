@@ -1,9 +1,6 @@
 package com.inved.go4lunch.auth;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Button;
@@ -14,7 +11,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -27,22 +23,15 @@ import com.inved.go4lunch.R;
 import com.inved.go4lunch.base.BaseActivity;
 import com.inved.go4lunch.controller.activity.FindMyJobAddressActivity;
 import com.inved.go4lunch.controller.activity.MainActivity;
-import com.inved.go4lunch.controller.activity.RestaurantActivity;
 import com.inved.go4lunch.firebase.User;
 import com.inved.go4lunch.firebase.UserHelper;
 import com.inved.go4lunch.utils.ManageAppMode;
 import com.inved.go4lunch.utils.ManageChangingWork;
-import com.inved.go4lunch.utils.ManageJobPlaceId;
 
 import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-
-import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_GEOLOCALISATION;
-import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LATITUDE;
-import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LOCATION_CHANGED;
-import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LONGITUDE;
 
 public class ProfileActivity extends BaseActivity {
 
@@ -228,9 +217,6 @@ public class ProfileActivity extends BaseActivity {
             UserHelper.getUserWhateverLocation(this.getCurrentUser().getUid()).get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
                         User currentUser = queryDocumentSnapshots.getDocuments().get(0).toObject(User.class);
-
-                        //    String firstname = TextUtils.isEmpty(currentUser.getFirstname()) ? getString(R.string.info_no_firstname_found) : currentUser.getFirstname();
-                        //  String lastname = TextUtils.isEmpty(currentUser.getLastname()) ? getString(R.string.info_no_lastname_found) : currentUser.getLastname();
 
                         assert currentUser != null;
                         String firstname = currentUser.getFirstname();
