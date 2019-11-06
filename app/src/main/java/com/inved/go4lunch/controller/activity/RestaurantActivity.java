@@ -11,6 +11,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -98,7 +99,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     //FOR LOCAL BROADCAST MANAGER
 
-    public static final String PLACE_SEARCH_DATA = "PLACE_SEARCH_DATA";
     private Dialog mDialog;
     public static final String TAG = "Debago";
     private static final int AUTOCOMPLETE_REQUEST_CODE = 645;
@@ -147,6 +147,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     private FragmentRefreshListener fragmentRefreshListener;
     private FragmentMapRefreshListener fragmentMapRefreshListener;
     private FragmentPeopleRefreshListener fragmentPeopleRefreshListener;
+
 
     public interface FragmentRefreshListener{
         void onRefresh();
@@ -268,8 +269,27 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
             if (lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
                 lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
             }
+            if ( !lm.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
+                buildAlertMessageNoGps();
+            }
+
         }
 
+    }
+
+    private void buildAlertMessageNoGps() {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.gps_disabled)
+                .setCancelable(false)
+                .setPositiveButton(getString(R.string.popup_message_choice_yes), (dialog, id) -> {
+                        startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                        refreshFragment();
+                        }
+                )
+                .setNegativeButton(getString(R.string.popup_message_choice_no), (dialog, id) -> dialog.cancel());
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 
     @Override

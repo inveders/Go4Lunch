@@ -137,4 +137,5 @@
     <string name="popup_message_choice_OK">OK</string>
     <string name="nav_drawer_menu_favorites">FAVORIS</string>
     <string name="toolbar_title_favorites_activity">Restaurants favoris</string>
+    <string name="gps_disabled">Votre GPS semble désactivé, souhaitez-vous l\'activer pour trouver des restaurants près de vous?</string>
 </resources>

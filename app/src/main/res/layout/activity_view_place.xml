@@ -10,7 +10,7 @@
     <ImageView
         android:id="@+id/activity_view_place_photo"
         android:layout_width="match_parent"
-        android:layout_height="280dp"
+        android:layout_height="280sp"
         android:scaleType="fitXY"
         android:adjustViewBounds="true"
         android:contentDescription="@string/fragment_people_item_image"
@@ -20,26 +20,27 @@
 
 
     <!-- DECLARING FLOATING ACTION BUTTON -->
+
+
+    <!-- NAME AND OTHERS -->
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/activity_view_place_floating_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
         android:clickable="true"
+        android:focusable="true"
+        android:src="@drawable/ic_check_white_24dp"
         app:backgroundTint="@color/red"
         app:fabSize="normal"
-        android:src="@drawable/ic_check_white_24dp"
         app:layout_constraintCircle="@id/activity_view_place_website_image"
-        app:layout_constraintCircleRadius="130dp"
-        app:layout_constraintCircleAngle="25"
-        app:layout_constraintLeft_toRightOf="@id/activity_view_place_website_image"
+        app:layout_constraintCircleRadius="120dp"
+        app:layout_constraintCircleAngle="15"
+        app:layout_constraintRight_toRightOf="@id/activity_view_place_website_image"
         app:layout_constraintTop_toTopOf="@id/activity_view_place_name"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginEnd="@dimen/default_margin"
-        android:focusable="true" />
 
+        />
 
-    <!-- NAME AND OTHERS -->
     <TextView
         android:id="@+id/activity_view_place_name"
         android:layout_width="wrap_content"
