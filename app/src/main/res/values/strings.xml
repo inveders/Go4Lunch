@@ -97,7 +97,8 @@
     <string name="open_hours_until">Open until %1dh%2d</string>
     <string name="open_hours_text_no_minutes">Opening to %dh</string>
     <string name="open_hours_until_no_minutes">Open until %dh</string>
-    <string name="distance_text" translatable="false">%1$s m</string>
+    <string name="distance_text_meter" translatable="false">%1$s m</string>
+    <string name="distance_text_km" translatable="false">%1$s km</string>
     <string name="no_opened_hours">No schedule for this day !</string>
 
     <!-- FRAGMENT RESTAURANT PEOPLE -->

@@ -117,7 +117,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     protected PlacesClient placesClient;
     List<Place.Field> fieldsAutocomplete;
 
-
     double latitude; // latitude
     double longitude; // longitude
 
@@ -163,6 +162,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
     public interface FragmentMapRefreshListener{
         void onRefreshMap();
+
     }
 
     public FragmentMapRefreshListener getFragmentMapRefreshListener() {
@@ -184,8 +184,6 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     public void setFragmentPeopleRefreshListener(FragmentPeopleRefreshListener fragmentPeopleRefreshListener) {
         this.fragmentPeopleRefreshListener = fragmentPeopleRefreshListener;
     }
-
-
 
 
     @Override
@@ -300,6 +298,8 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
     }
 
     public void fillFirebase(Double lat, Double longi) {
+
+
         checkPosition();
         resultModel.setNearbyRestaurantsInFirebase(lat, longi).observe(this, result -> refreshFragment());
 
@@ -351,9 +351,23 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
         final MenuItem searchItem = menu.findItem(R.id.action_search);
         searchItem.setOnMenuItemClickListener(menuItem -> {
-            startAutocompleteWidgetShow();
-            menu.findItem(R.id.action_search).setVisible(false);
-            menu.findItem(R.id.action_clear).setVisible(true);
+            lm = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+            if(lm!=null){
+                if ( !lm.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
+                    buildAlertMessageNoGps();
+                    menu.findItem(R.id.action_search).setVisible(true);
+                    menu.findItem(R.id.action_clear).setVisible(false);
+                }else{
+                    startAutocompleteWidgetShow();
+                    menu.findItem(R.id.action_search).setVisible(false);
+                    menu.findItem(R.id.action_clear).setVisible(true);
+                }
+            }else{
+                startAutocompleteWidgetShow();
+                menu.findItem(R.id.action_search).setVisible(false);
+                menu.findItem(R.id.action_clear).setVisible(true);
+            }
+
             return true;
         });
 
@@ -789,7 +803,7 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         LocalBroadcastManager.getInstance(RestaurantActivity.this).sendBroadcast(intent);
 
         if(numberLocationChange==0){
-            fillFirebase(getLatitude(), getLongitude());
+            fillFirebase(getLatitude(),getLongitude());
             this.checkDistanceFromWork(currentGeolocalisation, ManageJobPlaceId.getJobPlaceId(this), getLatitude(), getLongitude());
             numberLocationChange++;
         }

@@ -37,8 +37,6 @@
             android:layout_above="@id/activity_restaurant_bottom_navigation"
             android:layout_below="@+id/activity_restaurant_toolbar"/>
 
-
-
         <!-- Viewpager for our fragments -->
         <androidx.viewpager.widget.ViewPager
             android:layout_width="match_parent"

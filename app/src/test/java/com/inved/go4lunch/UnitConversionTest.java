@@ -26,4 +26,41 @@ public class UnitConversionTest {
     }
 
 
+    @Test
+    public void should_ConvertInKm_With_Meters() {
+
+        //Given
+        long distanceMeter = 4850;
+
+        //When
+        double distanceKm = unitConversion.convertMeterToKm(distanceMeter);
+
+        //Then
+
+        Assert.assertEquals(4.8, distanceKm,0.01);
+
+    }
+
+
+    @Test
+    public void should_CalculateDistanceBetweenTwoPoints_With_LatitudeLongitude() {
+
+        //Given
+        double latitude=49.4245568;
+        double longitude=6.0153852;
+        double myCurrentLat=49.4895;
+        double myCurrentLongi=5.978216199999999;
+        String appMode="work";
+        String normalMode="normal";
+        String[] latlongJob={"49.4894527","5.977546500000001"};
+
+        //When
+        long distanceMeter = unitConversion.calculDistanceBetweenTwoPoint(latitude,longitude,myCurrentLat,myCurrentLongi,appMode,latlongJob,normalMode);
+
+        //Then
+        Assert.assertEquals(7717.0, distanceMeter,0.01);
+
+    }
+
+
 }

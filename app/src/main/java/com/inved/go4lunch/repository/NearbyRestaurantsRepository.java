@@ -30,8 +30,6 @@ import com.inved.go4lunch.utils.ManageAppMode;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
 import com.inved.go4lunch.utils.ManagePosition;
 
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -74,6 +72,9 @@ public class NearbyRestaurantsRepository {
     private GoogleNearbySearchApi googleNearbySearchApi = RetrofitServiceNearbySearch.getGoogleNearbySearchApi();
     private PlacesClient placesClient;
 
+
+
+
     public NearbyRestaurantsRepository() {
 
         // Initialize Places.
@@ -82,6 +83,7 @@ public class NearbyRestaurantsRepository {
         placesClient = Places.createClient(App.getInstance().getApplicationContext());
 
     }
+
 
     public MutableLiveData<List<Result>> getNearbySearchMutableLiveData(Double myCurrentLat, Double myCurrentLongi) {
 
@@ -172,7 +174,6 @@ public class NearbyRestaurantsRepository {
                             }
 
                         }
-
                         mutableLiveData.setValue(results);
                     }
                 }
@@ -211,7 +212,8 @@ public class NearbyRestaurantsRepository {
             if (myResult.getGeometry().getLocation().getLat() != null) {
                 latitude = myResult.getGeometry().getLocation().getLat();
                 longitude = myResult.getGeometry().getLocation().getLng();
-                distance = distanceCalcul(latitude, longitude, myCurrentLat, myCurrentLongi);
+                String[] latlongJob = ManagePosition.getPosition(context, KEY_POSITION_JOB_LAT_LNG_DATA).split(",");
+                distance = distanceCalcul(latitude, longitude, myCurrentLat, myCurrentLongi, appMode, latlongJob, App.getResourses().getString(R.string.app_mode_normal));
             } else {
                 latitude = 0.0;
                 longitude = 0.0;
@@ -222,6 +224,7 @@ public class NearbyRestaurantsRepository {
 
             fetchPlaceDetailRequest(restaurantPlaceId);
         }
+
 
         if (nextPageToken != null) {
             nextPageRequest(myCurrentLat, myCurrentLongi);
@@ -250,6 +253,7 @@ public class NearbyRestaurantsRepository {
 
                         if (resultsNextPage.size() > 0) {
                             if (otherResponse.body() != null) {
+
                                 setNearbyRestaurantsInFirebase(resultsNextPage, lat, longi);
                             }
                         }
@@ -342,6 +346,8 @@ public class NearbyRestaurantsRepository {
 
                         }
 
+
+
                     }
                 }
 
@@ -376,38 +382,10 @@ public class NearbyRestaurantsRepository {
     }
 
 
-
-
     private long distanceCalcul(double latitude, double longitude, double
-            myCurrentLat, double myCurrentLongi) {
+            myCurrentLat, double myCurrentLongi, String appMode, String[] latlongJob, String normalMode) {
 
-        double lat;
-        double longi;
-        //DISTANCE
-        if (latitude != 0 || longitude != 0) {
-            double latitudeRestaurant = unitConversion.convertDegreInRadians(latitude);
-            double longitudeRestaurant = unitConversion.convertDegreInRadians(longitude);
-
-            if(appMode.equals(App.getResourses().getString(R.string.app_mode_work)) || appMode.equals(App.getResourses().getString(R.string.app_mode_forced_work))){
-                String[] latlongJob =  ManagePosition.getPosition(context, KEY_POSITION_JOB_LAT_LNG_DATA).split(",");
-                lat = unitConversion.convertDegreInRadians(Double.parseDouble(latlongJob[0]));
-                longi = unitConversion.convertDegreInRadians(Double.parseDouble(latlongJob[1]));
-            }else{
-                lat = unitConversion.convertDegreInRadians(myCurrentLat);
-                longi = unitConversion.convertDegreInRadians(myCurrentLongi);
-            }
-
-
-            DecimalFormat df = new DecimalFormat("#");
-            df.setRoundingMode(RoundingMode.HALF_UP);
-
-            double distanceDouble = Math.acos(Math.sin(lat) * Math.sin(latitudeRestaurant) + Math.cos(lat) * Math.cos(latitudeRestaurant) * Math.cos(longitudeRestaurant - longi)) * 6371 * 1000;
-            String decimalFormat = df.format(distanceDouble);
-
-            return Long.valueOf(decimalFormat);
-        }
-
-        return 0;
+        return unitConversion.calculDistanceBetweenTwoPoint(latitude, longitude, myCurrentLat, myCurrentLongi, appMode, latlongJob, normalMode);
 
     }
 
@@ -419,7 +397,6 @@ public class NearbyRestaurantsRepository {
                 Place.Field.PHONE_NUMBER,
                 Place.Field.WEBSITE_URI,
                 Place.Field.OPENING_HOURS);
-
 
 
         // Construct a request object, passing the place ID and fields array.
@@ -439,10 +416,10 @@ public class NearbyRestaurantsRepository {
             }
 
             OpeningHoursCalculation openingHoursCalculation = new OpeningHoursCalculation();
-            openHours = openingHoursCalculation.openHoursCalcul(place.getOpeningHours(),day,currentHour,stringCurrentDay);
-            openMinutes = openingHoursCalculation.openMinutesCalcul(place.getOpeningHours(),day,currentHour,stringCurrentDay);
-            closeMinutes = openingHoursCalculation.closeMinutesCalcul(place.getOpeningHours(),day,currentHour,stringCurrentDay);
-            closeHours = openingHoursCalculation.closeHoursCalcul(place.getOpeningHours(),day,currentHour,stringCurrentDay);
+            openHours = openingHoursCalculation.openHoursCalcul(place.getOpeningHours(), day, currentHour, stringCurrentDay);
+            openMinutes = openingHoursCalculation.openMinutesCalcul(place.getOpeningHours(), day, currentHour, stringCurrentDay);
+            closeMinutes = openingHoursCalculation.closeMinutesCalcul(place.getOpeningHours(), day, currentHour, stringCurrentDay);
+            closeHours = openingHoursCalculation.closeHoursCalcul(place.getOpeningHours(), day, currentHour, stringCurrentDay);
             openForLunch = openHours <= 12 && closeHours >= 13;
 
             if (appMode.equals(App.getResourses().getString(R.string.app_mode_work)) || appMode.equals(App.getResourses().getString(R.string.app_mode_forced_work))) {

@@ -25,6 +25,7 @@ import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.controller.activity.ViewPlaceActivity;
+import com.inved.go4lunch.domain.UnitConversion;
 import com.inved.go4lunch.firebase.Restaurant;
 import com.inved.go4lunch.utils.App;
 import com.inved.go4lunch.utils.ManageAppMode;
@@ -42,7 +43,7 @@ public class RecyclerViewListViewRestaurantSorted extends RecyclerView.Adapter<R
     @Nullable
     private ArrayList<Restaurant> restaurantArrayList;
     private ArrayList<Restaurant> restaurantArrayListFiltered;
-
+    private UnitConversion unitConversion = new UnitConversion();
     private String placeId;
 
     public RecyclerViewListViewRestaurantSorted(@Nullable ArrayList<Restaurant> restaurantArrayList) {
@@ -67,7 +68,16 @@ public class RecyclerViewListViewRestaurantSorted extends RecyclerView.Adapter<R
             String name = restaurantArrayList.get(position).getRestaurantName();
             holder.mRestaurantName.setText(name);
             placeId = restaurantArrayList.get(position).getRestaurantPlaceId();
-            holder.mDistance.setText(App.getResourses().getString(R.string.distance_text, restaurantArrayList.get(position).getDistance()));
+
+
+            if(restaurantArrayList.get(position).getDistance()>=1000){
+                double distanceKm=unitConversion.convertMeterToKm(restaurantArrayList.get(position).getDistance());
+                holder.mDistance.setText(App.getResourses().getString(R.string.distance_text_km, String.valueOf(distanceKm)));
+
+            }else{
+                holder.mDistance.setText(App.getResourses().getString(R.string.distance_text_meter, String.valueOf(restaurantArrayList.get(position).getDistance())));
+
+            }
 
         }
 

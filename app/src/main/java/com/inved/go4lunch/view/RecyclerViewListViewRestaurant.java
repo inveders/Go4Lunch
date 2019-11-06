@@ -27,6 +27,7 @@ import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.inved.go4lunch.R;
 import com.inved.go4lunch.controller.activity.ViewPlaceActivity;
+import com.inved.go4lunch.domain.UnitConversion;
 import com.inved.go4lunch.firebase.Restaurant;
 import com.inved.go4lunch.utils.App;
 import com.inved.go4lunch.utils.ManageAppMode;
@@ -43,6 +44,7 @@ public class RecyclerViewListViewRestaurant extends FirestorePagingAdapter<Resta
     private String placeId;
     private Listener callback;
     private PlacesClient placesClient;
+    private UnitConversion unitConversion = new UnitConversion();
 
 
     public interface Listener {
@@ -133,7 +135,14 @@ public class RecyclerViewListViewRestaurant extends FirestorePagingAdapter<Resta
         String name = restaurant.getRestaurantName();
         holder.mRestaurantName.setText(name);
 
-        holder.mDistance.setText(App.getResourses().getString(R.string.distance_text, String.valueOf(restaurant.getDistance())));
+        if(restaurant.getDistance()>=1000){
+            double distanceKm=unitConversion.convertMeterToKm(restaurant.getDistance());
+            holder.mDistance.setText(App.getResourses().getString(R.string.distance_text_km, String.valueOf(distanceKm)));
+
+        }else{
+            holder.mDistance.setText(App.getResourses().getString(R.string.distance_text_meter, String.valueOf(restaurant.getDistance())));
+
+        }
 
         holder.mRestaurantAdress.setText(restaurant.getRestaurantAddress());
 

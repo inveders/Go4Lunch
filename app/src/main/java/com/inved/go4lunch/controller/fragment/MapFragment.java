@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,7 +53,7 @@ import static com.inved.go4lunch.controller.activity.RestaurantActivity.KEY_LONG
 import static com.inved.go4lunch.utils.ManagePosition.KEY_POSITION_DATA;
 import static com.inved.go4lunch.utils.ManagePosition.KEY_POSITION_JOB_LAT_LNG_DATA;
 
-public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener{
 
     public static final String RESTAURANT_PLACE_ID = "PLACE_ID";
     private GoogleMap mGoogleMap;
@@ -60,7 +61,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     private Marker mMarker;
     private double myCurrentLat;
     private double myCurrentLongi;
-    private String appMode ;
+    private String appMode;
     //Progress bar
     private ProgressBar mProgressBar;
 
@@ -93,7 +94,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         initializeSharedPreferences();
 
 
-
     }
 
 
@@ -101,27 +101,25 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
 
-
         mView = inflater.inflate(R.layout.fragment_map, container, false);
         //Progress bar
         mProgressBar = mView.findViewById(R.id.progressBar);
-        mProgressBar.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.colorPrimary),android.graphics.PorterDuff.Mode.MULTIPLY);
+        mProgressBar.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.colorPrimary), android.graphics.PorterDuff.Mode.MULTIPLY);
         mapGeolocalisationButton = mView.findViewById(R.id.fragment_map_gps_geolocalisation_button);
 
         actionOnFloatingButton();
 
-        if(getActivity()!=null){
-            appMode=ManageAppMode.getAppMode(getActivity());
-            ((RestaurantActivity)getActivity()).setFragmentMapRefreshListener(this::initializeMap);
-        }else{
-            appMode=ManageAppMode.getAppMode(App.getInstance().getApplicationContext());
+        if (getActivity() != null) {
+            appMode = ManageAppMode.getAppMode(getActivity());
+            ((RestaurantActivity) getActivity()).setFragmentMapRefreshListener(this::initializeMap);
+        } else {
+            appMode = ManageAppMode.getAppMode(App.getInstance().getApplicationContext());
         }
 
         initializeMap();
 
         return mView;
     }
-
 
 
     private void actionOnFloatingButton() {
@@ -146,18 +144,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
 
         }
+
+
     }
 
 
     @Override
     public void onResume() {
         super.onResume();
-        if(ManageAutocompleteResponse.getStringAutocomplete((context), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID)!=null){
+        if (ManageAutocompleteResponse.getStringAutocomplete((context), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID) != null) {
             initializeMap();
-        }else if(ManageAutocompleteResponse.getStringAutocomplete((context), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID)==null){
+        } else if (ManageAutocompleteResponse.getStringAutocomplete((context), ManageAutocompleteResponse.KEY_AUTOCOMPLETE_PLACE_ID) == null) {
             initializeMap();
         }
-
 
 
     }
@@ -173,19 +172,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         super.onAttach(context);
     }
 
-    private void showProgressBar(){
+    private void showProgressBar() {
+
         mProgressBar.setVisibility(View.VISIBLE);
 
     }
 
-    private void hideProgressBar(){
+    private void hideProgressBar() {
         mProgressBar.setVisibility(View.GONE);
     }
 
     private void initializeMap() {
-
-        if(getActivity()!=null){
-            appMode=ManageAppMode.getAppMode(getActivity());
+        if (getActivity() != null) {
+            appMode = ManageAppMode.getAppMode(getActivity());
 
         }
         showProgressBar();
@@ -198,29 +197,33 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
             double longitude = ManageAutocompleteResponse.getDoubleAutocomplete(context, ManageAutocompleteResponse.KEY_AUTOCOMPLETE_LONGITUDE);
             customizeMarker(sharedPreferenceRestaurantPlaceId, latitude, longitude);
 
-            moveCameraAutocompleChoice(latitude,longitude);
-            //initializeSharedPreferences();
-
+            moveCameraAutocompleChoice(latitude, longitude);
 
 
         } else {
 
-
             if (appMode.equals(getString(R.string.app_mode_work)) || appMode.equals(getString(R.string.app_mode_forced_work))) {
                 RestaurantHelper.getAllRestaurants().get().addOnSuccessListener(queryDocumentSnapshots -> {
 
-                    for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                        Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
+                    if (queryDocumentSnapshots.size()> 0) {
+                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
 
-                        String restaurantPlaceId = restaurant.getRestaurantPlaceId();
-                        double latitude = restaurant.getLatitude();
-                        double longitude = restaurant.getLongitude();
+                            Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
 
-                        customizeMarker(restaurantPlaceId, latitude, longitude);
+                            String restaurantPlaceId = restaurant.getRestaurantPlaceId();
+                            double latitude = restaurant.getLatitude();
+                            double longitude = restaurant.getLongitude();
 
+                            customizeMarker(restaurantPlaceId, latitude, longitude);
+
+                        }
+
+                        MoveCamera();
+                    }else{
+                        (new Handler()).postDelayed(this::hideProgressBar, 5000);
+                        initializeMap();
                     }
 
-                    MoveCamera();
 
                 }).addOnFailureListener(e -> {
 
@@ -230,18 +233,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
             } else {
                 if (FirebaseAuth.getInstance().getCurrentUser() != null) {
                     RestaurantInNormalModeHelper.getAllRestaurants(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnSuccessListener(queryDocumentSnapshots -> {
+                        if (queryDocumentSnapshots.size()> 0) {
 
-                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                            Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
+                            for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                Restaurant restaurant = documentSnapshot.toObject(Restaurant.class);
 
-                            String restaurantPlaceId = restaurant.getRestaurantPlaceId();
-                            double latitude = restaurant.getLatitude();
-                            double longitude = restaurant.getLongitude();
-                            customizeMarker(restaurantPlaceId, latitude, longitude);
+                                String restaurantPlaceId = restaurant.getRestaurantPlaceId();
+                                double latitude = restaurant.getLatitude();
+                                double longitude = restaurant.getLongitude();
+                                customizeMarker(restaurantPlaceId, latitude, longitude);
+                            }
 
+                            MoveCamera();
+                        }else{
+                            (new Handler()).postDelayed(this::hideProgressBar, 5000);
+                            initializeMap();
                         }
-
-                        MoveCamera();
                     }).addOnFailureListener(e -> {
 
                     });
@@ -351,8 +358,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         }
 
 
-
-
         if (mGoogleMap != null) {
             //Configure action on marker click
             mGoogleMap.setOnMarkerClickListener(marker -> {
@@ -376,19 +381,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
         LatLng latLngCurrent = new LatLng(myCurrentLat, myCurrentLongi);
 
-        String[] latlong =  ManagePosition.getPosition(context,KEY_POSITION_DATA).split(",");
+        String[] latlong = ManagePosition.getPosition(context, KEY_POSITION_DATA).split(",");
         double savedLatitude = Double.parseDouble(latlong[0]);
         double savedLongitude = Double.parseDouble(latlong[1]);
-        LatLng saveLatLng = new LatLng(savedLatitude,savedLongitude);
+        LatLng saveLatLng = new LatLng(savedLatitude, savedLongitude);
 
 
-        String[] latlongJob =  ManagePosition.getPosition(context, KEY_POSITION_JOB_LAT_LNG_DATA).split(",");
+        String[] latlongJob = ManagePosition.getPosition(context, KEY_POSITION_JOB_LAT_LNG_DATA).split(",");
         double savedJobLatitude = Double.parseDouble(latlongJob[0]);
         double savedJobLongitude = Double.parseDouble(latlongJob[1]);
-        LatLng savedLatLngJob = new LatLng(savedJobLatitude,savedJobLongitude);
+        LatLng savedLatLngJob = new LatLng(savedJobLatitude, savedJobLongitude);
 
-        if(mGoogleMap!=null){
-            if(appMode.equals(getString(R.string.app_mode_normal))){
+        if (mGoogleMap != null) {
+            if (appMode.equals(getString(R.string.app_mode_normal))) {
                 if (myCurrentLat == 0.0) {
 
                     CameraPosition Liberty = CameraPosition.builder().target(saveLatLng).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
@@ -400,41 +405,37 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                     mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
                     mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLngCurrent));
                 }
-            }else{
+            } else {
 
                 CameraPosition Liberty = CameraPosition.builder().target(savedLatLngJob).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
                 mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
                 mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(savedLatLngJob));
 
 
-
             }
 
         }
-
         hideProgressBar();
 
     }
 
-    private void moveCameraAutocompleChoice(double lat,double lng) {
+    private void moveCameraAutocompleChoice(double lat, double lng) {
 
         int mZoom = 18;
         int mBearing = 4;
         int mTilt = 35;
 
-        LatLng autocompleLatLng = new LatLng(lat,lng);
+        LatLng autocompleLatLng = new LatLng(lat, lng);
 
-        if(mGoogleMap!=null){
+        if (mGoogleMap != null) {
 
 
-                    CameraPosition Liberty = CameraPosition.builder().target(autocompleLatLng).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
-                    mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
-                    mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(autocompleLatLng));
+            CameraPosition Liberty = CameraPosition.builder().target(autocompleLatLng).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
+            mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(Liberty));
+            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(autocompleLatLng));
 
         }
-
         hideProgressBar();
-
     }
 
 
@@ -503,6 +504,5 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         mMarker = mGoogleMap.addMarker(new MarkerOptions()
                 .position(initialPosition));
     }
-
 
 }
