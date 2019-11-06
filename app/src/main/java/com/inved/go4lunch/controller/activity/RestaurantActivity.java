@@ -1,5 +1,6 @@
 package com.inved.go4lunch.controller.activity;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -82,11 +83,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import permissions.dispatcher.NeedsPermission;
+import permissions.dispatcher.RuntimePermissions;
+
 import static com.inved.go4lunch.controller.fragment.MapFragment.RESTAURANT_PLACE_ID;
 import static com.inved.go4lunch.utils.ManagePosition.KEY_POSITION_DATA;
 import static com.inved.go4lunch.utils.ManagePosition.KEY_POSITION_JOB_LAT_LNG_DATA;
 import static java.lang.Math.cos;
 
+@RuntimePermissions
 public class RestaurantActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener, LocationListener {
 
     public static final String MAP_API_KEY = BuildConfig.GOOGLE_MAPS_API_KEY;
@@ -196,7 +201,8 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
         initializeJobLatLng();
         this.configureToolBar();
 
-        checkLocation();
+        RestaurantActivityPermissionsDispatcher.checkLocationWithPermissionCheck(this);
+
         //Bottom Navigation View
         bottomNavigationView = findViewById(R.id.activity_restaurant_bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
@@ -243,7 +249,8 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
 
 
     @SuppressLint("MissingPermission")
-    private void checkLocation() {
+    @NeedsPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    public void checkLocation() {
 
         //Subscribe to providers
         lm = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
@@ -263,6 +270,13 @@ public class RestaurantActivity extends BaseActivity implements NavigationView.O
             }
         }
 
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        // NOTE: delegate the permission handling to generated method
+        RestaurantActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
     }
 
     public void fillFirebase(Double lat, Double longi) {
