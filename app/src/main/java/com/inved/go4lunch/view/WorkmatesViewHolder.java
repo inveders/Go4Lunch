@@ -47,6 +47,8 @@ class WorkmatesViewHolder extends RecyclerView.ViewHolder {
 
         if(restaurantPlaceId!=null){
             this.mWorkmatesText.setText(App.getResourses().getString(R.string.workmates_text_choice, firstname, restaurantName));
+            mWorkmatesText.setTextColor(Color.parseColor("#000000"));
+            mWorkmatesText.setTypeface(null, Typeface.BOLD);
 
             mConstraintLayoutItem.setOnClickListener(view -> {
 
