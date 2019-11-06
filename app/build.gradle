@@ -124,7 +124,6 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
     implementation 'org.jetbrains:annotations:15.0'
     implementation 'androidx.paging:paging-runtime:2.1.0'
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.0-beta-3'
 
 }
 
