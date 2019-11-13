@@ -66,7 +66,11 @@ public class FindMyJobAddressActivity extends BaseActivity {
                                 ManageJobPlaceId.saveJobPlaceId(this, task.getResult().getDocuments().get(0).getString("jobPlaceId"));
                                 startRestaurantActivity();
                                 finish();
+                            }else{
+                                hideProgressBar();
                             }
+                        }else{
+                            hideProgressBar();
                         }
 
 
@@ -137,6 +141,9 @@ public class FindMyJobAddressActivity extends BaseActivity {
                                         startRestaurantActivity();
                                     }
                                 }
+                            }else{
+                                hideProgressBar();
+
                             }
                         });
                     }
@@ -169,6 +176,11 @@ public class FindMyJobAddressActivity extends BaseActivity {
 
     private void showProgressBar(){
         mProgressBar.setVisibility(View.VISIBLE);
+
+    }
+
+    private void hideProgressBar(){
+        mProgressBar.setVisibility(View.INVISIBLE);
 
     }
 

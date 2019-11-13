@@ -25,15 +25,16 @@ public class App extends Application {
         super.onCreate();
         mInstance = this;
         Fabric.with(this, new Crashlytics());
-        res = getResources();
         launchAlarm();
+        res = getResources();
+
     }
 
     public void launchAlarm(){
-        Context ctx = getApplicationContext();
-        AlarmManager alarmManager= (AlarmManager) ctx.getSystemService(ALARM_SERVICE);
-        Intent myItent=new Intent(ctx, MyAlarmService.class);
-        PendingIntent alarmIntent = PendingIntent.getService(ctx,REQUEST_CODE,myItent,PendingIntent.FLAG_CANCEL_CURRENT);
+
+        AlarmManager alarmManager= (AlarmManager) getSystemService(ALARM_SERVICE);
+        Intent myItent=new Intent(this, MyAlarmService.class);
+        PendingIntent alarmIntent = PendingIntent.getService(this,REQUEST_CODE,myItent,PendingIntent.FLAG_CANCEL_CURRENT);
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
@@ -55,7 +56,6 @@ public class App extends Application {
             }
         }
     }
-
 
     public static App getInstance() {
         return mInstance;
