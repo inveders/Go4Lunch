@@ -22,11 +22,15 @@
 
     <TextView
         android:id="@+id/fragment_listview_item_restaurant_name"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/fragment_listview_item_restaurant_name"
+        app:layout_constrainedWidth="true"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/fragment_listview_item_like_start_first"
+
+        android:layout_marginEnd="@dimen/default_margin"
         android:textStyle="bold"
         />
 
@@ -38,7 +42,7 @@
         android:text="@string/fragment_listview_item_restaurant_adress"
         app:layout_constraintTop_toBottomOf="@id/fragment_listview_item_restaurant_name"
         app:layout_constraintLeft_toLeftOf="@id/fragment_listview_item_restaurant_name"
-        app:layout_constraintRight_toLeftOf="@id/fragment_listview_item_image"
+        app:layout_constraintRight_toLeftOf="@id/fragment_listview_item_like_start_first"
         android:layout_marginEnd="@dimen/default_margin"
         />
 
