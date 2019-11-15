@@ -93,8 +93,6 @@ public class FindMyJobAddressActivity extends BaseActivity {
             autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS));
             autocompleteFragment.setTypeFilter(TypeFilter.ADDRESS);
             autocompleteFragment.setTypeFilter(TypeFilter.ESTABLISHMENT);
-            autocompleteFragment.setCountry("FR");
-            autocompleteFragment.setCountry("LU");
 
             // Set up a PlaceSelectionListener to handle the response.
             autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {

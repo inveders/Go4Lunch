@@ -124,6 +124,7 @@
 
         <!-- ALARM SERVICE -->
         <service android:name=".utils.MyAlarmService"
+            android:enabled="true"
             android:exported="false">
 
         </service>

@@ -202,7 +202,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
         } else {
 
-            if (appMode.equals(getString(R.string.app_mode_work)) || appMode.equals(getString(R.string.app_mode_forced_work))) {
+            if (appMode.equals(App.getResourses().getString(R.string.app_mode_work)) || appMode.equals(App.getResourses().getString(R.string.app_mode_forced_work))) {
                 RestaurantHelper.getAllRestaurants().get().addOnSuccessListener(queryDocumentSnapshots -> {
 
                     if (queryDocumentSnapshots.size()> 0) {
@@ -291,7 +291,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
 
-            if (appMode.equals(getString(R.string.app_mode_work)) || appMode.equals(getString(R.string.app_mode_forced_work))) {
+            if (appMode.equals(App.getResourses().getString(R.string.app_mode_work)) || appMode.equals(App.getResourses().getString(R.string.app_mode_forced_work))) {
 
                 RestaurantHelper.getRestaurant(restaurantPlaceId).addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -393,7 +393,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         LatLng savedLatLngJob = new LatLng(savedJobLatitude, savedJobLongitude);
 
         if (mGoogleMap != null) {
-            if (appMode.equals(getString(R.string.app_mode_normal))) {
+            if (appMode.equals(App.getResourses().getString(R.string.app_mode_normal))) {
                 if (myCurrentLat == 0.0) {
 
                     CameraPosition Liberty = CameraPosition.builder().target(saveLatLng).zoom(mZoom).bearing(mBearing).tilt(mTilt).build();
@@ -447,7 +447,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         }
         return true;
     }
-
 
     private BitmapDescriptor bitmapDescriptorFromVectorSelected(Context context) {
         Drawable background = ContextCompat.getDrawable(context, R.drawable.ic_location_selected_24dp);
