@@ -14,7 +14,7 @@ public class MyAlarmBroadcast extends BroadcastReceiver {
         if(intent.getAction()!=null){
             if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
                 App myApp = new App();
-                myApp.launchAlarm();
+                myApp.launchAlarm(context);
             }
         }
 

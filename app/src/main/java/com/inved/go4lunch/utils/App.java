@@ -26,14 +26,15 @@ public class App extends Application {
         super.onCreate();
         mInstance = this;
         Fabric.with(this, new Crashlytics());
-        launchAlarm();
         res = getResources();
+        Context context=getApplicationContext();
+        launchAlarm(context);
 
 
     }
 
-    public void launchAlarm(){
-        Context context=getApplicationContext();
+    public void launchAlarm(Context context){
+
         if(context!=null){
             AlarmManager alarmManager= (AlarmManager) context.getSystemService(ALARM_SERVICE);
             Intent myItent=new Intent(this, MyAlarmService.class);
