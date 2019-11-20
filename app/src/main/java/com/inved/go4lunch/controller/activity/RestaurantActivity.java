@@ -2,17 +2,14 @@ package com.inved.go4lunch.controller.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
@@ -80,11 +77,9 @@ import com.inved.go4lunch.utils.ManageAppMode;
 import com.inved.go4lunch.utils.ManageAutocompleteResponse;
 import com.inved.go4lunch.utils.ManageJobPlaceId;
 import com.inved.go4lunch.utils.ManagePosition;
-import com.inved.go4lunch.utils.MyAlarmService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -93,7 +88,6 @@ import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
 
 import static com.inved.go4lunch.controller.fragment.MapFragment.RESTAURANT_PLACE_ID;
-import static com.inved.go4lunch.utils.App.REQUEST_CODE;
 import static com.inved.go4lunch.utils.ManagePosition.KEY_POSITION_DATA;
 import static com.inved.go4lunch.utils.ManagePosition.KEY_POSITION_JOB_LAT_LNG_DATA;
 import static java.lang.Math.cos;
