@@ -18,6 +18,14 @@
           <option name="url" value="https://github.com/inveders/Freezdge.git" />
           <option name="userName" value="" />
         </UrlAndUserName>
+        <UrlAndUserName>
+          <option name="url" value="http://git.smile.fr" />
+          <option name="userName" value="algni" />
+        </UrlAndUserName>
+        <UrlAndUserName>
+          <option name="url" value="https://git.smile.fr/neopixl/nocibe-android.git" />
+          <option name="userName" value="" />
+        </UrlAndUserName>
       </list>
     </option>
     <option name="cloneParentDir" value="C:\Users\inved\StudioProjects" />
