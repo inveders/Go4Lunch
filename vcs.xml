@@ -38,6 +38,10 @@
           <option name="url" value="https://git.smile.fr/neopixl/tango/mytango-android.git" />
           <option name="userName" value="" />
         </UrlAndUserName>
+        <UrlAndUserName>
+          <option name="url" value="https://git.smile.fr/neopixl/tango/mytelindus-android.git" />
+          <option name="userName" value="" />
+        </UrlAndUserName>
       </list>
     </option>
     <option name="cloneParentDir" value="C:\Users\inved\StudioProjects" />
